@@ -1,0 +1,51 @@
+<form name="editForm" role="form" novalidate (ngSubmit)="save()" #editForm="ngForm">
+
+    <div class="modal-header">
+        <h4 class="modal-title" id="myDoctorLabel">Create or edit a Doctor</h4>
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true"
+                (click)="clear()">&times;</button>
+    </div>
+    <div class="modal-body">
+        <jhi-alert-error></jhi-alert-error>
+        <div class="form-group" [hidden]="!doctor.id">
+            <label for="id">ID</label>
+            <input type="text" class="form-control" id="id" name="id"
+                   [(ngModel)]="doctor.id" readonly />
+        </div>
+        <div class="form-group">
+            <label class="form-control-label" for="field_doctorName">Doctor Name</label>
+            <input type="text" class="form-control" name="doctorName" id="field_doctorName"
+                [(ngModel)]="doctor.doctorName" />
+        </div>
+        <div class="form-group">
+            <label class="form-control-label" for="field_city">City</label>
+            <input type="text" class="form-control" name="city" id="field_city"
+                [(ngModel)]="doctor.city" />
+        </div>
+        <div class="form-group">
+            <label class="form-control-label" for="field_templateCount">Template Count</label>
+            <input type="number" class="form-control" name="templateCount" id="field_templateCount"
+                [(ngModel)]="doctor.templateCount" />
+        </div>
+        <div class="form-group">
+            <label class="form-control-label" for="field_notes">Notes</label>
+            <input type="text" class="form-control" name="notes" id="field_notes"
+                [(ngModel)]="doctor.notes" />
+        </div>
+
+        <div class="form-group">
+            <label for="field_hospital">Hospital</label>
+            <select class="form-control" id="field_hospital" multiple name="hospital" [(ngModel)]="doctor.hospitals">
+                <option [ngValue]="getSelected(doctor.hospitals, hospitalOption)" *ngFor="let hospitalOption of hospitals; trackBy: trackHospitalById">{{hospitalOption.hospitalName}}</option>
+            </select>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal" (click)="clear()">
+            <span class="fa fa-ban"></span>&nbsp;<span>Cancel</span>
+        </button>
+        <button type="submit" [disabled]="editForm.form.invalid || isSaving" class="btn btn-primary">
+            <span class="fa fa-save"></span>&nbsp;<span>Save</span>
+        </button>
+    </div>
+</form>

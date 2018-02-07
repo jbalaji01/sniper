@@ -1,0 +1,96 @@
+<form name="editForm" role="form" novalidate (ngSubmit)="save()" #editForm="ngForm">
+
+    <div class="modal-header">
+        <h4 class="modal-title" id="myUserInfoLabel">Create or edit a User Info</h4>
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true"
+                (click)="clear()">&times;</button>
+    </div>
+    <div class="modal-body">
+        <jhi-alert-error></jhi-alert-error>
+        <div class="form-group" [hidden]="!userInfo.id">
+            <label for="id">ID</label>
+            <input type="text" class="form-control" id="id" name="id"
+                   [(ngModel)]="userInfo.id" readonly />
+        </div>
+        <div class="form-group">
+            <label class="form-control-label" for="field_empCode">Emp Code</label>
+            <input type="text" class="form-control" name="empCode" id="field_empCode"
+                [(ngModel)]="userInfo.empCode" />
+        </div>
+        <div class="form-group">
+            <label class="form-control-label" for="field_phone">Phone</label>
+            <input type="text" class="form-control" name="phone" id="field_phone"
+                [(ngModel)]="userInfo.phone" />
+        </div>
+        <div class="form-group">
+            <label class="form-control-label" for="field_dateOfBirth">Date Of Birth</label>
+            <div class="input-group">
+                <input id="field_dateOfBirth" type="text" class="form-control" name="dateOfBirth" ngbDatepicker  #dateOfBirthDp="ngbDatepicker" [(ngModel)]="userInfo.dateOfBirth"
+                />
+                <span class="input-group-append">
+                    <button type="button" class="btn btn-secondary" (click)="dateOfBirthDp.toggle()"><i class="fa fa-calendar"></i></button>
+                </span>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="form-control-label" for="field_dateOfJoin">Date Of Join</label>
+            <div class="input-group">
+                <input id="field_dateOfJoin" type="text" class="form-control" name="dateOfJoin" ngbDatepicker  #dateOfJoinDp="ngbDatepicker" [(ngModel)]="userInfo.dateOfJoin"
+                />
+                <span class="input-group-append">
+                    <button type="button" class="btn btn-secondary" (click)="dateOfJoinDp.toggle()"><i class="fa fa-calendar"></i></button>
+                </span>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="form-control-label" for="field_bankInfo">Bank Info</label>
+            <input type="text" class="form-control" name="bankInfo" id="field_bankInfo"
+                [(ngModel)]="userInfo.bankInfo" />
+        </div>
+        <div class="form-group">
+            <label class="form-control-label" for="field_pan">Pan</label>
+            <input type="text" class="form-control" name="pan" id="field_pan"
+                [(ngModel)]="userInfo.pan" />
+        </div>
+        <div class="form-group">
+            <label class="form-control-label" for="field_addr">Addr</label>
+            <input type="text" class="form-control" name="addr" id="field_addr"
+                [(ngModel)]="userInfo.addr" />
+        </div>
+        <div class="form-group">
+            <label class="form-control-label" for="field_city">City</label>
+            <input type="text" class="form-control" name="city" id="field_city"
+                [(ngModel)]="userInfo.city" />
+        </div>
+        <div class="form-group">
+            <label class="form-control-label" for="field_lastLogin">Last Login</label>
+            <div class="d-flex">
+                <input id="field_lastLogin" type="datetime-local" class="form-control" name="lastLogin" [(ngModel)]="userInfo.lastLogin"
+                />
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="form-control-label" for="field_user">User</label>
+            <select class="form-control" id="field_user" name="user" [(ngModel)]="userInfo.user" >
+                <option [ngValue]="null"></option>
+                <option [ngValue]="userOption.id === userInfo.user?.id ? userInfo.user : userOption" *ngFor="let userOption of users; trackBy: trackUserById">{{userOption.login}}</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label class="form-control-label" for="field_company">Company</label>
+            <select class="form-control" id="field_company" name="company" [(ngModel)]="userInfo.company" >
+                <option [ngValue]="null"></option>
+                <option [ngValue]="companyOption.id === userInfo.company?.id ? userInfo.company : companyOption" *ngFor="let companyOption of companies; trackBy: trackCompanyById">{{companyOption.companyName}}</option>
+            </select>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal" (click)="clear()">
+            <span class="fa fa-ban"></span>&nbsp;<span>Cancel</span>
+        </button>
+        <button type="submit" [disabled]="editForm.form.invalid || isSaving" class="btn btn-primary">
+            <span class="fa fa-save"></span>&nbsp;<span>Save</span>
+        </button>
+    </div>
+</form>

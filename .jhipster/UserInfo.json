@@ -1,0 +1,99 @@
+{
+    "fluentMethods": true,
+    "relationships": [
+        {
+            "relationshipType": "one-to-one",
+            "relationshipName": "user",
+            "otherEntityName": "user",
+            "otherEntityField": "login",
+            "ownerSide": true,
+            "otherEntityRelationshipName": "userInfo"
+        },
+        {
+            "relationshipType": "one-to-many",
+            "relationshipName": "snFile",
+            "otherEntityName": "snFile",
+            "otherEntityRelationshipName": "uploader"
+        },
+        {
+            "relationshipType": "one-to-many",
+            "relationshipName": "ownerTask",
+            "otherEntityName": "task",
+            "otherEntityRelationshipName": "owner"
+        },
+        {
+            "relationshipType": "one-to-many",
+            "relationshipName": "transcriptTask",
+            "otherEntityName": "task",
+            "otherEntityRelationshipName": "transcript"
+        },
+        {
+            "relationshipType": "one-to-many",
+            "relationshipName": "editorTask",
+            "otherEntityName": "task",
+            "otherEntityRelationshipName": "editor"
+        },
+        {
+            "relationshipType": "one-to-many",
+            "relationshipName": "managerTask",
+            "otherEntityName": "task",
+            "otherEntityRelationshipName": "manager"
+        },
+        {
+            "relationshipType": "one-to-many",
+            "relationshipName": "taskHistory",
+            "otherEntityName": "taskHistory",
+            "otherEntityRelationshipName": "userInfo"
+        },
+        {
+            "relationshipType": "many-to-one",
+            "relationshipName": "company",
+            "otherEntityName": "company",
+            "otherEntityField": "companyName"
+        }
+    ],
+    "fields": [
+        {
+            "fieldName": "empCode",
+            "fieldType": "String"
+        },
+        {
+            "fieldName": "phone",
+            "fieldType": "String"
+        },
+        {
+            "fieldName": "dateOfBirth",
+            "fieldType": "LocalDate"
+        },
+        {
+            "fieldName": "dateOfJoin",
+            "fieldType": "LocalDate"
+        },
+        {
+            "fieldName": "bankInfo",
+            "fieldType": "String"
+        },
+        {
+            "fieldName": "pan",
+            "fieldType": "String"
+        },
+        {
+            "fieldName": "addr",
+            "fieldType": "String"
+        },
+        {
+            "fieldName": "city",
+            "fieldType": "String"
+        },
+        {
+            "fieldName": "lastLogin",
+            "fieldType": "Instant"
+        }
+    ],
+    "changelogDate": "20180207104702",
+    "entityTableName": "user_info",
+    "dto": "no",
+    "pagination": "no",
+    "service": "no",
+    "jpaMetamodelFiltering": false
+}

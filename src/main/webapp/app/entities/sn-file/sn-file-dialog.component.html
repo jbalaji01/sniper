@@ -1,0 +1,147 @@
+<form name="editForm" role="form" novalidate (ngSubmit)="save()" #editForm="ngForm">
+
+    <div class="modal-header">
+        <h4 class="modal-title" id="mySnFileLabel">Create or edit a Sn File</h4>
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true"
+                (click)="clear()">&times;</button>
+    </div>
+    <div class="modal-body">
+        <jhi-alert-error></jhi-alert-error>
+        <div class="form-group" [hidden]="!snFile.id">
+            <label for="id">ID</label>
+            <input type="text" class="form-control" id="id" name="id"
+                   [(ngModel)]="snFile.id" readonly />
+        </div>
+        <div class="form-group">
+            <label class="form-control-label" for="field_filePath">File Path</label>
+            <input type="text" class="form-control" name="filePath" id="field_filePath"
+                [(ngModel)]="snFile.filePath" />
+        </div>
+        <div class="form-group">
+            <label class="form-control-label" for="field_fileName">File Name</label>
+            <input type="text" class="form-control" name="fileName" id="field_fileName"
+                [(ngModel)]="snFile.fileName" />
+        </div>
+        <div class="form-group">
+            <label class="form-control-label" for="field_fileExt">File Ext</label>
+            <input type="text" class="form-control" name="fileExt" id="field_fileExt"
+                [(ngModel)]="snFile.fileExt" />
+        </div>
+        <div class="form-group">
+            <label class="form-control-label" for="field_origin">Origin</label>
+            <input type="text" class="form-control" name="origin" id="field_origin"
+                [(ngModel)]="snFile.origin" />
+        </div>
+        <div class="form-group">
+            <label class="form-control-label" for="field_isInput">Is Input</label>
+            <input type="checkbox" class="form-control" name="isInput" id="field_isInput"
+                [(ngModel)]="snFile.isInput" />
+        </div>
+        <div class="form-group">
+            <label class="form-control-label" for="field_isAudio">Is Audio</label>
+            <input type="checkbox" class="form-control" name="isAudio" id="field_isAudio"
+                [(ngModel)]="snFile.isAudio" />
+        </div>
+        <div class="form-group">
+            <label class="form-control-label" for="field_uploadedTime">Uploaded Time</label>
+            <div class="d-flex">
+                <input id="field_uploadedTime" type="datetime-local" class="form-control" name="uploadedTime" [(ngModel)]="snFile.uploadedTime"
+                />
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="form-control-label" for="field_actualTimeFrame">Actual Time Frame</label>
+            <input type="number" class="form-control" name="actualTimeFrame" id="field_actualTimeFrame"
+                [(ngModel)]="snFile.actualTimeFrame" />
+        </div>
+        <div class="form-group">
+            <label class="form-control-label" for="field_adjustedTimeFrame">Adjusted Time Frame</label>
+            <input type="number" class="form-control" name="adjustedTimeFrame" id="field_adjustedTimeFrame"
+                [(ngModel)]="snFile.adjustedTimeFrame" />
+        </div>
+        <div class="form-group">
+            <label class="form-control-label" for="field_finalTimeFrame">Final Time Frame</label>
+            <input type="number" class="form-control" name="finalTimeFrame" id="field_finalTimeFrame"
+                [(ngModel)]="snFile.finalTimeFrame" />
+        </div>
+        <div class="form-group">
+            <label class="form-control-label" for="field_wsActualLineCount">Ws Actual Line Count</label>
+            <input type="number" class="form-control" name="wsActualLineCount" id="field_wsActualLineCount"
+                [(ngModel)]="snFile.wsActualLineCount" />
+        </div>
+        <div class="form-group">
+            <label class="form-control-label" for="field_wsAdjustedLineCount">Ws Adjusted Line Count</label>
+            <input type="number" class="form-control" name="wsAdjustedLineCount" id="field_wsAdjustedLineCount"
+                [(ngModel)]="snFile.wsAdjustedLineCount" />
+        </div>
+        <div class="form-group">
+            <label class="form-control-label" for="field_wsfinalLineCount">Wsfinal Line Count</label>
+            <input type="number" class="form-control" name="wsfinalLineCount" id="field_wsfinalLineCount"
+                [(ngModel)]="snFile.wsfinalLineCount" />
+        </div>
+        <div class="form-group">
+            <label class="form-control-label" for="field_wosActualLineCount">Wos Actual Line Count</label>
+            <input type="number" class="form-control" name="wosActualLineCount" id="field_wosActualLineCount"
+                [(ngModel)]="snFile.wosActualLineCount" />
+        </div>
+        <div class="form-group">
+            <label class="form-control-label" for="field_wosAdjustedLineCount">Wos Adjusted Line Count</label>
+            <input type="number" class="form-control" name="wosAdjustedLineCount" id="field_wosAdjustedLineCount"
+                [(ngModel)]="snFile.wosAdjustedLineCount" />
+        </div>
+        <div class="form-group">
+            <label class="form-control-label" for="field_wosfinalLineCount">Wosfinal Line Count</label>
+            <input type="number" class="form-control" name="wosfinalLineCount" id="field_wosfinalLineCount"
+                [(ngModel)]="snFile.wosfinalLineCount" />
+        </div>
+        <div class="form-group">
+            <label class="form-control-label" for="field_chosenFactor">Chosen Factor</label>
+            <select class="form-control" name="chosenFactor" [(ngModel)]="snFile.chosenFactor" id="field_chosenFactor" >
+                <option value="NONE">NONE</option>
+                <option value="TIME_FRAME">TIME_FRAME</option>
+                <option value="WS_LINE_COUNT">WS_LINE_COUNT</option>
+                <option value="WOS_LINE_COUNT">WOS_LINE_COUNT</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label class="form-control-label" for="field_peckOrder">Peck Order</label>
+            <input type="number" class="form-control" name="peckOrder" id="field_peckOrder"
+                [(ngModel)]="snFile.peckOrder" />
+        </div>
+
+        <div class="form-group">
+            <label class="form-control-label" for="field_snFileBlob">Sn File Blob</label>
+            <select class="form-control" id="field_snFileBlob" name="snFileBlob" [(ngModel)]="snFile.snFileBlob">
+                <option [ngValue]="null"></option>
+                <option [ngValue]="snFileBlobOption.id === snFile.snFileBlob?.id ? snFile.snFileBlob : snFileBlobOption" *ngFor="let snFileBlobOption of snfileblobs; trackBy: trackSnFileBlobById">{{snFileBlobOption.id}}</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="field_patient">Patient</label>
+            <select class="form-control" id="field_patient" multiple name="patient" [(ngModel)]="snFile.patients">
+                <option [ngValue]="getSelected(snFile.patients, patientOption)" *ngFor="let patientOption of patients; trackBy: trackPatientById">{{patientOption.patientName}}</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="field_task">Task</label>
+            <select class="form-control" id="field_task" multiple name="task" [(ngModel)]="snFile.tasks">
+                <option [ngValue]="getSelected(snFile.tasks, taskOption)" *ngFor="let taskOption of tasks; trackBy: trackTaskById">{{taskOption.id}}</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label class="form-control-label" for="field_uploader">Uploader</label>
+            <select class="form-control" id="field_uploader" name="uploader" [(ngModel)]="snFile.uploader" >
+                <option [ngValue]="null"></option>
+                <option [ngValue]="userInfoOption.id === snFile.uploader?.id ? snFile.uploader : userInfoOption" *ngFor="let userInfoOption of userinfos; trackBy: trackUserInfoById">{{userInfoOption.empCode}}</option>
+            </select>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal" (click)="clear()">
+            <span class="fa fa-ban"></span>&nbsp;<span>Cancel</span>
+        </button>
+        <button type="submit" [disabled]="editForm.form.invalid || isSaving" class="btn btn-primary">
+            <span class="fa fa-save"></span>&nbsp;<span>Save</span>
+        </button>
+    </div>
+</form>

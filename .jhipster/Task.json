@@ -1,0 +1,103 @@
+{
+    "fluentMethods": true,
+    "relationships": [
+        {
+            "relationshipType": "one-to-many",
+            "relationshipName": "taskHistory",
+            "otherEntityName": "taskHistory",
+            "otherEntityRelationshipName": "task"
+        },
+        {
+            "relationshipType": "many-to-one",
+            "relationshipName": "company",
+            "otherEntityName": "company",
+            "otherEntityField": "companyName"
+        },
+        {
+            "relationshipType": "many-to-one",
+            "relationshipName": "taskGroup",
+            "otherEntityName": "taskGroup",
+            "otherEntityField": "id"
+        },
+        {
+            "relationshipType": "many-to-one",
+            "relationshipName": "owner",
+            "otherEntityName": "userInfo",
+            "otherEntityField": "empCode"
+        },
+        {
+            "relationshipType": "many-to-one",
+            "relationshipName": "transcript",
+            "otherEntityName": "userInfo",
+            "otherEntityField": "empCode"
+        },
+        {
+            "relationshipType": "many-to-one",
+            "relationshipName": "editor",
+            "otherEntityName": "userInfo",
+            "otherEntityField": "empCode"
+        },
+        {
+            "relationshipType": "many-to-one",
+            "relationshipName": "manager",
+            "otherEntityName": "userInfo",
+            "otherEntityField": "empCode"
+        },
+        {
+            "relationshipType": "many-to-one",
+            "relationshipName": "doctor",
+            "otherEntityName": "doctor",
+            "otherEntityField": "doctorName"
+        },
+        {
+            "relationshipType": "many-to-one",
+            "relationshipName": "hospital",
+            "otherEntityName": "hospital",
+            "otherEntityField": "hospitalName"
+        },
+        {
+            "relationshipType": "many-to-many",
+            "relationshipName": "snFile",
+            "otherEntityName": "snFile",
+            "ownerSide": false,
+            "otherEntityRelationshipName": "task"
+        }
+    ],
+    "fields": [
+        {
+            "fieldName": "taskTitle",
+            "fieldType": "String"
+        },
+        {
+            "fieldName": "taskStatus",
+            "fieldType": "TaskStatus",
+            "fieldValues": "CREATED,ASSIGNED,DOWNLOADED,UPLOADED,IN_PROGRESS,COMPLETED,ON_HOLD,QUERY,MERGED,DELETED,TRANSFERRED"
+        },
+        {
+            "fieldName": "createdTime",
+            "fieldType": "Instant"
+        },
+        {
+            "fieldName": "hasPMSignedOff",
+            "fieldType": "Boolean"
+        },
+        {
+            "fieldName": "isActive",
+            "fieldType": "Boolean"
+        },
+        {
+            "fieldName": "peckOrder",
+            "fieldType": "Integer"
+        },
+        {
+            "fieldName": "notes",
+            "fieldType": "String"
+        }
+    ],
+    "changelogDate": "20180207104710",
+    "entityTableName": "task",
+    "dto": "no",
+    "pagination": "pagination",
+    "service": "serviceClass",
+    "jpaMetamodelFiltering": false
+}

@@ -1,0 +1,29 @@
+
+<div *ngIf="snFileBlob">
+    <h2><span>Sn File Blob</span> {{snFileBlob.id}}</h2>
+    <hr>
+    <jhi-alert-error></jhi-alert-error>
+    <dl class="row-md jh-entity-details">
+        <dt><span>File Content</span></dt>
+        <dd>
+            <div *ngIf="snFileBlob.fileContent">
+                <a (click)="openFile(snFileBlob.fileContentContentType, snFileBlob.fileContent)">open</a>
+                {{snFileBlob.fileContentContentType}}, {{byteSize(snFileBlob.fileContent)}}
+            </div>
+        </dd>
+    </dl>
+
+    <button type="submit"
+            (click)="previousState()"
+            class="btn btn-info">
+        <span class="fa fa-arrow-left"></span>&nbsp;<span> Back</span>
+    </button>
+
+    <button type="button"
+            [routerLink]="['/', { outlets: { popup: 'sn-file-blob/'+ snFileBlob.id + '/edit'} }]"
+            replaceUrl="true"
+            queryParamsHandling="merge"
+            class="btn btn-primary">
+        <span class="fa fa-pencil"></span>&nbsp;<span> Edit</span>
+    </button>
+</div>

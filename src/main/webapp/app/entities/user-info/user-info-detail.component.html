@@ -1,0 +1,68 @@
+
+<div *ngIf="userInfo">
+    <h2><span>User Info</span> {{userInfo.id}}</h2>
+    <hr>
+    <jhi-alert-error></jhi-alert-error>
+    <dl class="row-md jh-entity-details">
+        <dt><span>Emp Code</span></dt>
+        <dd>
+            <span>{{userInfo.empCode}}</span>
+        </dd>
+        <dt><span>Phone</span></dt>
+        <dd>
+            <span>{{userInfo.phone}}</span>
+        </dd>
+        <dt><span>Date Of Birth</span></dt>
+        <dd>
+            <span>{{userInfo.dateOfBirth | date:'mediumDate'}}</span>
+        </dd>
+        <dt><span>Date Of Join</span></dt>
+        <dd>
+            <span>{{userInfo.dateOfJoin | date:'mediumDate'}}</span>
+        </dd>
+        <dt><span>Bank Info</span></dt>
+        <dd>
+            <span>{{userInfo.bankInfo}}</span>
+        </dd>
+        <dt><span>Pan</span></dt>
+        <dd>
+            <span>{{userInfo.pan}}</span>
+        </dd>
+        <dt><span>Addr</span></dt>
+        <dd>
+            <span>{{userInfo.addr}}</span>
+        </dd>
+        <dt><span>City</span></dt>
+        <dd>
+            <span>{{userInfo.city}}</span>
+        </dd>
+        <dt><span>Last Login</span></dt>
+        <dd>
+            <span>{{userInfo.lastLogin | date:'medium'}}</span>
+        </dd>
+        <dt><span>User</span></dt>
+        <dd>
+            {{userInfo.user?.login}}
+        </dd>
+        <dt><span>Company</span></dt>
+        <dd>
+            <div *ngIf="userInfo.company">
+                <a [routerLink]="['/company', userInfo.company?.id]">{{userInfo.company?.companyName}}</a>
+            </div>
+        </dd>
+    </dl>
+
+    <button type="submit"
+            (click)="previousState()"
+            class="btn btn-info">
+        <span class="fa fa-arrow-left"></span>&nbsp;<span> Back</span>
+    </button>
+
+    <button type="button"
+            [routerLink]="['/', { outlets: { popup: 'user-info/'+ userInfo.id + '/edit'} }]"
+            replaceUrl="true"
+            queryParamsHandling="merge"
+            class="btn btn-primary">
+        <span class="fa fa-pencil"></span>&nbsp;<span> Edit</span>
+    </button>
+</div>
