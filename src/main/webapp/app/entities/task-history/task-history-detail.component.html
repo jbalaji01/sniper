@@ -1,0 +1,46 @@
+
+<div *ngIf="taskHistory">
+    <h2><span>Task History</span> {{taskHistory.id}}</h2>
+    <hr>
+    <jhi-alert-error></jhi-alert-error>
+    <dl class="row-md jh-entity-details">
+        <dt><span>Task Status</span></dt>
+        <dd>
+            <span>{{taskHistory.taskStatus}}</span>
+        </dd>
+        <dt><span>Punch Time</span></dt>
+        <dd>
+            <span>{{taskHistory.punchTime | date:'medium'}}</span>
+        </dd>
+        <dt><span>Notes</span></dt>
+        <dd>
+            <span>{{taskHistory.notes}}</span>
+        </dd>
+        <dt><span>Task</span></dt>
+        <dd>
+            <div *ngIf="taskHistory.task">
+                <a [routerLink]="['/task', taskHistory.task?.id]">{{taskHistory.task?.id}}</a>
+            </div>
+        </dd>
+        <dt><span>User Info</span></dt>
+        <dd>
+            <div *ngIf="taskHistory.userInfo">
+                <a [routerLink]="['/user-info', taskHistory.userInfo?.id]">{{taskHistory.userInfo?.empCode}}</a>
+            </div>
+        </dd>
+    </dl>
+
+    <button type="submit"
+            (click)="previousState()"
+            class="btn btn-info">
+        <span class="fa fa-arrow-left"></span>&nbsp;<span> Back</span>
+    </button>
+
+    <button type="button"
+            [routerLink]="['/', { outlets: { popup: 'task-history/'+ taskHistory.id + '/edit'} }]"
+            replaceUrl="true"
+            queryParamsHandling="merge"
+            class="btn btn-primary">
+        <span class="fa fa-pencil"></span>&nbsp;<span> Edit</span>
+    </button>
+</div>

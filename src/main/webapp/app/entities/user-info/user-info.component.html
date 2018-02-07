@@ -1,0 +1,84 @@
+<div>
+    <h2>
+        <span>User Infos</span>
+        <button class="btn btn-primary float-right jh-create-entity create-user-info" [routerLink]="['/', { outlets: { popup: ['user-info-new'] } }]">
+            <span class="fa fa-plus"></span>
+            <span >
+            Create new User Info
+            </span>
+        </button>
+    </h2>
+    <jhi-alert></jhi-alert>
+    <div class="row">
+    </div>
+    <br/>
+    <div class="table-responsive" *ngIf="userInfos">
+        <table class="table table-striped">
+            <thead>
+            <tr>
+            <th><span>ID</span></th>
+            <th><span>Emp Code</span></th>
+            <th><span>Phone</span></th>
+            <th><span>Date Of Birth</span></th>
+            <th><span>Date Of Join</span></th>
+            <th><span>Bank Info</span></th>
+            <th><span>Pan</span></th>
+            <th><span>Addr</span></th>
+            <th><span>City</span></th>
+            <th><span>Last Login</span></th>
+            <th><span>User</span></th>
+            <th><span>Company</span></th>
+            <th></th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr *ngFor="let userInfo of userInfos ;trackBy: trackId">
+                <td><a [routerLink]="['../user-info', userInfo.id ]">{{userInfo.id}}</a></td>
+                <td>{{userInfo.empCode}}</td>
+                <td>{{userInfo.phone}}</td>
+                <td>{{userInfo.dateOfBirth | date:'mediumDate'}}</td>
+                <td>{{userInfo.dateOfJoin | date:'mediumDate'}}</td>
+                <td>{{userInfo.bankInfo}}</td>
+                <td>{{userInfo.pan}}</td>
+                <td>{{userInfo.addr}}</td>
+                <td>{{userInfo.city}}</td>
+                <td>{{userInfo.lastLogin | date:'medium'}}</td>
+                <td>
+                    {{userInfo.user?.login}}
+                </td>
+                <td>
+                    <div *ngIf="userInfo.company">
+                        <a [routerLink]="['../company', userInfo.company?.id ]" >{{userInfo.company?.companyName}}</a>
+                    </div>
+                </td>
+                <td class="text-right">
+                    <div class="btn-group flex-btn-group-container">
+                        <button type="submit"
+                                [routerLink]="['../user-info', userInfo.id ]"
+                                class="btn btn-info btn-sm">
+                            <span class="fa fa-eye"></span>
+                            <span class="d-none d-md-inline">View</span>
+                        </button>
+                        <button type="submit"
+                                [routerLink]="['/', { outlets: { popup: 'user-info/'+ userInfo.id + '/edit'} }]"
+                                replaceUrl="true"
+                                queryParamsHandling="merge"
+                                class="btn btn-primary btn-sm">
+                            <span class="fa fa-pencil"></span>
+                            <span class="d-none d-md-inline">Edit</span>
+                        </button>
+                        <button type="submit"
+                                [routerLink]="['/', { outlets: { popup: 'user-info/'+ userInfo.id + '/delete'} }]"
+                                replaceUrl="true"
+                                queryParamsHandling="merge"
+                                class="btn btn-danger btn-sm">
+                            <span class="fa fa-remove"></span>
+                            <span class="d-none d-md-inline">Delete</span>
+                        </button>
+                    </div>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>

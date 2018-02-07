@@ -1,0 +1,98 @@
+
+<div *ngIf="task">
+    <h2><span>Task</span> {{task.id}}</h2>
+    <hr>
+    <jhi-alert-error></jhi-alert-error>
+    <dl class="row-md jh-entity-details">
+        <dt><span>Task Title</span></dt>
+        <dd>
+            <span>{{task.taskTitle}}</span>
+        </dd>
+        <dt><span>Task Status</span></dt>
+        <dd>
+            <span>{{task.taskStatus}}</span>
+        </dd>
+        <dt><span>Created Time</span></dt>
+        <dd>
+            <span>{{task.createdTime | date:'medium'}}</span>
+        </dd>
+        <dt><span>Has PM Signed Off</span></dt>
+        <dd>
+            <span>{{task.hasPMSignedOff}}</span>
+        </dd>
+        <dt><span>Is Active</span></dt>
+        <dd>
+            <span>{{task.isActive}}</span>
+        </dd>
+        <dt><span>Peck Order</span></dt>
+        <dd>
+            <span>{{task.peckOrder}}</span>
+        </dd>
+        <dt><span>Notes</span></dt>
+        <dd>
+            <span>{{task.notes}}</span>
+        </dd>
+        <dt><span>Company</span></dt>
+        <dd>
+            <div *ngIf="task.company">
+                <a [routerLink]="['/company', task.company?.id]">{{task.company?.companyName}}</a>
+            </div>
+        </dd>
+        <dt><span>Task Group</span></dt>
+        <dd>
+            <div *ngIf="task.taskGroup">
+                <a [routerLink]="['/task-group', task.taskGroup?.id]">{{task.taskGroup?.id}}</a>
+            </div>
+        </dd>
+        <dt><span>Owner</span></dt>
+        <dd>
+            <div *ngIf="task.owner">
+                <a [routerLink]="['/user-info', task.owner?.id]">{{task.owner?.empCode}}</a>
+            </div>
+        </dd>
+        <dt><span>Transcript</span></dt>
+        <dd>
+            <div *ngIf="task.transcript">
+                <a [routerLink]="['/user-info', task.transcript?.id]">{{task.transcript?.empCode}}</a>
+            </div>
+        </dd>
+        <dt><span>Editor</span></dt>
+        <dd>
+            <div *ngIf="task.editor">
+                <a [routerLink]="['/user-info', task.editor?.id]">{{task.editor?.empCode}}</a>
+            </div>
+        </dd>
+        <dt><span>Manager</span></dt>
+        <dd>
+            <div *ngIf="task.manager">
+                <a [routerLink]="['/user-info', task.manager?.id]">{{task.manager?.empCode}}</a>
+            </div>
+        </dd>
+        <dt><span>Doctor</span></dt>
+        <dd>
+            <div *ngIf="task.doctor">
+                <a [routerLink]="['/doctor', task.doctor?.id]">{{task.doctor?.doctorName}}</a>
+            </div>
+        </dd>
+        <dt><span>Hospital</span></dt>
+        <dd>
+            <div *ngIf="task.hospital">
+                <a [routerLink]="['/hospital', task.hospital?.id]">{{task.hospital?.hospitalName}}</a>
+            </div>
+        </dd>
+    </dl>
+
+    <button type="submit"
+            (click)="previousState()"
+            class="btn btn-info">
+        <span class="fa fa-arrow-left"></span>&nbsp;<span> Back</span>
+    </button>
+
+    <button type="button"
+            [routerLink]="['/', { outlets: { popup: 'task/'+ task.id + '/edit'} }]"
+            replaceUrl="true"
+            queryParamsHandling="merge"
+            class="btn btn-primary">
+        <span class="fa fa-pencil"></span>&nbsp;<span> Edit</span>
+    </button>
+</div>

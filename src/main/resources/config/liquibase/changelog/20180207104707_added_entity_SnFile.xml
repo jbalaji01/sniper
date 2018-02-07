@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd
+                        http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
+
+    <property name="now" value="now()" dbms="h2"/>
+
+    <property name="now" value="now()" dbms="mysql"/>
+    <property name="autoIncrement" value="true"/>
+
+    <property name="floatType" value="float4" dbms="postgresql, h2"/>
+    <property name="floatType" value="float" dbms="mysql, oracle, mssql"/>
+
+    <!--
+        Added the entity SnFile.
+    -->
+    <changeSet id="20180207104707-1" author="jhipster">
+        <createTable tableName="sn_file">
+            <column name="id" type="bigint" autoIncrement="${autoIncrement}">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="file_path" type="varchar(255)">
+                <constraints nullable="true" />
+            </column>
+
+            <column name="file_name" type="varchar(255)">
+                <constraints nullable="true" />
+            </column>
+
+            <column name="file_ext" type="varchar(255)">
+                <constraints nullable="true" />
+            </column>
+
+            <column name="origin" type="varchar(255)">
+                <constraints nullable="true" />
+            </column>
+
+            <column name="is_input" type="bit">
+                <constraints nullable="true" />
+            </column>
+
+            <column name="is_audio" type="bit">
+                <constraints nullable="true" />
+            </column>
+
+            <column name="uploaded_time" type="timestamp">
+                <constraints nullable="true" />
+            </column>
+
+            <column name="actual_time_frame" type="integer">
+                <constraints nullable="true" />
+            </column>
+
+            <column name="adjusted_time_frame" type="integer">
+                <constraints nullable="true" />
+            </column>
+
+            <column name="final_time_frame" type="integer">
+                <constraints nullable="true" />
+            </column>
+
+            <column name="ws_actual_line_count" type="integer">
+                <constraints nullable="true" />
+            </column>
+
+            <column name="ws_adjusted_line_count" type="integer">
+                <constraints nullable="true" />
+            </column>
+
+            <column name="wsfinal_line_count" type="integer">
+                <constraints nullable="true" />
+            </column>
+
+            <column name="wos_actual_line_count" type="integer">
+                <constraints nullable="true" />
+            </column>
+
+            <column name="wos_adjusted_line_count" type="integer">
+                <constraints nullable="true" />
+            </column>
+
+            <column name="wosfinal_line_count" type="integer">
+                <constraints nullable="true" />
+            </column>
+
+            <column name="chosen_factor" type="varchar(255)">
+                <constraints nullable="true" />
+            </column>
+
+            <column name="peck_order" type="integer">
+                <constraints nullable="true" />
+            </column>
+            <column name="sn_file_blob_id" type="bigint">
+                <constraints unique="true" nullable="true" />
+            </column>
+            <column name="uploader_id" type="bigint">
+                <constraints nullable="true" />
+            </column>
+
+            <!-- jhipster-needle-liquibase-add-column - JHipster will add columns here, do not remove-->
+        </createTable>
+        <dropDefaultValue tableName="sn_file" columnName="uploaded_time" columnDataType="datetime"/>
+        
+        <createTable tableName="sn_file_patient">
+            <column name="patients_id" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+            <column name="sn_files_id" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <addPrimaryKey columnNames="sn_files_id, patients_id" tableName="sn_file_patient"/>
+        
+        <createTable tableName="sn_file_task">
+            <column name="tasks_id" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+            <column name="sn_files_id" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <addPrimaryKey columnNames="sn_files_id, tasks_id" tableName="sn_file_task"/>
+        
+    </changeSet>
+    <!-- jhipster-needle-liquibase-add-changeset - JHipster will add changesets here, do not remove-->
+</databaseChangeLog>

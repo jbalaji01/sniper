@@ -1,0 +1,25 @@
+{
+    "fluentMethods": true,
+    "relationships": [
+        {
+            "relationshipType": "one-to-one",
+            "relationshipName": "snFile",
+            "otherEntityName": "snFile",
+            "ownerSide": false,
+            "otherEntityRelationshipName": "snFileBlob"
+        }
+    ],
+    "fields": [
+        {
+            "fieldName": "fileContent",
+            "fieldType": "byte[]",
+            "fieldTypeBlobContent": "any"
+        }
+    ],
+    "changelogDate": "20180207104708",
+    "entityTableName": "sn_file_blob",
+    "dto": "no",
+    "pagination": "no",
+    "service": "no",
+    "jpaMetamodelFiltering": false
+}

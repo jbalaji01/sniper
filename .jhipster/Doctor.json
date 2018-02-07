@@ -1,0 +1,43 @@
+{
+    "fluentMethods": true,
+    "relationships": [
+        {
+            "relationshipType": "one-to-many",
+            "relationshipName": "task",
+            "otherEntityName": "task",
+            "otherEntityRelationshipName": "doctor"
+        },
+        {
+            "relationshipType": "many-to-many",
+            "otherEntityRelationshipName": "doctor",
+            "relationshipName": "hospital",
+            "otherEntityName": "hospital",
+            "otherEntityField": "hospitalName",
+            "ownerSide": true
+        }
+    ],
+    "fields": [
+        {
+            "fieldName": "doctorName",
+            "fieldType": "String"
+        },
+        {
+            "fieldName": "city",
+            "fieldType": "String"
+        },
+        {
+            "fieldName": "templateCount",
+            "fieldType": "Integer"
+        },
+        {
+            "fieldName": "notes",
+            "fieldType": "String"
+        }
+    ],
+    "changelogDate": "20180207104704",
+    "entityTableName": "doctor",
+    "dto": "no",
+    "pagination": "no",
+    "service": "no",
+    "jpaMetamodelFiltering": false
+}

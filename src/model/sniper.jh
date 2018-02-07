@@ -1,0 +1,167 @@
+
+entity UserInfo {
+	empCode String,
+    phone String,
+    dateOfBirth LocalDate,
+    dateOfJoin LocalDate,
+    bankInfo String,
+    pan String,
+    addr String,
+    city String,
+    lastLogin Instant,
+    
+}
+
+relationship OneToOne {
+	UserInfo{user(login)} to User{userInfo}
+}
+
+entity Hospital {
+	hospitalName String,
+    city String,
+    templateCount Integer,
+    notes String
+}
+
+entity Doctor {
+	doctorName String,
+    city String,
+    templateCount Integer
+    notes String
+}
+
+relationship ManyToMany {
+	Doctor{hospital(hospitalName)} to Hospital{doctor(doctorName)}
+}
+
+entity Company {
+	companyName String,
+    city String,
+    notes String
+}
+
+relationship OneToMany {
+	Company{userInfo(empCode)} to UserInfo{company(companyName)},
+    Company{task} to Task{company(companyName)}
+}
+
+
+entity Patient {
+	patientName String,
+    city String,
+    notes String
+}
+
+relationship ManyToMany {
+	SnFile{patient(patientName)} to Patient{snFile(fileName)}
+}
+
+relationship OneToMany {
+	UserInfo{snFile(fileName)} to SnFile{uploader(empCode)} 
+}
+
+entity SnFile {
+	filePath String,
+	fileName String,
+    fileExt String,
+    origin String,
+    isInput Boolean,
+    isAudio Boolean,
+    uploadedTime Instant,
+    
+    actualTimeFrame Integer,
+    adjustedTimeFrame Integer,
+    finalTimeFrame Integer,
+    
+    wsActualLineCount Integer,
+    wsAdjustedLineCount Integer,
+  	wsfinalLineCount Integer,
+    
+    wosActualLineCount Integer,
+    wosAdjustedLineCount Integer,
+  	wosfinalLineCount Integer,
+    
+    chosenFactor ChosenFactor,
+    peckOrder Integer
+}
+
+
+
+enum ChosenFactor {
+	NONE,
+	TIME_FRAME,
+    WS_LINE_COUNT,
+    WOS_LINE_COUNT
+}
+
+entity SnFileBlob {
+    fileContent Blob
+}
+
+relationship ManyToMany {
+	SnFile{task} to Task{snFile(fileName)}
+}
+
+relationship OneToOne {
+	SnFile{snFileBlob} to SnFileBlob{snFile(fileName)}
+}
+
+entity TaskGroup {
+	groupName String,
+    createdTime Instant
+}
+
+relationship OneToMany {
+	TaskGroup{task} to Task{taskGroup}
+}
+
+
+entity Task {
+	taskTitle String,
+    taskStatus TaskStatus,
+    createdTime Instant,
+    hasPMSignedOff Boolean,
+    isActive Boolean,
+    peckOrder Integer,
+    notes String
+}
+
+enum TaskStatus {
+  CREATED,
+  ASSIGNED,
+  DOWNLOADED,
+  UPLOADED,
+  IN_PROGRESS,
+  COMPLETED,
+  ON_HOLD,
+  QUERY,
+  MERGED,
+  DELETED,
+  TRANSFERRED
+}
+
+relationship OneToMany {
+	UserInfo{ownerTask} to Task{owner(empCode)},
+    UserInfo{transcriptTask} to Task{transcript(empCode)},
+    UserInfo{editorTask} to Task{editor(empCode)},
+    UserInfo{managerTask} to Task{manager(empCode)},
+    
+    Doctor{task} to Task{doctor(doctorName)},
+    Hospital{task} to Task{hospital(hospitalName)}
+}
+
+
+entity TaskHistory {
+	taskStatus TaskStatus,
+    punchTime Instant
+    notes String
+}
+
+relationship OneToMany {
+	Task{taskHistory} to TaskHistory{task},
+    UserInfo{taskHistory} to TaskHistory{userInfo(empCode)}
+}
+
+
+service SnFile, Task, TaskGroup with serviceClass
+paginate Task, TaskGroup with pagination

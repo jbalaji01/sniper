@@ -1,0 +1,116 @@
+{
+    "fluentMethods": true,
+    "relationships": [
+        {
+            "relationshipType": "one-to-one",
+            "relationshipName": "snFileBlob",
+            "otherEntityName": "snFileBlob",
+            "otherEntityField": "id",
+            "ownerSide": true,
+            "otherEntityRelationshipName": "snFile(fileName)"
+        },
+        {
+            "relationshipType": "many-to-many",
+            "otherEntityRelationshipName": "snFile",
+            "relationshipName": "patient",
+            "otherEntityName": "patient",
+            "otherEntityField": "patientName",
+            "ownerSide": true
+        },
+        {
+            "relationshipType": "many-to-many",
+            "otherEntityRelationshipName": "snFile",
+            "relationshipName": "task",
+            "otherEntityName": "task",
+            "otherEntityField": "id",
+            "ownerSide": true
+        },
+        {
+            "relationshipType": "many-to-one",
+            "relationshipName": "uploader",
+            "otherEntityName": "userInfo",
+            "otherEntityField": "empCode"
+        }
+    ],
+    "fields": [
+        {
+            "fieldName": "filePath",
+            "fieldType": "String"
+        },
+        {
+            "fieldName": "fileName",
+            "fieldType": "String"
+        },
+        {
+            "fieldName": "fileExt",
+            "fieldType": "String"
+        },
+        {
+            "fieldName": "origin",
+            "fieldType": "String"
+        },
+        {
+            "fieldName": "isInput",
+            "fieldType": "Boolean"
+        },
+        {
+            "fieldName": "isAudio",
+            "fieldType": "Boolean"
+        },
+        {
+            "fieldName": "uploadedTime",
+            "fieldType": "Instant"
+        },
+        {
+            "fieldName": "actualTimeFrame",
+            "fieldType": "Integer"
+        },
+        {
+            "fieldName": "adjustedTimeFrame",
+            "fieldType": "Integer"
+        },
+        {
+            "fieldName": "finalTimeFrame",
+            "fieldType": "Integer"
+        },
+        {
+            "fieldName": "wsActualLineCount",
+            "fieldType": "Integer"
+        },
+        {
+            "fieldName": "wsAdjustedLineCount",
+            "fieldType": "Integer"
+        },
+        {
+            "fieldName": "wsfinalLineCount",
+            "fieldType": "Integer"
+        },
+        {
+            "fieldName": "wosActualLineCount",
+            "fieldType": "Integer"
+        },
+        {
+            "fieldName": "wosAdjustedLineCount",
+            "fieldType": "Integer"
+        },
+        {
+            "fieldName": "wosfinalLineCount",
+            "fieldType": "Integer"
+        },
+        {
+            "fieldName": "chosenFactor",
+            "fieldType": "ChosenFactor",
+            "fieldValues": "NONE,TIME_FRAME,WS_LINE_COUNT,WOS_LINE_COUNT"
+        },
+        {
+            "fieldName": "peckOrder",
+            "fieldType": "Integer"
+        }
+    ],
+    "changelogDate": "20180207104707",
+    "entityTableName": "sn_file",
+    "dto": "no",
+    "pagination": "no",
+    "service": "serviceClass",
+    "jpaMetamodelFiltering": false
+}

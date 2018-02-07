@@ -1,0 +1,129 @@
+<form name="editForm" role="form" novalidate (ngSubmit)="save()" #editForm="ngForm">
+
+    <div class="modal-header">
+        <h4 class="modal-title" id="myTaskLabel">Create or edit a Task</h4>
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true"
+                (click)="clear()">&times;</button>
+    </div>
+    <div class="modal-body">
+        <jhi-alert-error></jhi-alert-error>
+        <div class="form-group" [hidden]="!task.id">
+            <label for="id">ID</label>
+            <input type="text" class="form-control" id="id" name="id"
+                   [(ngModel)]="task.id" readonly />
+        </div>
+        <div class="form-group">
+            <label class="form-control-label" for="field_taskTitle">Task Title</label>
+            <input type="text" class="form-control" name="taskTitle" id="field_taskTitle"
+                [(ngModel)]="task.taskTitle" />
+        </div>
+        <div class="form-group">
+            <label class="form-control-label" for="field_taskStatus">Task Status</label>
+            <select class="form-control" name="taskStatus" [(ngModel)]="task.taskStatus" id="field_taskStatus" >
+                <option value="CREATED">CREATED</option>
+                <option value="ASSIGNED">ASSIGNED</option>
+                <option value="DOWNLOADED">DOWNLOADED</option>
+                <option value="UPLOADED">UPLOADED</option>
+                <option value="IN_PROGRESS">IN_PROGRESS</option>
+                <option value="COMPLETED">COMPLETED</option>
+                <option value="ON_HOLD">ON_HOLD</option>
+                <option value="QUERY">QUERY</option>
+                <option value="MERGED">MERGED</option>
+                <option value="DELETED">DELETED</option>
+                <option value="TRANSFERRED">TRANSFERRED</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label class="form-control-label" for="field_createdTime">Created Time</label>
+            <div class="d-flex">
+                <input id="field_createdTime" type="datetime-local" class="form-control" name="createdTime" [(ngModel)]="task.createdTime"
+                />
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="form-control-label" for="field_hasPMSignedOff">Has PM Signed Off</label>
+            <input type="checkbox" class="form-control" name="hasPMSignedOff" id="field_hasPMSignedOff"
+                [(ngModel)]="task.hasPMSignedOff" />
+        </div>
+        <div class="form-group">
+            <label class="form-control-label" for="field_isActive">Is Active</label>
+            <input type="checkbox" class="form-control" name="isActive" id="field_isActive"
+                [(ngModel)]="task.isActive" />
+        </div>
+        <div class="form-group">
+            <label class="form-control-label" for="field_peckOrder">Peck Order</label>
+            <input type="number" class="form-control" name="peckOrder" id="field_peckOrder"
+                [(ngModel)]="task.peckOrder" />
+        </div>
+        <div class="form-group">
+            <label class="form-control-label" for="field_notes">Notes</label>
+            <input type="text" class="form-control" name="notes" id="field_notes"
+                [(ngModel)]="task.notes" />
+        </div>
+
+        <div class="form-group">
+            <label class="form-control-label" for="field_company">Company</label>
+            <select class="form-control" id="field_company" name="company" [(ngModel)]="task.company" >
+                <option [ngValue]="null"></option>
+                <option [ngValue]="companyOption.id === task.company?.id ? task.company : companyOption" *ngFor="let companyOption of companies; trackBy: trackCompanyById">{{companyOption.companyName}}</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label class="form-control-label" for="field_taskGroup">Task Group</label>
+            <select class="form-control" id="field_taskGroup" name="taskGroup" [(ngModel)]="task.taskGroup" >
+                <option [ngValue]="null"></option>
+                <option [ngValue]="taskGroupOption.id === task.taskGroup?.id ? task.taskGroup : taskGroupOption" *ngFor="let taskGroupOption of taskgroups; trackBy: trackTaskGroupById">{{taskGroupOption.id}}</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label class="form-control-label" for="field_owner">Owner</label>
+            <select class="form-control" id="field_owner" name="owner" [(ngModel)]="task.owner" >
+                <option [ngValue]="null"></option>
+                <option [ngValue]="userInfoOption.id === task.owner?.id ? task.owner : userInfoOption" *ngFor="let userInfoOption of userinfos; trackBy: trackUserInfoById">{{userInfoOption.empCode}}</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label class="form-control-label" for="field_transcript">Transcript</label>
+            <select class="form-control" id="field_transcript" name="transcript" [(ngModel)]="task.transcript" >
+                <option [ngValue]="null"></option>
+                <option [ngValue]="userInfoOption.id === task.transcript?.id ? task.transcript : userInfoOption" *ngFor="let userInfoOption of userinfos; trackBy: trackUserInfoById">{{userInfoOption.empCode}}</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label class="form-control-label" for="field_editor">Editor</label>
+            <select class="form-control" id="field_editor" name="editor" [(ngModel)]="task.editor" >
+                <option [ngValue]="null"></option>
+                <option [ngValue]="userInfoOption.id === task.editor?.id ? task.editor : userInfoOption" *ngFor="let userInfoOption of userinfos; trackBy: trackUserInfoById">{{userInfoOption.empCode}}</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label class="form-control-label" for="field_manager">Manager</label>
+            <select class="form-control" id="field_manager" name="manager" [(ngModel)]="task.manager" >
+                <option [ngValue]="null"></option>
+                <option [ngValue]="userInfoOption.id === task.manager?.id ? task.manager : userInfoOption" *ngFor="let userInfoOption of userinfos; trackBy: trackUserInfoById">{{userInfoOption.empCode}}</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label class="form-control-label" for="field_doctor">Doctor</label>
+            <select class="form-control" id="field_doctor" name="doctor" [(ngModel)]="task.doctor" >
+                <option [ngValue]="null"></option>
+                <option [ngValue]="doctorOption.id === task.doctor?.id ? task.doctor : doctorOption" *ngFor="let doctorOption of doctors; trackBy: trackDoctorById">{{doctorOption.doctorName}}</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label class="form-control-label" for="field_hospital">Hospital</label>
+            <select class="form-control" id="field_hospital" name="hospital" [(ngModel)]="task.hospital" >
+                <option [ngValue]="null"></option>
+                <option [ngValue]="hospitalOption.id === task.hospital?.id ? task.hospital : hospitalOption" *ngFor="let hospitalOption of hospitals; trackBy: trackHospitalById">{{hospitalOption.hospitalName}}</option>
+            </select>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal" (click)="clear()">
+            <span class="fa fa-ban"></span>&nbsp;<span>Cancel</span>
+        </button>
+        <button type="submit" [disabled]="editForm.form.invalid || isSaving" class="btn btn-primary">
+            <span class="fa fa-save"></span>&nbsp;<span>Save</span>
+        </button>
+    </div>
+</form>

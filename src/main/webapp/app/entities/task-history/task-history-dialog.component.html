@@ -1,0 +1,67 @@
+<form name="editForm" role="form" novalidate (ngSubmit)="save()" #editForm="ngForm">
+
+    <div class="modal-header">
+        <h4 class="modal-title" id="myTaskHistoryLabel">Create or edit a Task History</h4>
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true"
+                (click)="clear()">&times;</button>
+    </div>
+    <div class="modal-body">
+        <jhi-alert-error></jhi-alert-error>
+        <div class="form-group" [hidden]="!taskHistory.id">
+            <label for="id">ID</label>
+            <input type="text" class="form-control" id="id" name="id"
+                   [(ngModel)]="taskHistory.id" readonly />
+        </div>
+        <div class="form-group">
+            <label class="form-control-label" for="field_taskStatus">Task Status</label>
+            <select class="form-control" name="taskStatus" [(ngModel)]="taskHistory.taskStatus" id="field_taskStatus" >
+                <option value="CREATED">CREATED</option>
+                <option value="ASSIGNED">ASSIGNED</option>
+                <option value="DOWNLOADED">DOWNLOADED</option>
+                <option value="UPLOADED">UPLOADED</option>
+                <option value="IN_PROGRESS">IN_PROGRESS</option>
+                <option value="COMPLETED">COMPLETED</option>
+                <option value="ON_HOLD">ON_HOLD</option>
+                <option value="QUERY">QUERY</option>
+                <option value="MERGED">MERGED</option>
+                <option value="DELETED">DELETED</option>
+                <option value="TRANSFERRED">TRANSFERRED</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label class="form-control-label" for="field_punchTime">Punch Time</label>
+            <div class="d-flex">
+                <input id="field_punchTime" type="datetime-local" class="form-control" name="punchTime" [(ngModel)]="taskHistory.punchTime"
+                />
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="form-control-label" for="field_notes">Notes</label>
+            <input type="text" class="form-control" name="notes" id="field_notes"
+                [(ngModel)]="taskHistory.notes" />
+        </div>
+
+        <div class="form-group">
+            <label class="form-control-label" for="field_task">Task</label>
+            <select class="form-control" id="field_task" name="task" [(ngModel)]="taskHistory.task" >
+                <option [ngValue]="null"></option>
+                <option [ngValue]="taskOption.id === taskHistory.task?.id ? taskHistory.task : taskOption" *ngFor="let taskOption of tasks; trackBy: trackTaskById">{{taskOption.id}}</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label class="form-control-label" for="field_userInfo">User Info</label>
+            <select class="form-control" id="field_userInfo" name="userInfo" [(ngModel)]="taskHistory.userInfo" >
+                <option [ngValue]="null"></option>
+                <option [ngValue]="userInfoOption.id === taskHistory.userInfo?.id ? taskHistory.userInfo : userInfoOption" *ngFor="let userInfoOption of userinfos; trackBy: trackUserInfoById">{{userInfoOption.empCode}}</option>
+            </select>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal" (click)="clear()">
+            <span class="fa fa-ban"></span>&nbsp;<span>Cancel</span>
+        </button>
+        <button type="submit" [disabled]="editForm.form.invalid || isSaving" class="btn btn-primary">
+            <span class="fa fa-save"></span>&nbsp;<span>Save</span>
+        </button>
+    </div>
+</form>
