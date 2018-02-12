@@ -1,0 +1,128 @@
+import { NgModule, Injectable } from '@angular/core';
+import { Resolve, Routes, RouterModule, ActivatedRouteSnapshot, RouterStateSnapshot } from '@angular/router';
+import { JhiPaginationUtil } from 'ng-jhipster';
+import { UserRouteAccessService } from '../../shared';
+
+import { DownloaderComponent } from './downloader/downloader.component';
+import { PurgeComponent } from './purge/purge.component';
+import { ExtTaskGroupDetailComponent } from './ext-task-group-detail/ext-task-group-detail.component';
+import { ExtTaskGroupListComponent } from './ext-task-group-list/ext-task-group-list.component';
+import { ExtTaskListComponent } from './ext-task-list/ext-task-list.component';
+import { UploaderComponent } from './uploader/uploader.component';
+import { HelpComponent } from './help/help.component';
+
+@Injectable()
+export class ExtTaskResolvePagingParams implements Resolve<any> {
+
+    constructor(private paginationUtil: JhiPaginationUtil) {}
+
+    resolve(route: ActivatedRouteSnapshot, state: RouterStateSnapshot) {
+        const page = route.queryParams['page'] ? route.queryParams['page'] : '1';
+        const sort = route.queryParams['sort'] ? route.queryParams['sort'] : 'id,asc';
+        return {
+            page: this.paginationUtil.parsePage(page),
+            predicate: this.paginationUtil.parsePredicate(sort),
+            ascending: this.paginationUtil.parseAscending(sort)
+      };
+    }
+}
+
+const routes: Routes = [
+    {
+        path: 'downloader',
+        component: DownloaderComponent,
+        resolve: {
+            'pagingParams': ExtTaskResolvePagingParams
+        },
+        data: {
+            authorities: ['ROLE_USER'],
+            pageTitle: 'Download files'
+        },
+        canActivate: [UserRouteAccessService]
+    },
+
+    {
+        path: 'uploader',
+        component: UploaderComponent,
+        resolve: {
+            'pagingParams': ExtTaskResolvePagingParams
+        },
+        data: {
+            authorities: ['ROLE_USER'],
+            pageTitle: 'Upload files'
+        },
+        canActivate: [UserRouteAccessService]
+    },
+
+    {
+        path: 'ext-task-group-detail',
+        component: ExtTaskGroupDetailComponent,
+        resolve: {
+            'pagingParams': ExtTaskResolvePagingParams
+        },
+        data: {
+            authorities: ['ROLE_USER'],
+            pageTitle: 'task group detail'
+        },
+        canActivate: [UserRouteAccessService]
+    },
+
+    {
+        path: 'ext-task-group-list',
+        component: ExtTaskGroupListComponent,
+        resolve: {
+            'pagingParams': ExtTaskResolvePagingParams
+        },
+        data: {
+            authorities: ['ROLE_USER'],
+            pageTitle: 'task group list'
+        },
+        canActivate: [UserRouteAccessService]
+    },
+
+    {
+        path: 'ext-task-list',
+        component: ExtTaskListComponent,
+        resolve: {
+            'pagingParams': ExtTaskResolvePagingParams
+        },
+        data: {
+            authorities: ['ROLE_USER'],
+            pageTitle: 'Task list'
+        },
+        canActivate: [UserRouteAccessService]
+    },
+
+    {
+        path: 'help',
+        component: HelpComponent,
+        resolve: {
+            'pagingParams': ExtTaskResolvePagingParams
+        },
+        data: {
+            authorities: ['ROLE_USER'],
+            pageTitle: 'Help'
+        },
+        canActivate: [UserRouteAccessService]
+    },
+
+    {
+        path: 'purge',
+        component: PurgeComponent,
+        resolve: {
+            'pagingParams': ExtTaskResolvePagingParams
+        },
+        data: {
+            authorities: ['ROLE_USER'],
+            pageTitle: 'Purge'
+        },
+        canActivate: [UserRouteAccessService]
+    },
+
+];
+
+@NgModule({
+  imports: [RouterModule.forChild(routes)],
+  exports: [RouterModule]
+})
+export class ExtTaskRoutingModule { }
