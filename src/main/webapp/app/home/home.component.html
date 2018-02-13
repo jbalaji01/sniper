@@ -3,8 +3,8 @@
         <span class="hipster img-fluid rounded"></span>
     </div>
     <div class="col-md-9">
-        <h1 class="display-4">Welcome, Java Hipster!</h1>
-        <p class="lead">This is your homepage</p>
+        <h1 class="display-4">Welcome, Sniper!</h1>
+        <br>
 
         <div [ngSwitch]="isAuthenticated()">
             <div class="alert alert-success" *ngSwitchCase="true">
@@ -13,17 +13,17 @@
             </div>
 
             <div class="alert alert-warning" *ngSwitchCase="false">
-                <span>If you want to </span>
+                <span>To </span>
                 <a class="alert-link" (click)="login()">sign in</a><span>, you can try the default accounts:<br/>- Administrator (login="admin" and password="admin") <br/>- User (login="user" and password="user").</span>
+                <br><br><span>Don't have an account yet?</span>
+                <br>
+                <a class="alert-link" routerLink="register">Register now.</a>
             </div>
-            <div class="alert alert-warning" *ngSwitchCase="false">
-                <span>You don't have an account yet?</span>
-                <a class="alert-link" routerLink="register">Register a new account</a>
-            </div>
+            
         </div>
 
         <p>
-            If you have any question on JHipster:
+            If you have any question on JHipster, feel free to check out the below links:
         </p>
 
         <ul>
@@ -35,7 +35,7 @@
         </ul>
 
         <p>
-            <span>If you like JHipster, don't forget to give us a star on</span> <a href="https://github.com/jhipster/generator-jhipster" target="_blank" rel="noopener">GitHub</a>!
+            <span>If you like JHipster, don't forget to rate us on</span> <a href="https://github.com/jhipster/generator-jhipster" target="_blank" rel="noopener">GitHub</a>!
         </p>
     </div>
 </div>
