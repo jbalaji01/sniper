@@ -12,6 +12,8 @@ import { SniperTaskModule } from './task/task.module';
 import { SniperTaskHistoryModule } from './task-history/task-history.module';
 /* jhipster-needle-add-entity-module-import - JHipster will add entity modules imports here */
 
+import {ExtTaskModule} from './ext-task/ext-task.module';
+
 @NgModule({
     imports: [
         SniperUserInfoModule,
@@ -25,6 +27,7 @@ import { SniperTaskHistoryModule } from './task-history/task-history.module';
         SniperTaskModule,
         SniperTaskHistoryModule,
         /* jhipster-needle-add-entity-module - JHipster will add entity modules here */
+        ExtTaskModule,
     ],
     declarations: [],
     entryComponents: [],
