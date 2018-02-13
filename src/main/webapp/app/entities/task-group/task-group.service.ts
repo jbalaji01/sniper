@@ -44,12 +44,12 @@ export class TaskGroupService {
         return this.http.delete<any>(`${this.resourceUrl}/${id}`, { observe: 'response'});
     }
 
-    private convertResponse(res: EntityResponseType): EntityResponseType {
+    public convertResponse(res: EntityResponseType): EntityResponseType {
         const body: TaskGroup = this.convertItemFromServer(res.body);
         return res.clone({body});
     }
 
-    private convertArrayResponse(res: HttpResponse<TaskGroup[]>): HttpResponse<TaskGroup[]> {
+    public convertArrayResponse(res: HttpResponse<TaskGroup[]>): HttpResponse<TaskGroup[]> {
         const jsonResponse: TaskGroup[] = res.body;
         const body: TaskGroup[] = [];
         for (let i = 0; i < jsonResponse.length; i++) {
@@ -61,7 +61,7 @@ export class TaskGroupService {
     /**
      * Convert a returned JSON object to TaskGroup.
      */
-    private convertItemFromServer(taskGroup: TaskGroup): TaskGroup {
+    public convertItemFromServer(taskGroup: TaskGroup): TaskGroup {
         const copy: TaskGroup = Object.assign({}, taskGroup);
         copy.createdTime = this.dateUtils
             .convertDateTimeFromServer(taskGroup.createdTime);
@@ -71,7 +71,7 @@ export class TaskGroupService {
     /**
      * Convert a TaskGroup to a JSON which can be sent to the server.
      */
-    private convert(taskGroup: TaskGroup): TaskGroup {
+    public convert(taskGroup: TaskGroup): TaskGroup {
         const copy: TaskGroup = Object.assign({}, taskGroup);
 
         copy.createdTime = this.dateUtils.toDate(taskGroup.createdTime);
