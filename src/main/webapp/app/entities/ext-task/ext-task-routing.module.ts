@@ -55,7 +55,7 @@ const routes: Routes = [
     },
 
     {
-        path: 'ext-task-group-detail',
+        path: 'ext-task-group-detail/:id',
         component: ExtTaskGroupDetailComponent,
         resolve: {
             'pagingParams': ExtTaskResolvePagingParams

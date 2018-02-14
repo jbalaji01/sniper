@@ -3,8 +3,10 @@
 <div>
   <h2>
       <span>Task Groups</span>
-      <!-- <jhi-uploader [source]="taskGroup" [id]="0" [title]="Create new task group"></jhi-uploader> -->
   </h2>
+      <jhi-uploader [source]="'taskGroup'" [id]="0"
+                    (onCompletion)="uponCompletion($event)"></jhi-uploader>
+  
   <jhi-alert></jhi-alert>
   <div class="row">
   </div>
@@ -47,7 +49,7 @@
               <td class="text-right">
                   <div class="btn-group flex-btn-group-container">
                       <button type="submit"
-                              [routerLink]="['../ext-task-group', taskGroup.id ]"
+                              [routerLink]="['../ext-task-group-detail', taskGroup.id ]"
                               class="btn btn-info btn-sm">
                           <span class="fa fa-eye"></span>
                           <span class="d-none d-md-inline">View</span>

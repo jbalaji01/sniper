@@ -20,6 +20,11 @@ logging:
         io.github.jhipster: DEBUG
 
 spring:
+    http:
+        multipart:
+            max-file-size: -1
+            max-request-size: -1
+            
     profiles:
         active: dev
         include: swagger

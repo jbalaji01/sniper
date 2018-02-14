@@ -1,3 +1,14 @@
-<p>
-  uploader works!
-</p>
+
+  <div *ngIf="progress.isUploaded" class="progress">
+      <div class="progress-bar progress-bar-info progress-bar-striped"
+        role="progressbar" attr.aria-valuenow="{{progress.percentage}}"
+        aria-valuemin="0" aria-valuemax="100"
+        [ngStyle]="{width:progress.percentage+'%'}">
+        {{progress.percentage}}%</div>
+    </div>
+  
+  <input type="file" [multiple]="true" 
+          (change)="selectFile($event)">
+
+  <button class="btn btn-success" [disabled]="!selectedFiles"
+          (click)="upload()">Upload</button>
