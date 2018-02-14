@@ -2,6 +2,9 @@ package com.neemshade.sniper.service;
 
 import com.neemshade.sniper.domain.Task;
 import com.neemshade.sniper.repository.TaskRepository;
+
+import java.time.Instant;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
@@ -69,4 +72,9 @@ public class TaskService {
         log.debug("Request to delete Task : {}", id);
         taskRepository.delete(id);
     }
+
+	public Page<Task> findTasksOfTaskGroup(Long taskGroupId, Instant fromDate, Instant toDate, Pageable pageable) {
+		
+		return taskRepository.findByTaskGroupId_CreatedTimeBetweenOrderByPeckOrderDesc(taskGroupId, fromDate, toDate, pageable);
+	}
 }

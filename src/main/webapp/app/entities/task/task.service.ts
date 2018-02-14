@@ -44,12 +44,12 @@ export class TaskService {
         return this.http.delete<any>(`${this.resourceUrl}/${id}`, { observe: 'response'});
     }
 
-    private convertResponse(res: EntityResponseType): EntityResponseType {
+    public convertResponse(res: EntityResponseType): EntityResponseType {
         const body: Task = this.convertItemFromServer(res.body);
         return res.clone({body});
     }
 
-    private convertArrayResponse(res: HttpResponse<Task[]>): HttpResponse<Task[]> {
+    public convertArrayResponse(res: HttpResponse<Task[]>): HttpResponse<Task[]> {
         const jsonResponse: Task[] = res.body;
         const body: Task[] = [];
         for (let i = 0; i < jsonResponse.length; i++) {
@@ -61,7 +61,7 @@ export class TaskService {
     /**
      * Convert a returned JSON object to Task.
      */
-    private convertItemFromServer(task: Task): Task {
+    public convertItemFromServer(task: Task): Task {
         const copy: Task = Object.assign({}, task);
         copy.createdTime = this.dateUtils
             .convertDateTimeFromServer(task.createdTime);
@@ -71,7 +71,7 @@ export class TaskService {
     /**
      * Convert a Task to a JSON which can be sent to the server.
      */
-    private convert(task: Task): Task {
+    public convert(task: Task): Task {
         const copy: Task = Object.assign({}, task);
 
         copy.createdTime = this.dateUtils.toDate(task.createdTime);

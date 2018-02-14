@@ -61,7 +61,19 @@ export class ExtTaskGroupListComponent implements OnInit, OnDestroy {
     }
 
   loadAll() {
-        this.extTaskService.query({
+    //   console.log('etgl loadAll');
+        this.extTaskService.queryTaskGroupsByDate({
+            page: this.page - 1,
+            size: this.itemsPerPage,
+            fromDate: this.fromDate,
+            toDate: this.toDate,
+            sort: this.sort()}).subscribe(
+                (data) => { this.taskGroups = data.body; },
+                (err) => this.jhiAlertService.error(err, null, null),
+                () => this.jhiAlertService.success('loaded taskGroups', null, null)
+        );
+
+        /* this.extTaskService.queryTaskGroupsByDate({
             page: this.page - 1,
             size: this.itemsPerPage,
             fromDate: this.fromDate,
@@ -69,7 +81,7 @@ export class ExtTaskGroupListComponent implements OnInit, OnDestroy {
             sort: this.sort()}).subscribe(
                 (res: HttpResponse<TaskGroup[]>) => this.onSuccess(res.body, res.headers),
                 (res: HttpErrorResponse) => this.onError(res.message)
-        );
+        ); */
     }
     loadPage(page: number) {
         if (page !== this.previousPage) {
@@ -98,7 +110,6 @@ export class ExtTaskGroupListComponent implements OnInit, OnDestroy {
     }
 
     onChangeDate() {
-
       this.loadAll();
 
       // this.extTaskService.query({page: this.page - 1, size: this.itemsPerPage,
@@ -145,11 +156,11 @@ export class ExtTaskGroupListComponent implements OnInit, OnDestroy {
         this.principal.identity().then((account) => {
             this.currentAccount = account;
         });
-        console.log('inside init');
+        // console.log('inside init');
         this.registerChangeInTaskGroups();
-        console.log('finished reg');
+        // console.log('finished reg');
         this.today();
-        console.log('after today');
+        // console.log('after today');
         this.previousMonth();
         this.onChangeDate();
     }
@@ -172,8 +183,19 @@ export class ExtTaskGroupListComponent implements OnInit, OnDestroy {
         this.queryCount = this.totalItems;
         // this.page = pagingParams.page;
         this.taskGroups = data;
+        console.log('inside etgl onSuccess');
+        this.jhiAlertService.success('loaded taskGroups');
     }
     private onError(error) {
         this.jhiAlertService.error(error.message, null, null);
+    }
+
+    uponCompletion(status: boolean) {
+      if (status) {
+        this.jhiAlertService.success('Successfully uploaded files', null, null);
+        this.loadAll();
+      } else {
+        // this.jhiAlertService.error('Unable to upload files', null, null);
+      }
     }
 }
