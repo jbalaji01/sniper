@@ -63,8 +63,8 @@ public class SnFile implements Serializable {
     @Column(name = "ws_adjusted_line_count")
     private Integer wsAdjustedLineCount;
 
-    @Column(name = "wsfinal_line_count")
-    private Integer wsfinalLineCount;
+    @Column(name = "ws_final_line_count")
+    private Integer wsFinalLineCount;
 
     @Column(name = "wos_actual_line_count")
     private Integer wosActualLineCount;
@@ -72,8 +72,8 @@ public class SnFile implements Serializable {
     @Column(name = "wos_adjusted_line_count")
     private Integer wosAdjustedLineCount;
 
-    @Column(name = "wosfinal_line_count")
-    private Integer wosfinalLineCount;
+    @Column(name = "wos_final_line_count")
+    private Integer wosFinalLineCount;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "chosen_factor")
@@ -268,17 +268,17 @@ public class SnFile implements Serializable {
         this.wsAdjustedLineCount = wsAdjustedLineCount;
     }
 
-    public Integer getWsfinalLineCount() {
-        return wsfinalLineCount;
+    public Integer getWsFinalLineCount() {
+        return wsFinalLineCount;
     }
 
-    public SnFile wsfinalLineCount(Integer wsfinalLineCount) {
-        this.wsfinalLineCount = wsfinalLineCount;
+    public SnFile wsFinalLineCount(Integer wsFinalLineCount) {
+        this.wsFinalLineCount = wsFinalLineCount;
         return this;
     }
 
-    public void setWsfinalLineCount(Integer wsfinalLineCount) {
-        this.wsfinalLineCount = wsfinalLineCount;
+    public void setWsFinalLineCount(Integer wsFinalLineCount) {
+        this.wsFinalLineCount = wsFinalLineCount;
     }
 
     public Integer getWosActualLineCount() {
@@ -307,17 +307,17 @@ public class SnFile implements Serializable {
         this.wosAdjustedLineCount = wosAdjustedLineCount;
     }
 
-    public Integer getWosfinalLineCount() {
-        return wosfinalLineCount;
+    public Integer getWosFinalLineCount() {
+        return wosFinalLineCount;
     }
 
-    public SnFile wosfinalLineCount(Integer wosfinalLineCount) {
-        this.wosfinalLineCount = wosfinalLineCount;
+    public SnFile wosFinalLineCount(Integer wosFinalLineCount) {
+        this.wosFinalLineCount = wosFinalLineCount;
         return this;
     }
 
-    public void setWosfinalLineCount(Integer wosfinalLineCount) {
-        this.wosfinalLineCount = wosfinalLineCount;
+    public void setWosFinalLineCount(Integer wosFinalLineCount) {
+        this.wosFinalLineCount = wosFinalLineCount;
     }
 
     public ChosenFactor getChosenFactor() {
@@ -459,10 +459,10 @@ public class SnFile implements Serializable {
             ", finalTimeFrame=" + getFinalTimeFrame() +
             ", wsActualLineCount=" + getWsActualLineCount() +
             ", wsAdjustedLineCount=" + getWsAdjustedLineCount() +
-            ", wsfinalLineCount=" + getWsfinalLineCount() +
+            ", wsFinalLineCount=" + getWsFinalLineCount() +
             ", wosActualLineCount=" + getWosActualLineCount() +
             ", wosAdjustedLineCount=" + getWosAdjustedLineCount() +
-            ", wosfinalLineCount=" + getWosfinalLineCount() +
+            ", wosFinalLineCount=" + getWosFinalLineCount() +
             ", chosenFactor='" + getChosenFactor() + "'" +
             ", peckOrder=" + getPeckOrder() +
             "}";

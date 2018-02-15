@@ -78,8 +78,8 @@ public class SnFileResourceIntTest {
     private static final Integer DEFAULT_WS_ADJUSTED_LINE_COUNT = 1;
     private static final Integer UPDATED_WS_ADJUSTED_LINE_COUNT = 2;
 
-    private static final Integer DEFAULT_WSFINAL_LINE_COUNT = 1;
-    private static final Integer UPDATED_WSFINAL_LINE_COUNT = 2;
+    private static final Integer DEFAULT_WS_FINAL_LINE_COUNT = 1;
+    private static final Integer UPDATED_WS_FINAL_LINE_COUNT = 2;
 
     private static final Integer DEFAULT_WOS_ACTUAL_LINE_COUNT = 1;
     private static final Integer UPDATED_WOS_ACTUAL_LINE_COUNT = 2;
@@ -87,8 +87,8 @@ public class SnFileResourceIntTest {
     private static final Integer DEFAULT_WOS_ADJUSTED_LINE_COUNT = 1;
     private static final Integer UPDATED_WOS_ADJUSTED_LINE_COUNT = 2;
 
-    private static final Integer DEFAULT_WOSFINAL_LINE_COUNT = 1;
-    private static final Integer UPDATED_WOSFINAL_LINE_COUNT = 2;
+    private static final Integer DEFAULT_WOS_FINAL_LINE_COUNT = 1;
+    private static final Integer UPDATED_WOS_FINAL_LINE_COUNT = 2;
 
     private static final ChosenFactor DEFAULT_CHOSEN_FACTOR = ChosenFactor.NONE;
     private static final ChosenFactor UPDATED_CHOSEN_FACTOR = ChosenFactor.TIME_FRAME;
@@ -149,10 +149,10 @@ public class SnFileResourceIntTest {
             .finalTimeFrame(DEFAULT_FINAL_TIME_FRAME)
             .wsActualLineCount(DEFAULT_WS_ACTUAL_LINE_COUNT)
             .wsAdjustedLineCount(DEFAULT_WS_ADJUSTED_LINE_COUNT)
-            .wsfinalLineCount(DEFAULT_WSFINAL_LINE_COUNT)
+            .wsFinalLineCount(DEFAULT_WS_FINAL_LINE_COUNT)
             .wosActualLineCount(DEFAULT_WOS_ACTUAL_LINE_COUNT)
             .wosAdjustedLineCount(DEFAULT_WOS_ADJUSTED_LINE_COUNT)
-            .wosfinalLineCount(DEFAULT_WOSFINAL_LINE_COUNT)
+            .wosFinalLineCount(DEFAULT_WOS_FINAL_LINE_COUNT)
             .chosenFactor(DEFAULT_CHOSEN_FACTOR)
             .peckOrder(DEFAULT_PECK_ORDER);
         return snFile;
@@ -190,10 +190,10 @@ public class SnFileResourceIntTest {
         assertThat(testSnFile.getFinalTimeFrame()).isEqualTo(DEFAULT_FINAL_TIME_FRAME);
         assertThat(testSnFile.getWsActualLineCount()).isEqualTo(DEFAULT_WS_ACTUAL_LINE_COUNT);
         assertThat(testSnFile.getWsAdjustedLineCount()).isEqualTo(DEFAULT_WS_ADJUSTED_LINE_COUNT);
-        assertThat(testSnFile.getWsfinalLineCount()).isEqualTo(DEFAULT_WSFINAL_LINE_COUNT);
+        assertThat(testSnFile.getWsFinalLineCount()).isEqualTo(DEFAULT_WS_FINAL_LINE_COUNT);
         assertThat(testSnFile.getWosActualLineCount()).isEqualTo(DEFAULT_WOS_ACTUAL_LINE_COUNT);
         assertThat(testSnFile.getWosAdjustedLineCount()).isEqualTo(DEFAULT_WOS_ADJUSTED_LINE_COUNT);
-        assertThat(testSnFile.getWosfinalLineCount()).isEqualTo(DEFAULT_WOSFINAL_LINE_COUNT);
+        assertThat(testSnFile.getWosFinalLineCount()).isEqualTo(DEFAULT_WOS_FINAL_LINE_COUNT);
         assertThat(testSnFile.getChosenFactor()).isEqualTo(DEFAULT_CHOSEN_FACTOR);
         assertThat(testSnFile.getPeckOrder()).isEqualTo(DEFAULT_PECK_ORDER);
     }
@@ -240,10 +240,10 @@ public class SnFileResourceIntTest {
             .andExpect(jsonPath("$.[*].finalTimeFrame").value(hasItem(DEFAULT_FINAL_TIME_FRAME)))
             .andExpect(jsonPath("$.[*].wsActualLineCount").value(hasItem(DEFAULT_WS_ACTUAL_LINE_COUNT)))
             .andExpect(jsonPath("$.[*].wsAdjustedLineCount").value(hasItem(DEFAULT_WS_ADJUSTED_LINE_COUNT)))
-            .andExpect(jsonPath("$.[*].wsfinalLineCount").value(hasItem(DEFAULT_WSFINAL_LINE_COUNT)))
+            .andExpect(jsonPath("$.[*].wsFinalLineCount").value(hasItem(DEFAULT_WS_FINAL_LINE_COUNT)))
             .andExpect(jsonPath("$.[*].wosActualLineCount").value(hasItem(DEFAULT_WOS_ACTUAL_LINE_COUNT)))
             .andExpect(jsonPath("$.[*].wosAdjustedLineCount").value(hasItem(DEFAULT_WOS_ADJUSTED_LINE_COUNT)))
-            .andExpect(jsonPath("$.[*].wosfinalLineCount").value(hasItem(DEFAULT_WOSFINAL_LINE_COUNT)))
+            .andExpect(jsonPath("$.[*].wosFinalLineCount").value(hasItem(DEFAULT_WOS_FINAL_LINE_COUNT)))
             .andExpect(jsonPath("$.[*].chosenFactor").value(hasItem(DEFAULT_CHOSEN_FACTOR.toString())))
             .andExpect(jsonPath("$.[*].peckOrder").value(hasItem(DEFAULT_PECK_ORDER)));
     }
@@ -271,10 +271,10 @@ public class SnFileResourceIntTest {
             .andExpect(jsonPath("$.finalTimeFrame").value(DEFAULT_FINAL_TIME_FRAME))
             .andExpect(jsonPath("$.wsActualLineCount").value(DEFAULT_WS_ACTUAL_LINE_COUNT))
             .andExpect(jsonPath("$.wsAdjustedLineCount").value(DEFAULT_WS_ADJUSTED_LINE_COUNT))
-            .andExpect(jsonPath("$.wsfinalLineCount").value(DEFAULT_WSFINAL_LINE_COUNT))
+            .andExpect(jsonPath("$.wsFinalLineCount").value(DEFAULT_WS_FINAL_LINE_COUNT))
             .andExpect(jsonPath("$.wosActualLineCount").value(DEFAULT_WOS_ACTUAL_LINE_COUNT))
             .andExpect(jsonPath("$.wosAdjustedLineCount").value(DEFAULT_WOS_ADJUSTED_LINE_COUNT))
-            .andExpect(jsonPath("$.wosfinalLineCount").value(DEFAULT_WOSFINAL_LINE_COUNT))
+            .andExpect(jsonPath("$.wosFinalLineCount").value(DEFAULT_WOS_FINAL_LINE_COUNT))
             .andExpect(jsonPath("$.chosenFactor").value(DEFAULT_CHOSEN_FACTOR.toString()))
             .andExpect(jsonPath("$.peckOrder").value(DEFAULT_PECK_ORDER));
     }
@@ -312,10 +312,10 @@ public class SnFileResourceIntTest {
             .finalTimeFrame(UPDATED_FINAL_TIME_FRAME)
             .wsActualLineCount(UPDATED_WS_ACTUAL_LINE_COUNT)
             .wsAdjustedLineCount(UPDATED_WS_ADJUSTED_LINE_COUNT)
-            .wsfinalLineCount(UPDATED_WSFINAL_LINE_COUNT)
+            .wsFinalLineCount(UPDATED_WS_FINAL_LINE_COUNT)
             .wosActualLineCount(UPDATED_WOS_ACTUAL_LINE_COUNT)
             .wosAdjustedLineCount(UPDATED_WOS_ADJUSTED_LINE_COUNT)
-            .wosfinalLineCount(UPDATED_WOSFINAL_LINE_COUNT)
+            .wosFinalLineCount(UPDATED_WOS_FINAL_LINE_COUNT)
             .chosenFactor(UPDATED_CHOSEN_FACTOR)
             .peckOrder(UPDATED_PECK_ORDER);
 
@@ -340,10 +340,10 @@ public class SnFileResourceIntTest {
         assertThat(testSnFile.getFinalTimeFrame()).isEqualTo(UPDATED_FINAL_TIME_FRAME);
         assertThat(testSnFile.getWsActualLineCount()).isEqualTo(UPDATED_WS_ACTUAL_LINE_COUNT);
         assertThat(testSnFile.getWsAdjustedLineCount()).isEqualTo(UPDATED_WS_ADJUSTED_LINE_COUNT);
-        assertThat(testSnFile.getWsfinalLineCount()).isEqualTo(UPDATED_WSFINAL_LINE_COUNT);
+        assertThat(testSnFile.getWsFinalLineCount()).isEqualTo(UPDATED_WS_FINAL_LINE_COUNT);
         assertThat(testSnFile.getWosActualLineCount()).isEqualTo(UPDATED_WOS_ACTUAL_LINE_COUNT);
         assertThat(testSnFile.getWosAdjustedLineCount()).isEqualTo(UPDATED_WOS_ADJUSTED_LINE_COUNT);
-        assertThat(testSnFile.getWosfinalLineCount()).isEqualTo(UPDATED_WOSFINAL_LINE_COUNT);
+        assertThat(testSnFile.getWosFinalLineCount()).isEqualTo(UPDATED_WOS_FINAL_LINE_COUNT);
         assertThat(testSnFile.getChosenFactor()).isEqualTo(UPDATED_CHOSEN_FACTOR);
         assertThat(testSnFile.getPeckOrder()).isEqualTo(UPDATED_PECK_ORDER);
     }

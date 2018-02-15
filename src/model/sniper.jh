@@ -75,11 +75,11 @@ entity SnFile {
     
     wsActualLineCount Integer,
     wsAdjustedLineCount Integer,
-  	wsfinalLineCount Integer,
+  	wsFinalLineCount Integer,
     
     wosActualLineCount Integer,
     wosAdjustedLineCount Integer,
-  	wosfinalLineCount Integer,
+  	wosFinalLineCount Integer,
     
     chosenFactor ChosenFactor,
     peckOrder Integer
@@ -131,6 +131,7 @@ enum TaskStatus {
   ASSIGNED,
   DOWNLOADED,
   UPLOADED,
+  SETTING,
   IN_PROGRESS,
   COMPLETED,
   ON_HOLD,
