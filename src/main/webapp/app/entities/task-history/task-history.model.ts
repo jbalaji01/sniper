@@ -5,6 +5,7 @@ export const enum TaskStatus {
     'ASSIGNED',
     'DOWNLOADED',
     'UPLOADED',
+    'SETTING',
     'IN_PROGRESS',
     'COMPLETED',
     'ON_HOLD',

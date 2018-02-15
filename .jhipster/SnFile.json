@@ -82,7 +82,7 @@
             "fieldType": "Integer"
         },
         {
-            "fieldName": "wsfinalLineCount",
+            "fieldName": "wsFinalLineCount",
             "fieldType": "Integer"
         },
         {
@@ -94,7 +94,7 @@
             "fieldType": "Integer"
         },
         {
-            "fieldName": "wosfinalLineCount",
+            "fieldName": "wosFinalLineCount",
             "fieldType": "Integer"
         },
         {

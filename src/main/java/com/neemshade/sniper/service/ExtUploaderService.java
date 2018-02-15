@@ -157,8 +157,9 @@ public class ExtUploaderService {
 	 * store snFileList of given task
 	 * @param task
 	 * @param snFileList
+	 * @throws Exception 
 	 */
-	private void storeSnFiles(Task task, List<SnFile> snFileList) {
+	private void storeSnFiles(Task task, List<SnFile> snFileList) throws Exception {
 		
 		Integer lastPeckOrder = findMaxSnFilePeckOrder(task) + 10;
 		
@@ -168,9 +169,11 @@ public class ExtUploaderService {
 			snFile.setPeckOrder(lastPeckOrder);
 			lastPeckOrder += 10;
 			snFileService.save(snFile);
+			
+			extTaskService.createTaskHistory(task, TaskStatus.UPLOADED, "uploaded " + snFile.getFileName() + "." + snFile.getFileExt());
 		}
 		
-		// TODO store TaskHistory
+		
 	}
 	
 	private int findMaxSnFilePeckOrder(Task task) {
@@ -181,8 +184,9 @@ public class ExtUploaderService {
 	/**
 	 * go thru each task and store corresponding snFiles
 	 * @param taskMap
+	 * @throws Exception 
 	 */
-	private void storeSnFiles(LinkedHashMap<Task, List<SnFile>> taskMap) {
+	private void storeSnFiles(LinkedHashMap<Task, List<SnFile>> taskMap) throws Exception {
 		for(Entry<Task, List<SnFile>> entry: taskMap.entrySet()){    
 	        Task task = entry.getKey();  
 	        List<SnFile> snFileList = entry.getValue();  
@@ -406,11 +410,11 @@ public class ExtUploaderService {
 	  	{
 	  		snFile.setWsActualLineCount(fmr.getWsLineCount());
 	  		snFile.setWsAdjustedLineCount(fmr.getWsLineCount());
-	  		snFile.setWsfinalLineCount(fmr.getWsLineCount());
+	  		snFile.setWsFinalLineCount(fmr.getWsLineCount());
 	  		
 	  		snFile.setWosActualLineCount(fmr.getWosLineCount());
 	  		snFile.setWosAdjustedLineCount(fmr.getWosLineCount());
-	  		snFile.setWosfinalLineCount(fmr.getWosLineCount());
+	  		snFile.setWosFinalLineCount(fmr.getWosLineCount());
 	  	}
 		
 	}

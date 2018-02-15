@@ -71,7 +71,7 @@
         {
             "fieldName": "taskStatus",
             "fieldType": "TaskStatus",
-            "fieldValues": "CREATED,ASSIGNED,DOWNLOADED,UPLOADED,IN_PROGRESS,COMPLETED,ON_HOLD,QUERY,MERGED,DELETED,TRANSFERRED"
+            "fieldValues": "CREATED,ASSIGNED,DOWNLOADED,UPLOADED,SETTING,IN_PROGRESS,COMPLETED,ON_HOLD,QUERY,MERGED,DELETED,TRANSFERRED"
         },
         {
             "fieldName": "createdTime",

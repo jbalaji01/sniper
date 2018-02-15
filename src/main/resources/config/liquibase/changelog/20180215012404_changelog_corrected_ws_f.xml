@@ -1,0 +1,363 @@
+<?xml version="1.1" encoding="UTF-8" standalone="no"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog" xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
+   
+   <changeSet author="Tejesvini (generated)" id="1185206820975-5">
+        <dropColumn columnName="wsfinal_line_count" tableName="sn_file"/>
+    </changeSet>
+    
+    <changeSet author="Tejesvini (generated)" id="1185206820975-2">
+        <addColumn tableName="sn_file">
+            <column name="ws_final_line_count" type="INT"/>
+        </addColumn>
+    </changeSet>
+    
+    <changeSet author="Tejesvini (generated)" id="1185206820975-6">
+        <dropColumn columnName="wosfinal_line_count" tableName="sn_file"/>
+    </changeSet>
+    
+    <changeSet author="Tejesvini (generated)" id="1185206820975-7">
+        <addColumn tableName="sn_file">
+            <column name="wos_final_line_count" type="INT"/>
+        </addColumn>
+    </changeSet>
+   
+   <!--  <changeSet author="Tejesvini (generated)" id="1518657879732-1">
+    
+        <createTable tableName="company">
+            <column autoIncrement="true" name="id" type="BIGINT">
+                <constraints primaryKey="true" primaryKeyName="companyPK"/>
+            </column>
+            <column name="city" type="VARCHAR(255)"/>
+            <column name="company_name" type="VARCHAR(255)"/>
+            <column name="notes" type="VARCHAR(255)"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="Tejesvini (generated)" id="1518657879732-2">
+        <createTable tableName="doctor">
+            <column autoIncrement="true" name="id" type="BIGINT">
+                <constraints primaryKey="true" primaryKeyName="doctorPK"/>
+            </column>
+            <column name="city" type="VARCHAR(255)"/>
+            <column name="doctor_name" type="VARCHAR(255)"/>
+            <column name="notes" type="VARCHAR(255)"/>
+            <column name="template_count" type="INT"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="Tejesvini (generated)" id="1518657879732-3">
+        <createTable tableName="doctor_hospital">
+            <column name="doctors_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="hospitals_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet author="Tejesvini (generated)" id="1518657879732-4">
+        <createTable tableName="hospital">
+            <column autoIncrement="true" name="id" type="BIGINT">
+                <constraints primaryKey="true" primaryKeyName="hospitalPK"/>
+            </column>
+            <column name="city" type="VARCHAR(255)"/>
+            <column name="hospital_name" type="VARCHAR(255)"/>
+            <column name="notes" type="VARCHAR(255)"/>
+            <column name="template_count" type="INT"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="Tejesvini (generated)" id="1518657879732-5">
+        <createTable tableName="jhi_authority">
+            <column name="name" type="VARCHAR(50)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet author="Tejesvini (generated)" id="1518657879732-6">
+        <createTable tableName="jhi_persistent_audit_event">
+            <column autoIncrement="true" name="event_id" type="BIGINT">
+                <constraints primaryKey="true" primaryKeyName="jhi_persistent_audit_eventPK"/>
+            </column>
+            <column name="event_date" type="BINARY(255)"/>
+            <column name="event_type" type="VARCHAR(255)"/>
+            <column name="principal" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet author="Tejesvini (generated)" id="1518657879732-7">
+        <createTable tableName="jhi_persistent_audit_evt_data">
+            <column name="event_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="value" type="VARCHAR(255)"/>
+            <column name="name" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet author="Tejesvini (generated)" id="1518657879732-8">
+        <createTable tableName="jhi_user">
+            <column autoIncrement="true" name="id" type="BIGINT">
+                <constraints primaryKey="true" primaryKeyName="jhi_userPK"/>
+            </column>
+            <column name="created_by" type="VARCHAR(50)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_date" type="BINARY(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="last_modified_by" type="VARCHAR(50)"/>
+            <column name="last_modified_date" type="BINARY(255)"/>
+            <column name="activated" type="BOOLEAN">
+                <constraints nullable="false"/>
+            </column>
+            <column name="activation_key" type="VARCHAR(20)"/>
+            <column name="email" type="VARCHAR(100)"/>
+            <column name="first_name" type="VARCHAR(50)"/>
+            <column name="image_url" type="VARCHAR(256)"/>
+            <column name="lang_key" type="VARCHAR(6)"/>
+            <column name="last_name" type="VARCHAR(50)"/>
+            <column name="login" type="VARCHAR(50)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="password_hash" type="VARCHAR(60)"/>
+            <column name="reset_date" type="BINARY(255)"/>
+            <column name="reset_key" type="VARCHAR(20)"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="Tejesvini (generated)" id="1518657879732-9">
+        <createTable tableName="jhi_user_authority">
+            <column name="user_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="authority_name" type="VARCHAR(50)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet author="Tejesvini (generated)" id="1518657879732-10">
+        <createTable tableName="patient">
+            <column autoIncrement="true" name="id" type="BIGINT">
+                <constraints primaryKey="true" primaryKeyName="patientPK"/>
+            </column>
+            <column name="city" type="VARCHAR(255)"/>
+            <column name="notes" type="VARCHAR(255)"/>
+            <column name="patient_name" type="VARCHAR(255)"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="Tejesvini (generated)" id="1518657879732-11">
+        <createTable tableName="sn_file">
+            <column autoIncrement="true" name="id" type="BIGINT">
+                <constraints primaryKey="true" primaryKeyName="sn_filePK"/>
+            </column>
+            <column name="actual_time_frame" type="INT"/>
+            <column name="adjusted_time_frame" type="INT"/>
+            <column name="chosen_factor" type="VARCHAR(255)"/>
+            <column name="file_ext" type="VARCHAR(255)"/>
+            <column name="file_name" type="VARCHAR(255)"/>
+            <column name="file_path" type="VARCHAR(255)"/>
+            <column name="final_time_frame" type="INT"/>
+            <column name="is_audio" type="BOOLEAN"/>
+            <column name="is_input" type="BOOLEAN"/>
+            <column name="origin" type="VARCHAR(255)"/>
+            <column name="peck_order" type="INT"/>
+            <column name="uploaded_time" type="BINARY(255)"/>
+            <column name="wos_actual_line_count" type="INT"/>
+            <column name="wos_adjusted_line_count" type="INT"/>
+            <column name="wos_final_line_count" type="INT"/>
+            <column name="ws_actual_line_count" type="INT"/>
+            <column name="ws_adjusted_line_count" type="INT"/>
+            <column name="ws_final_line_count" type="INT"/>
+            <column name="sn_file_blob_id" type="BIGINT"/>
+            <column name="uploader_id" type="BIGINT"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="Tejesvini (generated)" id="1518657879732-12">
+        <createTable tableName="sn_file_blob">
+            <column autoIncrement="true" name="id" type="BIGINT">
+                <constraints primaryKey="true" primaryKeyName="sn_file_blobPK"/>
+            </column>
+            <column name="file_content" type="BLOB"/>
+            <column name="file_content_content_type" type="VARCHAR(255)"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="Tejesvini (generated)" id="1518657879732-13">
+        <createTable tableName="sn_file_patient">
+            <column name="sn_files_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="patients_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet author="Tejesvini (generated)" id="1518657879732-14">
+        <createTable tableName="sn_file_task">
+            <column name="sn_files_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="tasks_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet author="Tejesvini (generated)" id="1518657879732-15">
+        <createTable tableName="task">
+            <column autoIncrement="true" name="id" type="BIGINT">
+                <constraints primaryKey="true" primaryKeyName="taskPK"/>
+            </column>
+            <column name="created_time" type="BINARY(255)"/>
+            <column name="has_pm_signed_off" type="BOOLEAN"/>
+            <column name="is_active" type="BOOLEAN"/>
+            <column name="notes" type="VARCHAR(255)"/>
+            <column name="peck_order" type="INT"/>
+            <column name="task_status" type="VARCHAR(255)"/>
+            <column name="task_title" type="VARCHAR(255)"/>
+            <column name="company_id" type="BIGINT"/>
+            <column name="doctor_id" type="BIGINT"/>
+            <column name="editor_id" type="BIGINT"/>
+            <column name="hospital_id" type="BIGINT"/>
+            <column name="manager_id" type="BIGINT"/>
+            <column name="owner_id" type="BIGINT"/>
+            <column name="task_group_id" type="BIGINT"/>
+            <column name="transcript_id" type="BIGINT"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="Tejesvini (generated)" id="1518657879732-16">
+        <createTable tableName="task_group">
+            <column autoIncrement="true" name="id" type="BIGINT">
+                <constraints primaryKey="true" primaryKeyName="task_groupPK"/>
+            </column>
+            <column name="created_time" type="BINARY(255)"/>
+            <column name="group_name" type="VARCHAR(255)"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="Tejesvini (generated)" id="1518657879732-17">
+        <createTable tableName="task_history">
+            <column autoIncrement="true" name="id" type="BIGINT">
+                <constraints primaryKey="true" primaryKeyName="task_historyPK"/>
+            </column>
+            <column name="notes" type="VARCHAR(255)"/>
+            <column name="punch_time" type="BINARY(255)"/>
+            <column name="task_status" type="VARCHAR(255)"/>
+            <column name="task_id" type="BIGINT"/>
+            <column name="user_info_id" type="BIGINT"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="Tejesvini (generated)" id="1518657879732-18">
+        <createTable tableName="user_info">
+            <column autoIncrement="true" name="id" type="BIGINT">
+                <constraints primaryKey="true" primaryKeyName="user_infoPK"/>
+            </column>
+            <column name="addr" type="VARCHAR(255)"/>
+            <column name="bank_info" type="VARCHAR(255)"/>
+            <column name="city" type="VARCHAR(255)"/>
+            <column name="date_of_birth" type="BINARY(255)"/>
+            <column name="date_of_join" type="BINARY(255)"/>
+            <column name="emp_code" type="VARCHAR(255)"/>
+            <column name="last_login" type="BINARY(255)"/>
+            <column name="pan" type="VARCHAR(255)"/>
+            <column name="phone" type="VARCHAR(255)"/>
+            <column name="company_id" type="BIGINT"/>
+            <column name="user_id" type="BIGINT"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="Tejesvini (generated)" id="1518657879732-19">
+        <addPrimaryKey columnNames="doctors_id, hospitals_id" tableName="doctor_hospital"/>
+    </changeSet>
+    <changeSet author="Tejesvini (generated)" id="1518657879732-20">
+        <addPrimaryKey columnNames="event_id, name" tableName="jhi_persistent_audit_evt_data"/>
+    </changeSet>
+    <changeSet author="Tejesvini (generated)" id="1518657879732-21">
+        <addPrimaryKey columnNames="user_id, authority_name" tableName="jhi_user_authority"/>
+    </changeSet>
+    <changeSet author="Tejesvini (generated)" id="1518657879732-22">
+        <addPrimaryKey columnNames="sn_files_id, patients_id" tableName="sn_file_patient"/>
+    </changeSet>
+    <changeSet author="Tejesvini (generated)" id="1518657879732-23">
+        <addPrimaryKey columnNames="sn_files_id, tasks_id" tableName="sn_file_task"/>
+    </changeSet>
+    <changeSet author="Tejesvini (generated)" id="1518657879732-24">
+        <addPrimaryKey columnNames="name" constraintName="jhi_authorityPK" tableName="jhi_authority"/>
+    </changeSet>
+    <changeSet author="Tejesvini (generated)" id="1518657879732-25">
+        <addUniqueConstraint columnNames="email" constraintName="UC_JHI_USEREMAIL_COL" tableName="jhi_user"/>
+    </changeSet>
+    <changeSet author="Tejesvini (generated)" id="1518657879732-26">
+        <addUniqueConstraint columnNames="login" constraintName="UC_JHI_USERLOGIN_COL" tableName="jhi_user"/>
+    </changeSet>
+    <changeSet author="Tejesvini (generated)" id="1518657879732-27">
+        <addUniqueConstraint columnNames="sn_file_blob_id" constraintName="UC_SN_FILESN_FILE_BLOB_ID_COL" tableName="sn_file"/>
+    </changeSet>
+    <changeSet author="Tejesvini (generated)" id="1518657879732-28">
+        <addUniqueConstraint columnNames="user_id" constraintName="UC_USER_INFOUSER_ID_COL" tableName="user_info"/>
+    </changeSet>
+    <changeSet author="Tejesvini (generated)" id="1518657879732-29">
+        <addForeignKeyConstraint baseColumnNames="manager_id" baseTableName="task" constraintName="FK1co5iloide8i0o7kvy34kw975" deferrable="false" initiallyDeferred="false" referencedColumnNames="id" referencedTableName="user_info"/>
+    </changeSet>
+    <changeSet author="Tejesvini (generated)" id="1518657879732-30">
+        <addForeignKeyConstraint baseColumnNames="user_id" baseTableName="jhi_user_authority" constraintName="FK290okww5jujghp4el5i7mgwu0" deferrable="false" initiallyDeferred="false" referencedColumnNames="id" referencedTableName="jhi_user"/>
+    </changeSet>
+    <changeSet author="Tejesvini (generated)" id="1518657879732-31">
+        <addForeignKeyConstraint baseColumnNames="event_id" baseTableName="jhi_persistent_audit_evt_data" constraintName="FK2ehnyx2si4tjd2nt4q7y40v8m" deferrable="false" initiallyDeferred="false" referencedColumnNames="event_id" referencedTableName="jhi_persistent_audit_event"/>
+    </changeSet>
+    <changeSet author="Tejesvini (generated)" id="1518657879732-32">
+        <addForeignKeyConstraint baseColumnNames="sn_files_id" baseTableName="sn_file_patient" constraintName="FK3yxetaarvcprlom3lc3iocb9m" deferrable="false" initiallyDeferred="false" referencedColumnNames="id" referencedTableName="sn_file"/>
+    </changeSet>
+    <changeSet author="Tejesvini (generated)" id="1518657879732-33">
+        <addForeignKeyConstraint baseColumnNames="authority_name" baseTableName="jhi_user_authority" constraintName="FK4psxl0jtx6nr7rhqbynr6itoc" deferrable="false" initiallyDeferred="false" referencedColumnNames="name" referencedTableName="jhi_authority"/>
+    </changeSet>
+    <changeSet author="Tejesvini (generated)" id="1518657879732-34">
+        <addForeignKeyConstraint baseColumnNames="doctors_id" baseTableName="doctor_hospital" constraintName="FK7ojkj971lmpc6g9gim9gb1c0t" deferrable="false" initiallyDeferred="false" referencedColumnNames="id" referencedTableName="doctor"/>
+    </changeSet>
+    <changeSet author="Tejesvini (generated)" id="1518657879732-35">
+        <addForeignKeyConstraint baseColumnNames="patients_id" baseTableName="sn_file_patient" constraintName="FK7yr33rt9ar1fos3e9210i41hj" deferrable="false" initiallyDeferred="false" referencedColumnNames="id" referencedTableName="patient"/>
+    </changeSet>
+    <changeSet author="Tejesvini (generated)" id="1518657879732-36">
+        <addForeignKeyConstraint baseColumnNames="task_group_id" baseTableName="task" constraintName="FKb41gnlmgdnaboscw7qx3mgsd2" deferrable="false" initiallyDeferred="false" referencedColumnNames="id" referencedTableName="task_group"/>
+    </changeSet>
+    <changeSet author="Tejesvini (generated)" id="1518657879732-37">
+        <addForeignKeyConstraint baseColumnNames="hospital_id" baseTableName="task" constraintName="FKbhm2klp6rgu25mxmq2yq750ma" deferrable="false" initiallyDeferred="false" referencedColumnNames="id" referencedTableName="hospital"/>
+    </changeSet>
+    <changeSet author="Tejesvini (generated)" id="1518657879732-38">
+        <addForeignKeyConstraint baseColumnNames="doctor_id" baseTableName="task" constraintName="FKbtbnl3mhfqegqe8hc405khnc8" deferrable="false" initiallyDeferred="false" referencedColumnNames="id" referencedTableName="doctor"/>
+    </changeSet>
+    <changeSet author="Tejesvini (generated)" id="1518657879732-39">
+        <addForeignKeyConstraint baseColumnNames="task_id" baseTableName="task_history" constraintName="FKer57q2libi1e9njpj6faoxd2i" deferrable="false" initiallyDeferred="false" referencedColumnNames="id" referencedTableName="task"/>
+    </changeSet>
+    <changeSet author="Tejesvini (generated)" id="1518657879732-40">
+        <addForeignKeyConstraint baseColumnNames="tasks_id" baseTableName="sn_file_task" constraintName="FKf3r84s7wb22guxupx1v1iafui" deferrable="false" initiallyDeferred="false" referencedColumnNames="id" referencedTableName="task"/>
+    </changeSet>
+    <changeSet author="Tejesvini (generated)" id="1518657879732-41">
+        <addForeignKeyConstraint baseColumnNames="owner_id" baseTableName="task" constraintName="FKgjpbapdt9rc2kc0npvelfcmit" deferrable="false" initiallyDeferred="false" referencedColumnNames="id" referencedTableName="user_info"/>
+    </changeSet>
+    <changeSet author="Tejesvini (generated)" id="1518657879732-42">
+        <addForeignKeyConstraint baseColumnNames="uploader_id" baseTableName="sn_file" constraintName="FKj0la8t6d3dkcbc9h9f3r7vbfo" deferrable="false" initiallyDeferred="false" referencedColumnNames="id" referencedTableName="user_info"/>
+    </changeSet>
+    <changeSet author="Tejesvini (generated)" id="1518657879732-43">
+        <addForeignKeyConstraint baseColumnNames="transcript_id" baseTableName="task" constraintName="FKjnceyc0yj9x10lt9eer7ouelq" deferrable="false" initiallyDeferred="false" referencedColumnNames="id" referencedTableName="user_info"/>
+    </changeSet>
+    <changeSet author="Tejesvini (generated)" id="1518657879732-44">
+        <addForeignKeyConstraint baseColumnNames="company_id" baseTableName="task" constraintName="FKkovhsjug063l45ggbgdfxp21s" deferrable="false" initiallyDeferred="false" referencedColumnNames="id" referencedTableName="company"/>
+    </changeSet>
+    <changeSet author="Tejesvini (generated)" id="1518657879732-45">
+        <addForeignKeyConstraint baseColumnNames="sn_file_blob_id" baseTableName="sn_file" constraintName="FKm810t078f1nu5gthi6ed7pknb" deferrable="false" initiallyDeferred="false" referencedColumnNames="id" referencedTableName="sn_file_blob"/>
+    </changeSet>
+    <changeSet author="Tejesvini (generated)" id="1518657879732-46">
+        <addForeignKeyConstraint baseColumnNames="editor_id" baseTableName="task" constraintName="FKoxhxl5jfnvrh6uhfhfj6dwft4" deferrable="false" initiallyDeferred="false" referencedColumnNames="id" referencedTableName="user_info"/>
+    </changeSet>
+    <changeSet author="Tejesvini (generated)" id="1518657879732-47">
+        <addForeignKeyConstraint baseColumnNames="sn_files_id" baseTableName="sn_file_task" constraintName="FKq3es738h6vrhj6trctes8e7om" deferrable="false" initiallyDeferred="false" referencedColumnNames="id" referencedTableName="sn_file"/>
+    </changeSet>
+    <changeSet author="Tejesvini (generated)" id="1518657879732-48">
+        <addForeignKeyConstraint baseColumnNames="user_info_id" baseTableName="task_history" constraintName="FKqc7g7f1ibvvvych8w55qiqlcx" deferrable="false" initiallyDeferred="false" referencedColumnNames="id" referencedTableName="user_info"/>
+    </changeSet>
+    <changeSet author="Tejesvini (generated)" id="1518657879732-49">
+        <addForeignKeyConstraint baseColumnNames="company_id" baseTableName="user_info" constraintName="FKrn59lrl7cvorempfrx3drj0pw" deferrable="false" initiallyDeferred="false" referencedColumnNames="id" referencedTableName="company"/>
+    </changeSet>
+    <changeSet author="Tejesvini (generated)" id="1518657879732-50">
+        <addForeignKeyConstraint baseColumnNames="hospitals_id" baseTableName="doctor_hospital" constraintName="FKsai9lfv25q42rp64vri9v970n" deferrable="false" initiallyDeferred="false" referencedColumnNames="id" referencedTableName="hospital"/>
+    </changeSet>
+    <changeSet author="Tejesvini (generated)" id="1518657879732-51">
+        <addForeignKeyConstraint baseColumnNames="user_id" baseTableName="user_info" constraintName="FKtru6uy2bh99vvb8yc1pt96hcr" deferrable="false" initiallyDeferred="false" referencedColumnNames="id" referencedTableName="jhi_user"/>
+    </changeSet> -->
+</databaseChangeLog>
