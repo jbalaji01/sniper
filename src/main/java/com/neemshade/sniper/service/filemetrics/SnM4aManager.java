@@ -9,7 +9,8 @@ public class SnM4aManager extends SnAudioManager {
 //	    IsoFile isoFile = new IsoFile (new MemoryDataSourceImpl(content));
 		IsoFile isoFile = new IsoFile(getSysFile());
 	    double lengthInSeconds = (double)isoFile.getMovieBox().getMovieHeaderBox().getDuration() / isoFile.getMovieBox().getMovieHeaderBox().getTimescale();
-
+	    isoFile.close();
+	    
 	    fileMetricsResult.setAudioDuration((int) lengthInSeconds);
 	    return fileMetricsResult;
 	}

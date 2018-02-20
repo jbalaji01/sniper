@@ -23,6 +23,6 @@ public interface TaskRepository extends JpaRepository<Task, Long> {
 	// find the max peckOrder for a given taskGroup
 	Optional<Task> findFirstByTaskGroupIdOrderByPeckOrderDesc(Long taskGroupId);
 	
-	Page<Task> findByTaskGroupId_CreatedTimeBetweenOrderByPeckOrderDesc(Long taskGroupId, Instant fromDate, Instant toDate, Pageable pageable);
+	Page<Task> findByTaskGroup_IdAndCreatedTimeBetween(Long taskGroupId, Instant fromDate, Instant toDate, Pageable pageable);
 
 }

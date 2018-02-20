@@ -35,10 +35,10 @@ export class ExtTaskService {
   }
 
   // get all the tasks of taskGroup falling in this date range.
-  queryTasksOfTaskGroup(req?: any): Observable<HttpResponse<Task[]>> {
+  queryTasksOfTaskGroup(req?: any): Observable<any> {
     const options = createRequestOption(req);
-    return this.http.get<Task[]>(this.resourceUrl + 'tasks-of-task-group', { params: options, observe: 'response' })
-        .map((res: HttpResponse<Task[]>) => this.taskService.convertArrayResponse(res));
+    return this.http.get(this.resourceUrl + 'tasks-of-task-group', { params: options, observe: 'response' });
+        // .map((res: HttpResponse<Task[]>) => this.taskService.convertArrayResponse(res));
   }
 
   // upload all the files
