@@ -2,10 +2,16 @@ package com.neemshade.sniper.service;
 
 import java.io.File;
 import java.time.Instant;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.time.format.FormatStyle;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
@@ -15,6 +21,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.FileSystemUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.neemshade.sniper.domain.SnFile;
@@ -64,9 +71,13 @@ public class ExtUploaderService {
 	@Autowired
 	private ExtTaskService extTaskService;
 
+	public static final String ROOT_TEMP_DIR = System.getProperty("java.io.tmpdir") + 
+			File.separator + "sniper" + File.separator;
+	
 	public ExtUploaderService()
 	{
-		
+//		ROOT_TEMP_DIR = System.getProperty("java.io.tmpdir") + File.separator +
+//				"sniper" + File.separator;
 	}
 
 	/**
@@ -201,11 +212,21 @@ public class ExtUploaderService {
 	@Transactional
 	private void uploadFilesOfTaskGroup(Long taskGroupId, List<MultipartFile> mpFileList) throws Exception {
 		
-		log.debug("eus num of files = " + mpFileList.size());
+//		log.debug("eus num of files = " + mpFileList.size());
 		
 		Boolean isInput = true;  // note that any file from TaskGroup will be input only
 		
 		List<SnFile> snFileList = convertToSnFiles(mpFileList, isInput);
+		
+		Collections.sort(snFileList, new Comparator<SnFile>() {
+
+			@Override
+			public int compare(SnFile f1, SnFile f2) {
+				return f1.isIsAudio() == f2.isIsAudio() ? 0 :
+					f1.isIsAudio() ? -1 : 1;
+			}
+			
+		});
 		
 		TaskGroup taskGroup = fetchTaskGroup(taskGroupId);
 		
@@ -239,7 +260,13 @@ public class ExtUploaderService {
 	private TaskGroup createTaskGroup() {
 		TaskGroup taskGroup = new TaskGroup();
 		taskGroup.setCreatedTime(Instant.now());
-		String groupName = taskGroup.getCreatedTime().toString();
+		
+//		String groupName = DateTimeFormatter.ofPattern("dd MMM yy HH:mm:ss").format(taskGroup.getCreatedTime());
+		DateTimeFormatter formatter =
+			    DateTimeFormatter.ofLocalizedDateTime( FormatStyle.MEDIUM )
+			                     .withLocale( Locale.UK )
+			                     .withZone( ZoneId.systemDefault() );
+		String groupName = formatter.format(taskGroup.getCreatedTime());
 		taskGroup.setGroupName(groupName);
 		
 		return taskGroupService.save(taskGroup);
@@ -318,7 +345,7 @@ public class ExtUploaderService {
 		List<SnFile> snFileList = new ArrayList<SnFile>();
 		
 		// user who is uploading this file
-		UserInfo userInfo = extTaskService.fetchLoggedInUserInfo();				
+		UserInfo userInfo = extTaskService.fetchLoggedInUserInfo();	
 		
 		for(MultipartFile mpFile : mpFileList)
 		{
@@ -328,12 +355,22 @@ public class ExtUploaderService {
 			snFileList.add(snFile);
 		}
 		
+		// create root dir, if not exists
+		// delete files in root dir
+		File directory = new File(ROOT_TEMP_DIR);
+		FileSystemUtils.deleteRecursively(directory);
+		
+		if (!directory.exists()) {
+			directory.mkdirs();
+		}
+		
 		return snFileList;
 	}
 
 
 	/**
 	 * convert single multipart file into SnFile
+	 * has a side effect of storing snFileBlob in db
 	 * @param mpFile
 	 * @param isInput2
 	 * @return 
@@ -342,14 +379,12 @@ public class ExtUploaderService {
 	private SnFile convertToSnFile(MultipartFile mpFile, java.lang.Boolean isInput) throws Exception {
 		
 		byte[] byteContent = mpFile.getBytes();
-		log.debug("ofn=" + mpFile.getOriginalFilename());
-		log.debug("tmpdir = " + System.getProperty("java.io.tmpdir"));
+//		log.debug("ofn=" + mpFile.getOriginalFilename());
+//		log.debug("tmpdir = " + System.getProperty("java.io.tmpdir"));
 		
 		SnFileBlob snFileBlob = new SnFileBlob();
 		snFileBlob.setFileContent(byteContent);
 		SnFileBlob newSnFileBlob = snFileBlobRepository.save(snFileBlob);
-		
-		// delete tmpfile
 		
 		SnFile snFile = new SnFile();
 		snFile.setSnFileBlob(newSnFileBlob);
@@ -392,11 +427,12 @@ public class ExtUploaderService {
 			throw new Exception("Invalid format " + snFile.getFileName() + "." + snFile.getFileExt());
 		}
 		
-		File file = new File(System.getProperty("java.io.tmpdir") + "/" + mpFile.getOriginalFilename());
+		File file = new File(ROOT_TEMP_DIR + mpFile.getOriginalFilename());
 		mpFile.transferTo(file);
 		
 		FileMetricsResult fmr = fileMetrics.calculateMetrics(file, snFile.getFileExt());
-		file.delete();
+//		file.delete();
+		
 		
 		snFile.setIsAudio(fmr.getIsAudio());
 		
@@ -418,10 +454,4 @@ public class ExtUploaderService {
 	  	}
 		
 	}
-
-
-/*
-    
-    peckOrder Integer
-    */
 }
