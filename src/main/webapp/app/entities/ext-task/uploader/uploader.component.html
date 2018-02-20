@@ -7,8 +7,17 @@
         {{progress.percentage}}%</div>
     </div>
   
-  <input type="file" [multiple]="true" 
-          (change)="selectFile($event)">
+  <!-- <input type="file" [multiple]="true" 
+          (change)="selectFile($event)"> -->
 
-  <button class="btn btn-success" [disabled]="!selectedFiles"
-          (click)="upload()">Upload</button>
+  <!-- <button class="btn btn-success" [disabled]="!selectedFiles"
+          (click)="upload()">Upload</button> -->
+
+          <span class="upload_button corners">
+            <label>
+              <input type="file" (change)="selectFile($event)" multiple #fileInput placeholder="Upload files..." />
+              <span class="btn btn-primary rounded-circle">
+                <i class="fa fa-upload fa-lg"></i> {{ getBanner() }}
+              </span>
+            </label>
+          </span>

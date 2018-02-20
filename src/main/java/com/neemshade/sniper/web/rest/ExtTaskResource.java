@@ -3,8 +3,11 @@ package com.neemshade.sniper.web.rest;
 import java.io.File;
 import java.time.LocalDate;
 import java.time.ZoneId;
+import java.util.ArrayList;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -31,6 +34,8 @@ import com.neemshade.sniper.service.TaskService;
 @RequestMapping("/api/ext")
 public class ExtTaskResource {
 
+	private final Logger log = LoggerFactory.getLogger(ExtTaskResource.class);
+	
 	@Autowired
 	private ExtTaskService extTaskService;
 	
@@ -61,21 +66,27 @@ public class ExtTaskResource {
        return page.getContent();
 	}
 	
-	@GetMapping(value="tasks-of-task-group", params = {"taskGroupId", "fromDate", "toDate"})
-	public List<Task> getTaskGroupByDates(
+//	@GetMapping(value="tasks-of-task-group", params = {"taskGroupId", "fromDate", "toDate"})
+	@GetMapping(value="tasks-of-task-group")
+	public List<Task> getTasksOfTaskGroup(
 			@RequestParam(value = "taskGroupId") Long taskGroupId,
 			@RequestParam(value = "fromDate") LocalDate fromDate,
 			@RequestParam(value = "toDate") LocalDate toDate,
 			Pageable pageable) {
 
+//		log.debug("taskGroupId = " + taskGroupId);
+//		log.debug("fromDate = " + fromDate);
+//		log.debug("toDate = " + toDate);
+		
 		Page<Task> page = taskService.findTasksOfTaskGroup(
 				taskGroupId,
 				fromDate.atStartOfDay(ZoneId.systemDefault()).toInstant(),
 				toDate.atStartOfDay(ZoneId.systemDefault()).plusDays(1).toInstant(),
 				pageable);
+		return page.getContent();
 		//		       HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(page, "/ext-task-group-list");
 		//		       return new ResponseEntity<>(page.getContent(), headers, HttpStatus.OK);
-		return page.getContent();
+//		return new ArrayList<Task>();
 	}
 	
 	  // upload all the files

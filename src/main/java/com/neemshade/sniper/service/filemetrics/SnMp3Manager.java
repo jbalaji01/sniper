@@ -17,6 +17,7 @@ public class SnMp3Manager extends SnAudioManager {
 		AudioFileFormat fileFormat = AudioSystem.getAudioFileFormat(getSysFile());
 	    if (fileFormat instanceof TAudioFileFormat) {
 	        Map<?, ?> properties = ((TAudioFileFormat) fileFormat).properties();
+	        
 	        String key = "duration";
 	        Long microseconds = (Long) properties.get(key);
 	        int mili = (int) (microseconds / 1000);
@@ -28,6 +29,7 @@ public class SnMp3Manager extends SnAudioManager {
 	    } else {
 	        throw new UnsupportedAudioFileException();
 	    }
+	    
 	    
 	    return fileMetricsResult;
 	}

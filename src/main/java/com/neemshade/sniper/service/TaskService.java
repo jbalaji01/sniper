@@ -75,6 +75,6 @@ public class TaskService {
 
 	public Page<Task> findTasksOfTaskGroup(Long taskGroupId, Instant fromDate, Instant toDate, Pageable pageable) {
 		
-		return taskRepository.findByTaskGroupId_CreatedTimeBetweenOrderByPeckOrderDesc(taskGroupId, fromDate, toDate, pageable);
+		return taskRepository.findByTaskGroup_IdAndCreatedTimeBetween(taskGroupId, fromDate, toDate, pageable);
 	}
 }
