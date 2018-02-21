@@ -1,9 +1,4 @@
 <div>
-  hello - {{tasks.length}}
-  <ul>
-    <li *ngFor="let task of tasks">{{task.id}} {{task.taskTitle}}</li>
-  </ul>
-
 
   <div class="row">
   </div>
@@ -29,6 +24,7 @@
   <div class="table-responsive" *ngIf="tasks">
     <table class="table table-striped">
       <thead>
+        <!-- <tr> -->
         <tr jhiSort [(predicate)]="predicate" [(ascending)]="reverse" [callback]="transition.bind(this)">
           <th jhiSortBy="id">
             <span>ID</span>
@@ -98,7 +94,7 @@
         </tr>
       </thead>
       <tbody>
-        <tr *ngFor="let task of tasks ;trackBy: trackId">
+        <tr *ngFor="let task of tasks; trackBy: trackId">
           <td>
             <a [routerLink]="['../task', task.id ]">{{task.id}}</a>
           </td>
@@ -172,14 +168,15 @@
     </table>
   </div>
 
-  <!-- <div *ngIf="tasks && tasks.length">
+  <div *ngIf="tasks && tasks.length">
         <div class="row justify-content-center">
-            <jhi-item-count [page]="page" [total]="queryCount" [maxSize]="5" [itemsPerPage]="itemsPerPage"></jhi-item-count>
+          <!-- Uncomment this item count, after passing values from parent to child -->
+            <!-- <jhi-item-count [page]="page" [total]="queryCount" [maxSize]="5" [itemsPerPage]="itemsPerPage"></jhi-item-count> -->
         </div>
         <div class="row justify-content-center">
             <ngb-pagination [collectionSize]="totalItems" [(page)]="page" [pageSize]="itemsPerPage" [maxSize]="5" [rotate]="true" [boundaryLinks]="true" (pageChange)="loadPage(page)"></ngb-pagination>
         </div>
-    </div> -->
+    </div>
 </div>
 
 <button (click)="sampleEvent()">Sample</button>
