@@ -3,11 +3,13 @@ import { HttpClient, HttpResponse, HttpRequest, HttpEvent } from '@angular/commo
 import { Observable } from 'rxjs/Observable';
 import { SERVER_API_URL } from '../../app.constants';
 
+import { JhiEventManager, JhiParseLinks, JhiAlertService } from 'ng-jhipster';
 import { JhiDateUtils } from 'ng-jhipster';
 import { createRequestOption } from '../../shared';
 
 import { TaskGroup } from '../task-group/task-group.model';
 import { Task } from '../task/task.model';
+import { TaskHistory } from '../task-history/task-history.model';
 
 import {TaskGroupService} from '../task-group/task-group.service';
 import {TaskService} from '../task/task.service';
@@ -20,7 +22,8 @@ export class ExtTaskService {
   constructor(private http: HttpClient,
               private dateUtils: JhiDateUtils,
               private taskGroupService: TaskGroupService,
-              private taskService: TaskService) { }
+              private taskService: TaskService,
+              private jhiAlertService: JhiAlertService) { }
 
   /* queryTaskGroupsByDate(req?: any): Observable<HttpResponse<TaskGroup[]>> {
     const options = createRequestOption(req);
@@ -70,4 +73,20 @@ export class ExtTaskService {
     return this.http.request(req);
   }
 
+  /**
+   * update given list of tasks
+   * tasks - list of tasks to be updated
+   * historyObe - history records of are created based on status and notes from historyObe
+   * fieldNames - comma separated fields of task that are updated.  Only for display purpose, the fieldNames are not modified
+   */
+  updateTasks(tasks: Task[], historyObe: TaskHistory, fieldNames: String)
+  : Observable<any> {
+    const paramObj = {
+      'tasks': tasks,
+      'historyObe': historyObe,
+      'fieldNames': fieldNames
+    };
+
+    return this.http.put(this.resourceUrl + 'update-tasks', paramObj);
+  }
 }

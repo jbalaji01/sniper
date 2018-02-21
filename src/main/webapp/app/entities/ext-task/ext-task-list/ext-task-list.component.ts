@@ -3,7 +3,7 @@ import { Component, OnInit } from '@angular/core';
 @Component({
   selector: 'jhi-ext-task-list',
   templateUrl: './ext-task-list.component.html',
-  styles: []
+  styles: ['./ext-task-list.component.scss']
 })
 export class ExtTaskListComponent implements OnInit {
 
@@ -12,4 +12,7 @@ export class ExtTaskListComponent implements OnInit {
   ngOnInit() {
   }
 
+  public handleClick(event: Event) {
+    event.preventDefault();
+  }
 }

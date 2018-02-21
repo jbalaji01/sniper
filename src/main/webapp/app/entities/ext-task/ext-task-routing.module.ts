@@ -100,7 +100,7 @@ const routes: Routes = [
             'pagingParams': ExtTaskResolvePagingParams
         },
         data: {
-            authorities: ['ROLE_USER'],
+            authorities: [],
             pageTitle: 'Help'
         },
         canActivate: [UserRouteAccessService]
