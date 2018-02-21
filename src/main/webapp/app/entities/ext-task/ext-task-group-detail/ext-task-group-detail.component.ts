@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, ViewChild } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 
 import { ActivatedRoute } from '@angular/router';
 import { HttpResponse } from '@angular/common/http';
@@ -12,7 +12,7 @@ import { Task } from '../../task/task.model';
 import { TaskGroup } from '../../task-group/task-group.model';
 import { TaskGroupService } from '../../task-group/task-group.service';
 import { ExtTaskService } from '../ext-task.service';
-import { ExtTaskListTemplateComponent } from '../ext-task-list-template/ext-task-list-template.component';
+// import { ExtTaskListTemplateComponent } from '../ext-task-list-template/ext-task-list-template.component';
 
 @Component({
   selector: 'jhi-ext-task-group-detail',
@@ -43,9 +43,6 @@ export class ExtTaskGroupDetailComponent implements OnInit, OnDestroy {
   // fromDate: string;
   // toDate: string;
 
-  @ViewChild(ExtTaskListTemplateComponent)
-  private templateComponent: ExtTaskListTemplateComponent;
-
   constructor(
       private eventManager: JhiEventManager,
       private taskGroupService: TaskGroupService,
@@ -74,8 +71,8 @@ export class ExtTaskGroupDetailComponent implements OnInit, OnDestroy {
     this.subscription = this.activatedRoute.params.subscribe((params) => {
       this.taskGroupId = params['id'];
       // console.log('etgd id=' + this.taskGroupId);
-      this.templateComponent.initialize();
-      this.loadAll();
+      // this.templateComponent.initialize();
+      // this.loadAll();
     });
     this.registerChangeInTaskGroups();
   }
@@ -105,12 +102,12 @@ export class ExtTaskGroupDetailComponent implements OnInit, OnDestroy {
 // }
 
   loadAll() {
-    const urlParamObj = this.templateComponent.composeUrlParam();
-    this.loadWithUrlParamObj(urlParamObj);
+    // const urlParamObj = this.templateComponent.composeUrlParam();
+    // this.loadWithUrlParamObj(urlParamObj);
   }
 
   loadWithUrlParamObj(urlParamObj) {
-    console.log('etgd urlParam=' + JSON.stringify(urlParamObj));
+    // console.log('etgd urlParam=' + JSON.stringify(urlParamObj));
     this.loadTaskGroup(this.taskGroupId);
     this.loadTasksOfTaskGroup(urlParamObj);
   }
@@ -129,7 +126,7 @@ export class ExtTaskGroupDetailComponent implements OnInit, OnDestroy {
     this.extTaskService.queryTasksOfTaskGroup(urlParamObj).subscribe(
         (data) => {
           this.tasks = data.body;
-          this.templateComponent.setParams(this.tasks);
+          // this.templateComponent.setParams(this.tasks);
         },
         (err) => this.jhiAlertService.error(err, null, null),
         () => this.jhiAlertService.success('loaded taskGroup and tasks', null, null)
