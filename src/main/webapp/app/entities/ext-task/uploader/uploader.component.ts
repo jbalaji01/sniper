@@ -26,15 +26,22 @@ export class UploaderComponent implements OnInit {
   ngOnInit() {
   }
 
+  // what to display in the upload button
+  getBanner() {
+    return this.source === 'task' ? '' :
+        this.id === 0 ? 'Create new tasks' : 'Add more tasks';
+  }
+
   selectFile(event) {
     this.selectedFiles = event.target.files;
+    this.upload();
   }
 
   upload() {
     this.progress.percentage = 0;
     this.progress.isUploaded = true;
 
-    console.log('ets ' + this.source);
+    // console.log('ets ' + this.source);
     this.extTaskService.pushFilesToStorage(this.source,
                     this.id, this.selectedFiles).subscribe((event) => {
                       switch (event.type) {
