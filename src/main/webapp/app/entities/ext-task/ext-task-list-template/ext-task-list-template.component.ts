@@ -6,6 +6,9 @@ import { JhiEventManager, JhiParseLinks, JhiAlertService } from 'ng-jhipster';
 import { ITEMS_PER_PAGE, Principal } from '../../../shared';
 
 import { Task } from '../../task/task.model';
+import { TaskHistory } from '../../task-history/task-history.model';
+import { TaskStatus as HistoryStatus} from '../../task-history/task-history.model';
+import { ExtTaskService } from '../ext-task.service';
 // import { componentRefresh } from '@angular/core/src/render3/instructions';
 // import { OnChanges } from '@angular/core/src/metadata/lifecycle_hooks';
 
@@ -37,6 +40,7 @@ export class ExtTaskListTemplateComponent implements OnInit {
     datePipe: DatePipe;
 
   constructor(
+        private extTaskService: ExtTaskService,
         private parseLinks: JhiParseLinks,
         private jhiAlertService: JhiAlertService,
         private principal: Principal,
@@ -129,7 +133,7 @@ export class ExtTaskListTemplateComponent implements OnInit {
 
   transition() {
     const destinationRoute: string[] = this.source === 'taskGroup' ?
-                 ['../ext-task-group-detail', this.tasks[0].taskGroup.id ] :
+                 ['../ext-task-group-detail', this.tasks[0].taskGroup.id] :
                  null;
     this.router.navigate(destinationRoute, this.composeUrlParam());
     this.loadAll();
@@ -137,8 +141,30 @@ export class ExtTaskListTemplateComponent implements OnInit {
 
   sampleEvent() {
     console.log('in sampleEvent()');
-    this.uponReload(true);
-    console.log(JSON.stringify(this.tasks));
+    // this.uponReload(true);
+    // console.log(JSON.stringify(this.tasks));
+
+    const historyObe: TaskHistory = new TaskHistory();
+    historyObe.taskStatus = HistoryStatus.SETTING;
+    historyObe.notes = 'updated peckOrder';
+
+    this.tasks.forEach((task) => {
+      task.peckOrder = task.peckOrder + 2;
+    });
+
+    this.updateTasks(this.tasks, historyObe, 'peckOrder');
+  }
+
+  updateTasks(tasks: Task[], historyObe: TaskHistory, fieldNames: String) {
+
+    this.extTaskService.updateTasks(tasks, historyObe, fieldNames).subscribe(
+      (data) => {
+        this.jhiAlertService.error(data.body.toString());
+        this.uponReload(true);
+      },
+      (err) => this.jhiAlertService.error(err, null, null),
+      () => this.jhiAlertService.success('updated tasks', null, null)
+    );
   }
 
   composeUrlParam() {
