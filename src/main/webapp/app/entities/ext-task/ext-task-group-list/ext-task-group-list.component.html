@@ -15,10 +15,10 @@
         <h4>Filter by date</h4>
         <div class="input-group mb-3">
             <div class="input-group-prepend">
-                <span class="input-group-text">from</span>
+                <span class="input-group-text">From</span>
             </div>
             <input type="date" class="form-control" name="start" [(ngModel)]="fromDate" (ngModelChange)="onChangeDate($event)" required/>
-
+            <br>
             <div class="input-group-append">
                     <span class="input-group-text">To</span>
                 </div>
@@ -28,7 +28,7 @@
 </div> 
 
 
-   <br/>
+   <br>
   <div class="table-responsive" *ngIf="taskGroups">
       <table class="table table-striped">
           <thead>
