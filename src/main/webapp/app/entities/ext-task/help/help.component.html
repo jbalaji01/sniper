@@ -1,19 +1,19 @@
 
 <div>
-<h2>Terminologies</h2>
+<h2><p><strong>Terminologies used:</h2></strong></p>
 <ul>
-  <li><b>Task</b> An activity assigned to MT.  MT needs to understand the requirements, use the provided files and upload completed work</li>
-  <li><b>File</b> Any audio or documents.  Managers, editors and MT can upload and download files</li>
-  <li><b>TaskGroup</b> Collection of tasks</li>
+  <li><b>Task:</b> <br>An activity assigned to MT needs to understand the requirements, use the provided files and upload completed work.</li>
+  <li><b>File:</b><br> Any audio or documents.  Managers, editors and MT can upload and download files.</li>
+  <li><b>TaskGroup:</b> <br>Collection of tasks.</li>
 </ul>
 </div>
 
 <div>
-    <h2>Manager</h2>
+    <h2>Manager:</h2>
 
 <ul>
-	<li>Use the following links for managing various elements of the application
-    <br/> <b>Entities</b> menu item
+	<li>Use the following links for managing various elements of the application.
+    <br/> <b>Entities-</b>Menu item:
 	<ul>
 		<li>Hospital</li>
 		<li>Doctor</li>
@@ -21,21 +21,22 @@
 		<li>Company</li>
 	</ul>
 
-	<li>register a new user  Admin -> User Management
+	<li>Register a new user  Admin -> User Management
 	<ul>
-		<li>For the users, add the role ROLE_USER and appropriate roles</li>
-		<li><b>Important</b>Link user with user Info.  Entities -> User Info</li>
+		<li>For the users, add the role ROLE_USER and appropriate roles.</li>
+		<em><b>Important: </b></em>Link user with user Info.Entities -> User Info
 	</ul>
   </li>
   
-  <li>Creating tasks.  <br/>
+  <li>Creating tasks:<br/>
     There are two ways to create tasks.
     <ul>
       <li>Go to TaskGroup list  Manager -> Task group list.  Click upload files button ('Create new tasks').
         <br/>New tasks with the uploaded files will be created.
       </li>
       <li>Go to above page, click view icon of any taskGroup.  In the taskGroup detail page, click upload files button ('Add more tasks')
-        <br/>New tasks are created under the current taskGroup.
+        <br/>New tasks are created under the current taskGroup.</li>
+      </ul>
       </li>
     </ul>
   </li>
@@ -44,32 +45,31 @@
 </div>
 
 <div>
-    <h2>Editor</h2>
-  Once MT upload their finished documents, they will transfer control to editors.<br/>
-  Editors may go through the tasks assigned to them, download and upload files.<br/>
-  Upon successful completion of tasks, control need to be transferred to manager.<br/>
-
-  <br/>
-  Please go through following section 'MT' to understand the process of handling tasks.
+  <h2>Editor:</h2>
+    <ul>
+  <li>Once MT upload their finished documents, they will transfer control to editors.<br/></li>
+  <li>Editors may go through the tasks assigned to them, download and upload files.<br/></li>
+  <li>Upon successful completion of tasks, control need to be transferred to manager.</li>
+</ul>
+  <em>Please go through following section 'MT' to understand the process of handling tasks.</em>
+</div>
+<div>
+  <br>
+    <h2>Transcript:</h2>
+<ul>
+<li>Go to "My tasks".  The task page is divided into two.  Active tasks and all past tasks are listed here.</li>
+<li>You may download or upload files.  Once tasks are completed, tasks are assigned to editors.</li>
+</ul>
 </div>
 
 <div>
-    <h2>Transcript</h2>
-
-Go to "My tasks".  The task page is divided into two.  Active tasks and all past tasks are listed here.
-<br>
-You may download or upload files.  Once tasks are completed, tasks are assigned to editors.
-
-</div>
-
-<div>
-    <h2>Web admin</h2>
+    <h2>Web admin:</h2>
         <ul>
-          <li>To add new audio file format
+          <li>To add new audio file format.
           <ul>
             <li>extend /sniper/src/main/java/com/neemshade/sniper/service/filemetrics/SnAudioManager.java</li>
             <li>implement calculateMetrics()</li>
-            <li>add supportedFormats at SnFileManager</li>
+            <li>Add supportedFormats at SnFileManager.</li>
           </ul>
           </li>
         </ul>
