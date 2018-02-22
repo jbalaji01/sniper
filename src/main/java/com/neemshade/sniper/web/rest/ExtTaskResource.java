@@ -32,6 +32,7 @@ import org.springframework.web.multipart.MultipartFile;
 import com.codahale.metrics.annotation.Timed;
 import com.neemshade.sniper.domain.Task;
 import com.neemshade.sniper.domain.TaskGroup;
+import com.neemshade.sniper.domain.TaskHistory;
 import com.neemshade.sniper.security.AuthoritiesConstants;
 import com.neemshade.sniper.service.ExtTaskService;
 import com.neemshade.sniper.service.ExtUploaderService;
@@ -123,10 +124,49 @@ public class ExtTaskResource {
 	
 	@PutMapping("/update-tasks")
     @Timed
-    public String updateTasks(@RequestBody Object paramObj) throws Exception {
+    public String updateTasks(@RequestBody ParamObj paramObj) throws Exception {
         log.debug("Put request to update Task list : {}");
         
-        return extTaskService.updateTasks(paramObj);
+        if(paramObj == null)
+        {
+        	throw new Exception("Error! null ParamObj");
+        }
+        
+//        if(paramObj.getMap() == null)
+//        {
+//        	throw new Exception("Error! null ParamObj.map");
+//        }
+        
+        return extTaskService.updateTasks(paramObj.getTasks(), paramObj.getHistoryObe(), paramObj.getFieldNames());
+//        return extTaskService.updateTasks(paramObj);
         
     }
+}
+
+
+class ParamObj
+{
+	private List<Task> tasks;
+    private TaskHistory historyObe;
+    private String fieldNames;
+    
+	public List<Task> getTasks() {
+		return tasks;
+	}
+	public void setTasks(List<Task> tasks) {
+		this.tasks = tasks;
+	}
+	public TaskHistory getHistoryObe() {
+		return historyObe;
+	}
+	public void setHistoryObe(TaskHistory historyObe) {
+		this.historyObe = historyObe;
+	}
+	public String getFieldNames() {
+		return fieldNames;
+	}
+	public void setFieldNames(String fieldNames) {
+		this.fieldNames = fieldNames;
+	}
+	
 }

@@ -159,10 +159,11 @@ export class ExtTaskListTemplateComponent implements OnInit {
 
     this.extTaskService.updateTasks(tasks, historyObe, fieldNames).subscribe(
       (data) => {
-        this.jhiAlertService.error(data.body.toString());
+        this.jhiAlertService.success('success! ' + data.msg);
+        // console.log('updateTasks msg=' + JSON.stringify(data.msg));
         this.uponReload(true);
       },
-      (err) => this.jhiAlertService.error(err, null, null),
+      (err) => this.jhiAlertService.error(err.detail.body, null, null),
       () => this.jhiAlertService.success('updated tasks', null, null)
     );
   }
@@ -181,8 +182,9 @@ export class ExtTaskListTemplateComponent implements OnInit {
 
   uponReload(status: boolean) {
     // console.log('etlt child entered uponReload()');
-    const urlParamObj = this.composeUrlParam();
+    // const urlParamObj = { 'map': this.composeUrlParam()};
     // console.log('etlt child before Reload taskLen = ');
+    const urlParamObj = this.composeUrlParam();
     this.onReload.emit(urlParamObj);
     // this.onReload(null);
     // console.log('etlt child after Reload');
