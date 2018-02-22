@@ -5,6 +5,8 @@ import { Subscription } from 'rxjs/Subscription';
 import { JhiEventManager, JhiParseLinks, JhiAlertService } from 'ng-jhipster';
 import { ITEMS_PER_PAGE, Principal } from '../../../shared';
 
+import {SnFile} from '../../sn-file/sn-file.model';
+
 import { Task } from '../../task/task.model';
 import { TaskHistory } from '../../task-history/task-history.model';
 import { TaskStatus as HistoryStatus} from '../../task-history/task-history.model';
@@ -22,6 +24,10 @@ export class ExtTaskListTemplateComponent implements OnInit {
   @Input() source: string;
   @Input() tasks: Task[];
   @Output() onReload = new EventEmitter<object>();
+
+    // clear these lists when corresponding pop-up is closed
+    snFiles: SnFile[];
+    historyList: TaskHistory[];
 
     routeData: any;
     links: any;
@@ -114,6 +120,29 @@ export class ExtTaskListTemplateComponent implements OnInit {
     this.uponReload(true);
   }
 
+   // get the snFiles of the task id
+   loadSnFiles(taskId) {
+    this.extTaskService.findSnFiles(taskId)
+    .subscribe(
+      (data) => {
+        this.snFiles = data.body;
+      },
+      (err) => this.jhiAlertService.error(err.detail, null, null),
+      () => this.jhiAlertService.success('loaded files info', null, null)
+  );
+  }
+
+     // get the history of the task id
+  loadHistory(taskId) {
+    this.extTaskService.findHistory(taskId).subscribe(
+        (data) => {
+          this.historyList = data.body;
+        },
+        (err) => this.jhiAlertService.error(err.detail, null, null),
+        () => this.jhiAlertService.success('loaded history list', null, null)
+    );
+    }
+
   trackId(index: number, item: Task) {
     return item.id;
   }
@@ -155,15 +184,26 @@ export class ExtTaskListTemplateComponent implements OnInit {
     this.updateTasks(this.tasks, historyObe, 'peckOrder');
   }
 
+  updateSnFiles(snFiles: SnFile[]) {
+    this.extTaskService.updateSnFiles(snFiles).subscribe(
+      (data) => {
+        this.jhiAlertService.success('success! ' + data.msg);
+        console.log('updateSnFiles msg=' + JSON.stringify(data.msg));
+      },
+      (err) => this.jhiAlertService.error('error in updating snFiles!' + err, null, null),
+      () => this.jhiAlertService.success('updated snFiles', null, null)
+    );
+  }
+
   updateTasks(tasks: Task[], historyObe: TaskHistory, fieldNames: String) {
 
     this.extTaskService.updateTasks(tasks, historyObe, fieldNames).subscribe(
       (data) => {
         this.jhiAlertService.success('success! ' + data.msg);
-        // console.log('updateTasks msg=' + JSON.stringify(data.msg));
+        console.log('updateTasks msg=' + JSON.stringify(data.msg));
         this.uponReload(true);
       },
-      (err) => this.jhiAlertService.error(err.detail.body, null, null),
+      (err) => this.jhiAlertService.error('error in updating tasks!' + err, null, null),
       () => this.jhiAlertService.success('updated tasks', null, null)
     );
   }

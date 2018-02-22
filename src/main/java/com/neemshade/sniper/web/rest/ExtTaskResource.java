@@ -30,12 +30,14 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.codahale.metrics.annotation.Timed;
+import com.neemshade.sniper.domain.SnFile;
 import com.neemshade.sniper.domain.Task;
 import com.neemshade.sniper.domain.TaskGroup;
 import com.neemshade.sniper.domain.TaskHistory;
 import com.neemshade.sniper.security.AuthoritiesConstants;
 import com.neemshade.sniper.service.ExtTaskService;
 import com.neemshade.sniper.service.ExtUploaderService;
+import com.neemshade.sniper.service.SnFileService;
 import com.neemshade.sniper.service.TaskService;
 import com.neemshade.sniper.web.rest.util.HeaderUtil;
 
@@ -50,6 +52,9 @@ public class ExtTaskResource {
 	
 	@Autowired
 	private TaskService taskService;
+	
+	@Autowired
+	private SnFileService snFileService;
 	
 	@Autowired
 	private ExtUploaderService extUploaderService;
@@ -98,6 +103,23 @@ public class ExtTaskResource {
 //		return new ArrayList<Task>();
 	}
 	
+	
+	@GetMapping(value="snfiles-of-task")
+	public List<SnFile> getSnFilesOfTask(
+			@RequestParam(value = "taskId") Long taskId) {
+
+		return snFileService.findSnFilesOfTask(taskId);
+
+	}
+	
+	@GetMapping(value="history-of-task")
+	public List<TaskHistory> getHistoryOfTask(
+			@RequestParam(value = "taskId") Long taskId) {
+
+		return extTaskService.findHistoryOfTask(taskId);
+
+	}
+	
 	  // upload all the files
 	  // source can be task or taskGroup
 	  // id can be zero or any id
@@ -120,7 +142,21 @@ public class ExtTaskResource {
 		return true;
 	}
 	
-	
+	@PutMapping("/update-snfiles")
+	@Secured({AuthoritiesConstants.MANAGER})
+    @Timed
+    public String updateSnFiles(@RequestBody List<SnFile> snFiles) throws Exception {
+        log.debug("Put request to update snFile list : {}");
+        
+        if(snFiles == null)
+        {
+        	throw new Exception("Error! null snFiles");
+        }
+        
+        return extTaskService.updateSnFiles(snFiles);
+//        return extTaskService.updateTasks(paramObj);
+        
+    }
 	
 	@PutMapping("/update-tasks")
     @Timed

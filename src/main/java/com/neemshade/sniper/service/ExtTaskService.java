@@ -14,6 +14,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.neemshade.sniper.domain.SnFile;
 import com.neemshade.sniper.domain.Task;
 import com.neemshade.sniper.domain.TaskGroup;
 import com.neemshade.sniper.domain.TaskHistory;
@@ -37,6 +38,9 @@ public class ExtTaskService {
 	
 	@Autowired
 	private TaskService taskService;
+	
+	@Autowired
+	private SnFileService snFileService;
 	
 	@Autowired
 	private TaskHistoryRepository taskHistoryRepository;
@@ -153,6 +157,22 @@ public class ExtTaskService {
 		return "Updated " + tasks.size() + " tasks with " + fieldNames + " properties";
 	}
 	
+	/**
+	 * most likely the pm would have changed the final count.  update all the given snFiles
+	 * @param snFiles
+	 * @return
+	 */
+	public String updateSnFiles(List<SnFile> snFiles) {
+		
+		
+		for(SnFile snFile : snFiles) {
+			SnFile updatedSnFile = snFileService.save(snFile);
+		}
+//		
+		return "{ \"msg\" : \"Updated " + snFiles.size() + " files \" }";
+	}
+
+	
 	public String updateTasks(List<Task> tasks, TaskHistory historyObe, String fieldNames) throws Exception {
 		if(historyObe == null)
 		{
@@ -199,6 +219,11 @@ public class ExtTaskService {
 	{
 		createTaskHistory(task, historyObe.getTaskStatus(), historyObe.getNotes());
 	}
+
+	public List<TaskHistory> findHistoryOfTask(Long taskId) {
+		return taskHistoryRepository.findByTaskId(taskId);
+	}
+
 
 	
 }
