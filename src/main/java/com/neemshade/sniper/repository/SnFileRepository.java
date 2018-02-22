@@ -1,6 +1,8 @@
 package com.neemshade.sniper.repository;
 
 import com.neemshade.sniper.domain.SnFile;
+import com.neemshade.sniper.domain.TaskHistory;
+
 import org.springframework.stereotype.Repository;
 
 import org.springframework.data.jpa.repository.*;
@@ -21,4 +23,6 @@ public interface SnFileRepository extends JpaRepository<SnFile, Long> {
     SnFile findOneWithEagerRelationships(@Param("id") Long id);
 
     Optional<SnFile> findFirstByTasksIdOrderByPeckOrderDesc(Long taskId);
+    
+    List<SnFile> findByTasksId(Long taskId);
 }

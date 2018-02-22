@@ -7,10 +7,11 @@ import { JhiEventManager, JhiParseLinks, JhiAlertService } from 'ng-jhipster';
 import { JhiDateUtils } from 'ng-jhipster';
 import { createRequestOption } from '../../shared';
 
+import {SnFile} from '../sn-file/sn-file.model';
+
 import { TaskGroup } from '../task-group/task-group.model';
 import { Task } from '../task/task.model';
 import { TaskHistory } from '../task-history/task-history.model';
-
 import {TaskGroupService} from '../task-group/task-group.service';
 import {TaskService} from '../task/task.service';
 
@@ -75,6 +76,14 @@ export class ExtTaskService {
   }
 
   /**
+   * update given list of snFiles
+   * @param snFiles
+   */
+  updateSnFiles(snFiles: SnFile[]): Observable<any> {
+    return this.http.put(this.resourceUrl + 'update-snfiles', snFiles);
+  }
+
+  /**
    * update given list of tasks
    * tasks - list of tasks to be updated
    * historyObe - history records of are created based on status and notes from historyObe
@@ -96,5 +105,21 @@ export class ExtTaskService {
     };
 
     return this.http.put(this.resourceUrl + 'update-tasks', paramObj);
+  }
+
+  findSnFiles(taskId: number): Observable<any> {
+    const paramObj = {
+      'taskId': taskId
+    };
+
+    return this.http.put(this.resourceUrl + 'snfiles-of-task', paramObj);
+  }
+
+  findHistory(taskId: number): Observable<any> {
+    const paramObj = {
+      'taskId': taskId
+    };
+
+    return this.http.put(this.resourceUrl + 'history-of-task', paramObj);
   }
 }

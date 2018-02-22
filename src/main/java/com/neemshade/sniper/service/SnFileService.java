@@ -67,4 +67,8 @@ public class SnFileService {
         log.debug("Request to delete SnFile : {}", id);
         snFileRepository.delete(id);
     }
+
+	public List<SnFile> findSnFilesOfTask(Long taskId) {
+		return snFileRepository.findByTasksId(taskId);
+	}
 }
