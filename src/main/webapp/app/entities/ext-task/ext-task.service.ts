@@ -39,6 +39,7 @@ export class ExtTaskService {
 
   // get all the tasks of taskGroup falling in this date range.
   queryTasksOfTaskGroup(req?: any): Observable<any> {
+    // const reqObj = {'map': req};
     const options = createRequestOption(req);
     return this.http.get(this.resourceUrl + 'tasks-of-task-group', { params: options, observe: 'response' });
         // .map((res: HttpResponse<Task[]>) => this.taskService.convertArrayResponse(res));
@@ -81,6 +82,13 @@ export class ExtTaskService {
    */
   updateTasks(tasks: Task[], historyObe: TaskHistory, fieldNames: String)
   : Observable<any> {
+
+    // const paramObj = [
+    //   tasks,
+    //   historyObe,
+    //   fieldNames
+    // ];
+
     const paramObj = {
       'tasks': tasks,
       'historyObe': historyObe,

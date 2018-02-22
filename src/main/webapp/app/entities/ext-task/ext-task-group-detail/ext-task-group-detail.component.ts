@@ -122,13 +122,15 @@ export class ExtTaskGroupDetailComponent implements OnInit, OnDestroy {
 
   loadTasksOfTaskGroup(urlParamObj) {
     console.log('inside parent loadTasksOfTaskGroup');
+    // const obj = urlParamObj['map'];
+    // obj['taskGroupId'] = this.taskGroupId;
     urlParamObj['taskGroupId'] = this.taskGroupId;
     this.extTaskService.queryTasksOfTaskGroup(urlParamObj).subscribe(
         (data) => {
           this.tasks = data.body;
           // this.templateComponent.setParams(this.tasks);
         },
-        (err) => this.jhiAlertService.error(err, null, null),
+        (err) => this.jhiAlertService.error(err.detail, null, null),
         () => this.jhiAlertService.success('loaded taskGroup and tasks', null, null)
     );
   }
