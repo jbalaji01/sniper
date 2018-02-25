@@ -13,7 +13,7 @@ import { HttpHeaderResponse } from '@angular/common/http/src/response';
 export class UploaderComponent implements OnInit {
   @Input() source: string;
   @Input() id: number;
-  @Output() onCompletion = new EventEmitter<boolean>();
+  @Output() onCompletion = new EventEmitter<number>();
 
   selectedFiles: FileList;
   // currentFileUpload: File;
@@ -28,11 +28,13 @@ export class UploaderComponent implements OnInit {
 
   // what to display in the upload button
   getBanner() {
-    return this.source === 'task' ? '' :
-        this.id === 0 ? 'Create new tasks' : 'Add more tasks';
+    return this.source === 'taskGroup' ?
+        this.id === 0 ? 'Create new tasks' : 'Add more tasks'
+        : '';
   }
 
   selectFile(event) {
+    console.log('source = ' + this.source + ' id = ' + this.id);
     this.selectedFiles = event.target.files;
     this.upload();
   }
@@ -112,7 +114,7 @@ export class UploaderComponent implements OnInit {
   // true if successful completion
   uponCompletion(status: boolean) {
 
-    this.onCompletion.emit(status);
+    this.onCompletion.emit(this.id);
     this.progress.isUploaded = false;
   }
 

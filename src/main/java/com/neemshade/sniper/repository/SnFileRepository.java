@@ -24,5 +24,5 @@ public interface SnFileRepository extends JpaRepository<SnFile, Long> {
 
     Optional<SnFile> findFirstByTasksIdOrderByPeckOrderDesc(Long taskId);
     
-    List<SnFile> findByTasksId(Long taskId);
+    List<SnFile> findByTasksIdOrderByIsInputDescPeckOrderAsc(Long taskId);
 }

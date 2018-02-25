@@ -1,4 +1,4 @@
-import { Component, OnInit, EventEmitter, Input, Output } from '@angular/core';
+import { Component, OnInit, EventEmitter, Input, Output, ViewChild } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Subscription } from 'rxjs/Subscription';
@@ -7,10 +7,13 @@ import { ITEMS_PER_PAGE, Principal } from '../../../shared';
 
 import {SnFile} from '../../sn-file/sn-file.model';
 
-import { Task } from '../../task/task.model';
+import { Task, TaskStatus } from '../../task/task.model';
 import { TaskHistory } from '../../task-history/task-history.model';
 import { TaskStatus as HistoryStatus} from '../../task-history/task-history.model';
 import { ExtTaskService } from '../ext-task.service';
+
+import { DownloaderComponent } from '../downloader/downloader.component';
+
 // import { componentRefresh } from '@angular/core/src/render3/instructions';
 // import { OnChanges } from '@angular/core/src/metadata/lifecycle_hooks';
 
@@ -24,6 +27,8 @@ export class ExtTaskListTemplateComponent implements OnInit {
   @Input() source: string;
   @Input() tasks: Task[];
   @Output() onReload = new EventEmitter<object>();
+
+  // @ViewChild('selectedTasksDownloader') selectedTasksDownloader: DownloaderComponent;
 
     // clear these lists when corresponding pop-up is closed
     snFiles: SnFile[];
@@ -44,6 +49,9 @@ export class ExtTaskListTemplateComponent implements OnInit {
     toDate: string;
 
     datePipe: DatePipe;
+
+    // when task table checkbox is ticked or unticked, update this list
+    selectedTasks: Task[];
 
   constructor(
         private extTaskService: ExtTaskService,
@@ -173,15 +181,31 @@ export class ExtTaskListTemplateComponent implements OnInit {
     // this.uponReload(true);
     // console.log(JSON.stringify(this.tasks));
 
-    const historyObe: TaskHistory = new TaskHistory();
-    historyObe.taskStatus = HistoryStatus.SETTING;
-    historyObe.notes = 'updated peckOrder';
+    // const historyObe: TaskHistory = new TaskHistory();
+    // historyObe.taskStatus = HistoryStatus.SETTING;
+    // historyObe.notes = 'updated peckOrder';
 
-    this.tasks.forEach((task) => {
-      task.peckOrder = task.peckOrder + 2;
-    });
+    // this.tasks.forEach((task) => {
+    //   task.peckOrder = task.peckOrder + 2;
+    // });
 
-    this.updateTasks(this.tasks, historyObe, 'peckOrder');
+    // this.updateTasks(this.tasks, historyObe, 'peckOrder');
+    this.updateSelectedTasks();
+  }
+
+  // call this fn when task checkbox is ticked or unticked
+  updateSelectedTasks() {
+    if (this.selectedTasks == null) {
+      this.selectedTasks = [];
+    }
+
+    this.selectedTasks.length = 0;
+    this.selectedTasks.push(this.tasks[0]);
+    this.selectedTasks.push(this.tasks[2]);
+
+    console.log('setting selectedTask with ' + this.selectedTasks.length);
+
+    // this.selectedTasksDownloader.selectedTasks = this.selectedTasks;
   }
 
   updateSnFiles(snFiles: SnFile[]) {
@@ -196,10 +220,9 @@ export class ExtTaskListTemplateComponent implements OnInit {
   }
 
   updateTasks(tasks: Task[], historyObe: TaskHistory, fieldNames: String) {
-
     this.extTaskService.updateTasks(tasks, historyObe, fieldNames).subscribe(
       (data) => {
-        this.jhiAlertService.success('success! ' + data.msg);
+        // this.jhiAlertService.success('success! ' + data.msg);
         console.log('updateTasks msg=' + JSON.stringify(data.msg));
         this.uponReload(true);
       },
@@ -230,4 +253,61 @@ export class ExtTaskListTemplateComponent implements OnInit {
     // console.log('etlt child after Reload');
     // this.progress.isUploaded = false;
   }
+
+  uponUploadCompletion(taskId: number) {
+    this.createHistoryWithId(taskId, TaskStatus.UPLOADED, 'updated taskStatus to upload');
+    this.loadAll();
+  }
+
+  uponDownloadCompletion(taskId: number) {
+    this.createHistoryWithId(taskId, TaskStatus.DOWNLOADED, 'updated taskStatus to download');
+  }
+
+  uponSelectedTasksDownloadCompletion(dummyTaskId: number) {
+
+    this.selectedTasks.forEach((task) => {
+      task.taskStatus = TaskStatus.DOWNLOADED;
+    });
+
+    const historyObe: TaskHistory = this.composeHistoryObe(TaskStatus.DOWNLOADED, 'updated taskStatus to download');
+
+    this.updateTasks(this.selectedTasks, historyObe, 'taskStatus');
+  }
+
+  // scan thru tasks and locate taskId
+  findTask(taskId: number): Task {
+    return this.tasks.find((x) => x.id === taskId);
+  }
+
+  // create history of a task with task id
+  createHistoryWithId(taskId: number, taskStatus: TaskStatus, notes: string) {
+    const task: Task = this.findTask(taskId);
+    if (task == null) {
+      this.jhiAlertService.error('unable to locate task with id ' + taskId, null, null);
+      return;
+    }
+
+    this.createHistoryOfTask(task, taskStatus, notes);
+  }
+
+  // create task's history
+  createHistoryOfTask(task: Task, taskStatus: TaskStatus, notes: string) {
+    task.taskStatus = taskStatus;
+
+    const historyObe: TaskHistory = this.composeHistoryObe(taskStatus, notes);
+
+    this.updateTasks([task], historyObe, 'taskStatus');
+  }
+
+  composeHistoryObe(taskStatus: TaskStatus, notes: string): TaskHistory {
+    const historyObe: TaskHistory = new TaskHistory();
+    historyObe.taskStatus =
+        taskStatus === TaskStatus.DOWNLOADED ? HistoryStatus.DOWNLOADED :
+        taskStatus === TaskStatus.UPLOADED ? HistoryStatus.UPLOADED :
+        HistoryStatus.SETTING;
+    historyObe.notes = notes;
+
+    return historyObe;
+  }
+
 }

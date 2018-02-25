@@ -182,12 +182,8 @@ export class ExtTaskGroupListComponent implements OnInit, OnDestroy {
         this.jhiAlertService.error(error.message, null, null);
     }
 
-    uponCompletion(status: boolean) {
-      if (status) {
+    uponUploadCompletion(id: number) {
         this.jhiAlertService.success('Successfully uploaded files', null, null);
         this.loadAll();
-      } else {
-        // this.jhiAlertService.error('Unable to upload files', null, null);
-      }
     }
 }

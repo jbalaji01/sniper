@@ -1,23 +1,21 @@
+<div *ngIf="progress.isUploaded" class="progress">
+  <div class="progress-bar progress-bar-info progress-bar-striped" role="progressbar" attr.aria-valuenow="{{progress.percentage}}"
+    aria-valuemin="0" aria-valuemax="100" [ngStyle]="{width:progress.percentage+'%'}">
+    {{progress.percentage}}%</div>
+</div>
 
-  <div *ngIf="progress.isUploaded" class="progress">
-      <div class="progress-bar progress-bar-info progress-bar-striped"
-        role="progressbar" attr.aria-valuenow="{{progress.percentage}}"
-        aria-valuemin="0" aria-valuemax="100"
-        [ngStyle]="{width:progress.percentage+'%'}">
-        {{progress.percentage}}%</div>
-    </div>
-  
-  <!-- <input type="file" [multiple]="true" 
-          (change)="selectFile($event)"> -->
+<!-- <input type="file" [multiple]="true" 
+          (change)="selectFile($event)" placeholder="Upload files..."> -->
 
-  <!-- <button class="btn btn-success" [disabled]="!selectedFiles"
+<!-- <button class="btn btn-success" [disabled]="!selectedFiles"
           (click)="upload()">Upload</button> -->
 
-          <span class="upload_button corners">
-            <label>
-              <input type="file" (change)="selectFile($event)" multiple #fileInput placeholder="Upload files..." />
-              <span class="btn btn-primary btn-block">
-                <i class="fa fa-upload fa-lg"></i> {{ getBanner() }}
-            </span>
-            </label>
-          </span>
+<span class="upload_button corners">
+  <label>
+    <input class="upload_button corners" type="file" (change)="selectFile($event)" multiple #fileInput>
+    <span class="btn btn-primary btn-block">
+      <i class="fa fa-upload fa-lg"></i> {{ getBanner() }}
+    </span>
+    </input>
+  </label>
+</span>
