@@ -1,23 +1,19 @@
 package com.neemshade.sniper.web.rest;
 
-import java.io.File;
-import java.net.URISyntaxException;
 import java.time.LocalDate;
 import java.time.ZoneId;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -26,6 +22,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -35,11 +32,11 @@ import com.neemshade.sniper.domain.Task;
 import com.neemshade.sniper.domain.TaskGroup;
 import com.neemshade.sniper.domain.TaskHistory;
 import com.neemshade.sniper.security.AuthoritiesConstants;
+import com.neemshade.sniper.service.ExtDownloaderService;
 import com.neemshade.sniper.service.ExtTaskService;
 import com.neemshade.sniper.service.ExtUploaderService;
 import com.neemshade.sniper.service.SnFileService;
 import com.neemshade.sniper.service.TaskService;
-import com.neemshade.sniper.web.rest.util.HeaderUtil;
 
 @RestController
 @RequestMapping("/api/ext")
@@ -58,6 +55,9 @@ public class ExtTaskResource {
 	
 	@Autowired
 	private ExtUploaderService extUploaderService;
+	
+	@Autowired
+	private ExtDownloaderService extDownloaderService;
 
     public ExtTaskResource() {
     }
@@ -104,17 +104,17 @@ public class ExtTaskResource {
 	}
 	
 	
-	@GetMapping(value="snfiles-of-task")
+	@GetMapping(value="snfiles-of-task/{taskId}")
 	public List<SnFile> getSnFilesOfTask(
-			@RequestParam(value = "taskId") Long taskId) {
+			@PathVariable(value = "taskId") Long taskId) {
 
 		return snFileService.findSnFilesOfTask(taskId);
 
 	}
 	
-	@GetMapping(value="history-of-task")
+	@GetMapping(value="history-of-task/{taskId}")
 	public List<TaskHistory> getHistoryOfTask(
-			@RequestParam(value = "taskId") Long taskId) {
+			@PathVariable(value = "taskId") Long taskId) {
 
 		return extTaskService.findHistoryOfTask(taskId);
 
@@ -128,7 +128,7 @@ public class ExtTaskResource {
 		  
 	
 //	@RequestMapping(value= "/uploadFiles/{source}/{id}", method = {RequestMethod.POST, RequestMethod.GET})
-	@PostMapping("/uploadFiles/{source}/{id}")
+	@PostMapping("/upload-files/{source}/{id}")
 	public Boolean handleFileUpload(@PathVariable String source, @PathVariable Long id, @RequestParam("file[]") List<MultipartFile> mpFileList) throws Exception {
 		
 		try {
@@ -141,6 +141,22 @@ public class ExtTaskResource {
 		}
 		return true;
 	}
+	
+
+	@GetMapping(value="download-files/{source}/{id}/{selectedIds}", produces="application/zip")
+	@ResponseBody
+	public ResponseEntity<byte[]> downloadFiles(
+			@PathVariable String source, @PathVariable(value = "id") Long id,
+			@PathVariable(value = "selectedIds") String selectedIds) throws Exception {
+
+	    byte[] bytes = extDownloaderService.downloadFiles(source, id, selectedIds);
+	    MultiValueMap<String, String> headers = new LinkedMultiValueMap<>();
+//	    headers.add("Content-Type", "application/octet-stream");
+	    headers.add("Content-Type", "application/zip");
+	    headers.add("Content-Disposition", "attachment; filename=\"files.zip\"");
+	    return new ResponseEntity<>(bytes, headers, HttpStatus.OK);
+	   }
+	
 	
 	@PutMapping("/update-snfiles")
 	@Secured({AuthoritiesConstants.MANAGER})

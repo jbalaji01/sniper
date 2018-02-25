@@ -6,6 +6,7 @@ import com.neemshade.sniper.domain.TaskGroup;
 import org.springframework.stereotype.Repository;
 
 import java.time.Instant;
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.domain.Page;
@@ -24,5 +25,7 @@ public interface TaskRepository extends JpaRepository<Task, Long> {
 	Optional<Task> findFirstByTaskGroupIdOrderByPeckOrderDesc(Long taskGroupId);
 	
 	Page<Task> findByTaskGroup_IdAndCreatedTimeBetween(Long taskGroupId, Instant fromDate, Instant toDate, Pageable pageable);
+
+	List<Task> findByTaskGroupIdOrderByPeckOrder(Long taskGroupId);
 
 }

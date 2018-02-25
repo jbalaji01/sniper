@@ -69,6 +69,6 @@ public class SnFileService {
     }
 
 	public List<SnFile> findSnFilesOfTask(Long taskId) {
-		return snFileRepository.findByTasksId(taskId);
+		return snFileRepository.findByTasksIdOrderByIsInputDescPeckOrderAsc(taskId);
 	}
 }

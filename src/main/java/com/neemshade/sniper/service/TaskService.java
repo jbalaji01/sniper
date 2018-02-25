@@ -4,6 +4,7 @@ import com.neemshade.sniper.domain.Task;
 import com.neemshade.sniper.repository.TaskRepository;
 
 import java.time.Instant;
+import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -76,5 +77,9 @@ public class TaskService {
 	public Page<Task> findTasksOfTaskGroup(Long taskGroupId, Instant fromDate, Instant toDate, Pageable pageable) {
 		
 		return taskRepository.findByTaskGroup_IdAndCreatedTimeBetween(taskGroupId, fromDate, toDate, pageable);
+	}
+
+	public List<Task> findTasksOfTaskGroup(Long taskGroupId) {
+		return taskRepository.findByTaskGroupIdOrderByPeckOrder(taskGroupId);
 	}
 }

@@ -65,7 +65,7 @@ export class ExtTaskService {
       formdata.append('file[]', fileList.item(i));
     }
 
-    const finalUrl: string = this.resourceUrl + 'uploadFiles/' + source + '/' + id;
+    const finalUrl: string = this.resourceUrl + 'upload-files/' + source + '/' + id;
     console.log(finalUrl);
     const req = new HttpRequest('POST', finalUrl, formdata, {
       reportProgress: true,
@@ -73,6 +73,27 @@ export class ExtTaskService {
     });
 
     return this.http.request(req);
+  }
+
+  getDownloadLink(source: string, id: number, selectedTasks: Task[]): string {
+    let selectedIds = '';
+
+    if (selectedTasks != null) {
+      selectedTasks.forEach((task) => {
+        selectedIds += task.id + ',';
+      });
+    }
+
+    const url = this.resourceUrl + 'download-files/' + source + '/' + id + '/' +
+           (selectedIds == null || selectedIds === '' ? '0' : selectedIds);
+
+    console.log(url);
+    return url;
+  }
+
+  downloadFiles(source: string, id: number, selectedTasks: Task[]): Observable<any> {
+    const finalUrl: string = this.getDownloadLink(source, id, selectedTasks);
+    return this.http.get(finalUrl, { responseType: 'blob' });
   }
 
   /**
@@ -92,12 +113,6 @@ export class ExtTaskService {
   updateTasks(tasks: Task[], historyObe: TaskHistory, fieldNames: String)
   : Observable<any> {
 
-    // const paramObj = [
-    //   tasks,
-    //   historyObe,
-    //   fieldNames
-    // ];
-
     const paramObj = {
       'tasks': tasks,
       'historyObe': historyObe,
@@ -108,18 +123,10 @@ export class ExtTaskService {
   }
 
   findSnFiles(taskId: number): Observable<any> {
-    const paramObj = {
-      'taskId': taskId
-    };
-
-    return this.http.put(this.resourceUrl + 'snfiles-of-task', paramObj);
+    return this.http.get(this.resourceUrl + 'snfiles-of-task/' + taskId);
   }
 
   findHistory(taskId: number): Observable<any> {
-    const paramObj = {
-      'taskId': taskId
-    };
-
-    return this.http.put(this.resourceUrl + 'history-of-task', paramObj);
+    return this.http.get(this.resourceUrl + 'history-of-task/' + taskId);
   }
 }

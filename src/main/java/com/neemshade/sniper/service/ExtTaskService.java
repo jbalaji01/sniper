@@ -221,7 +221,7 @@ public class ExtTaskService {
 	}
 
 	public List<TaskHistory> findHistoryOfTask(Long taskId) {
-		return taskHistoryRepository.findByTaskId(taskId);
+		return taskHistoryRepository.findByTaskIdOrderByPunchTimeDesc(taskId);
 	}
 
 

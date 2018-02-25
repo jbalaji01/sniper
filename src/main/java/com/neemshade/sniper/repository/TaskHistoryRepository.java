@@ -19,6 +19,6 @@ import org.springframework.data.jpa.repository.*;
 @Repository
 public interface TaskHistoryRepository extends JpaRepository<TaskHistory, Long> {
 
-	List<TaskHistory> findByTaskId(Long taskId);
+	List<TaskHistory> findByTaskIdOrderByPunchTimeDesc(Long taskId);
 
 }

@@ -164,4 +164,11 @@ export class ExtTaskGroupDetailComponent implements OnInit, OnDestroy {
     this.loadWithUrlParamObj(urlParamObj);
     console.log('parent reload ');
   }
+
+  uponUploadCompletion(status: boolean) {
+      this.loadAll();
+  }
+
+  uponDownloadCompletion(id: number) {
+  }
 }

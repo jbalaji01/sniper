@@ -22,6 +22,9 @@
     </div>
   </div>
 
+  <jhi-downloader [source]="'selectedTasks'" [id]="0" [selectedTasks]="selectedTasks"
+                  (onCompletion)="uponSelectedTasksDownloadCompletion($event)"></jhi-downloader>
+
   <div class="table-responsive" *ngIf="tasks">
     <table class="table table-striped">
       <thead>
@@ -99,7 +102,13 @@
           <td>
             <a [routerLink]="['../task', task.id ]">{{task.id}}</a>
           </td>
-          <td>{{task.taskTitle}}</td>
+          <td>{{task.taskTitle}} <br> 
+            <jhi-uploader [source]="'task'" [id]="task.id"
+                  (onCompletion)="uponUploadCompletion($event)"></jhi-uploader>
+
+            <jhi-downloader [source]="'task'" [id]="task.id"
+                  (onCompletion)="uponDownloadCompletion($event)"></jhi-downloader>
+          </td>
           <td>{{task.taskStatus}}</td>
           <td>{{task.createdTime | date:'medium'}}</td>
           <td>{{task.hasPMSignedOff}}</td>
