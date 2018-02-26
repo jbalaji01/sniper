@@ -3,6 +3,7 @@ package com.neemshade.sniper.web.rest;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.List;
+import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -82,7 +83,7 @@ public class ExtTaskResource {
 	
 //	@GetMapping(value="tasks-of-task-group", params = {"taskGroupId", "fromDate", "toDate"})
 	@GetMapping(value="tasks")
-	public List<Task> getTasksOfTaskGroup(
+	public List<Task> getTasks(
 			@RequestParam(value = "source") String source,
 			@RequestParam(value = "taskGroupId") Long taskGroupId,
 			@RequestParam(value = "fromDate") LocalDate fromDate,
@@ -121,6 +122,18 @@ public class ExtTaskResource {
 		return extTaskService.findHistoryOfTask(taskId);
 
 	}
+	
+	/**
+	 * fn collects user, company, hospital and doctor info
+	 * 
+	 * @return all data is placed in map
+	 */
+	@GetMapping(value="bundle")
+	public Map<ExtTaskService.BUNDLE_FIELD, Object> fetchBundle() {
+		return extTaskService.fetchBundle();
+
+	}
+	
 	
 	  // upload all the files
 	  // source can be task or taskGroup

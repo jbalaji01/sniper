@@ -1,5 +1,6 @@
 package com.neemshade.sniper.repository;
 
+
 import com.neemshade.sniper.domain.Doctor;
 import org.springframework.stereotype.Repository;
 
@@ -19,4 +20,5 @@ public interface DoctorRepository extends JpaRepository<Doctor, Long> {
     @Query("select doctor from Doctor doctor left join fetch doctor.hospitals where doctor.id =:id")
     Doctor findOneWithEagerRelationships(@Param("id") Long id);
 
+    List<Doctor> findAllByOrderByDoctorName();
 }

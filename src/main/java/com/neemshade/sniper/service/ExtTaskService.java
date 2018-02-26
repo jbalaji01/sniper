@@ -1,8 +1,10 @@
 package com.neemshade.sniper.service;
 
 import java.time.Instant;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
@@ -21,6 +23,9 @@ import com.neemshade.sniper.domain.TaskHistory;
 import com.neemshade.sniper.domain.User;
 import com.neemshade.sniper.domain.UserInfo;
 import com.neemshade.sniper.domain.enumeration.TaskStatus;
+import com.neemshade.sniper.repository.CompanyRepository;
+import com.neemshade.sniper.repository.DoctorRepository;
+import com.neemshade.sniper.repository.HospitalRepository;
 import com.neemshade.sniper.repository.TaskGroupRepository;
 import com.neemshade.sniper.repository.TaskHistoryRepository;
 import com.neemshade.sniper.repository.UserInfoRepository;
@@ -50,6 +55,64 @@ public class ExtTaskService {
 	
 	@Autowired
 	private UserInfoRepository userInfoRepository;
+	
+	@Autowired
+	private CompanyRepository companyRepository;
+	
+	@Autowired
+	private HospitalRepository hospitalRepository;
+	
+	@Autowired
+	private DoctorRepository doctorRepository;
+	
+	public enum TASK_UPDATE_PARAM {
+	    TASKS ("tasks"),
+	    HISTORY_OBE ("historyObe"),
+	    FIELD_NAMES ("fieldNames");
+		
+		private String field;
+		
+		public String getField()
+		{
+			return field;
+		}
+	    
+	 // enum constructor - cannot be public or protected
+	    private TASK_UPDATE_PARAM(String field)
+	    {
+	        this.field = field;
+	    }
+	}
+	
+	
+	
+	public  static enum BUNDLE_FIELD {
+		USER ("USER"),
+	    COMPANY ("COMPANY"),
+	    HOSPITAL ("HOSPITAL"),
+	    DOCTOR ("DOCTOR"),
+	    OWNER ("OWNER"),
+	    TRANSCRIPT ("TRANSCRIPT"),
+	    EDITOR ("EDITOR"),
+	    MANAGER ("MANAGER");
+		
+		private String field;
+		
+		public String getField()
+		{
+			return field;
+		}
+	    
+	 // enum constructor - cannot be public or protected
+	    private BUNDLE_FIELD(String field)
+	    {
+	        this.field = field;
+	    }
+	}
+	
+	
+	
+	
 
     public ExtTaskService() {
     }
@@ -109,24 +172,17 @@ public class ExtTaskService {
 	}
 	
 	
-	public  enum TASK_UPDATE_PARAM {
-	    TASKS ("tasks"),
-	    HISTORY_OBE ("historyObe"),
-	    FIELD_NAMES ("fieldNames");
+	public Map<BUNDLE_FIELD, Object> fetchBundle() {
+		Map<BUNDLE_FIELD, Object> map = new HashMap<BUNDLE_FIELD, Object>();
 		
-		private String field;
+		map.put(BUNDLE_FIELD.COMPANY, companyRepository.findAllByOrderByCompanyName());
+		map.put(BUNDLE_FIELD.HOSPITAL, hospitalRepository.findAllByOrderByHospitalName());
+		map.put(BUNDLE_FIELD.DOCTOR, doctorRepository.findAllByOrderByDoctorName());
+		map.put(BUNDLE_FIELD.USER, userInfoRepository.findAllByOrderByEmpCode());
 		
-		public String getField()
-		{
-			return field;
-		}
-	    
-	 // enum constructor - cannot be public or protected
-	    private TASK_UPDATE_PARAM(String field)
-	    {
-	        this.field = field;
-	    }
+		return map;
 	}
+
 	
 	/**
 	   * update given list of tasks,  Given map contains the following
@@ -252,6 +308,7 @@ public class ExtTaskService {
 		return taskHistoryRepository.findByTaskIdOrderByPunchTimeDesc(taskId);
 	}
 
+	
 
 	
 }

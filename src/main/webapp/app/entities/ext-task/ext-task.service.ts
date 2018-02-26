@@ -47,6 +47,10 @@ export class ExtTaskService {
         // .map((res: HttpResponse<Task[]>) => this.taskService.convertArrayResponse(res));
   }
 
+  fetchBundle(): Observable<any> {
+    return this.http.get(this.resourceUrl + 'bundle');
+  }
+
   // upload all the files
   // source can be task or taskGroup
   // id can be zero or any id
@@ -88,7 +92,7 @@ export class ExtTaskService {
     const url = this.resourceUrl + 'download-files/' + source + '/' + id + '/' +
            (selectedIds == null || selectedIds === '' ? '0' : selectedIds);
 
-    console.log(url);
+    // console.log(url);
     return url;
   }
 

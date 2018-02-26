@@ -3,6 +3,8 @@ package com.neemshade.sniper.repository;
 import com.neemshade.sniper.domain.Hospital;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
 import org.springframework.data.jpa.repository.*;
 
 
@@ -12,5 +14,5 @@ import org.springframework.data.jpa.repository.*;
 @SuppressWarnings("unused")
 @Repository
 public interface HospitalRepository extends JpaRepository<Hospital, Long> {
-
+	List<Hospital> findAllByOrderByHospitalName();
 }

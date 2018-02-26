@@ -30,6 +30,7 @@ export class ExtTaskListTemplateComponent implements OnInit {
 
   // @ViewChild('selectedTasksDownloader') selectedTasksDownloader: DownloaderComponent;
     tasks: Task[];
+    bundleMap: object[];
 
     // clear these lists when corresponding pop-up is closed
     snFiles: SnFile[];
@@ -83,7 +84,7 @@ export class ExtTaskListTemplateComponent implements OnInit {
     this.previousMonth();
     this.onChangeDate();
     this.registerChangeInTaskTemplate();
-    // this.loadPage(this.page);
+    this.loadBundle();
   }
 
   onChangeDate() {
@@ -139,12 +140,27 @@ export class ExtTaskListTemplateComponent implements OnInit {
     );
   }
 
+  loadBundle() {
+    this.extTaskService.fetchBundle()
+    .subscribe(
+      (data) => {
+        this.bundleMap = data;
+        // console.log('teest 123  ' + JSON.stringify(this.bundleMap));
+        // console.log('test aaa ' +  BUNDLE_FIELD.HOSPITAL + ' ' + BUNDLE_FIELD[BUNDLE_FIELD.HOSPITAL]);
+        // console.log('hospi ' + JSON.stringify(this.bundleMap[BUNDLE_FIELD.HOSPITAL][0]));
+        // console.log('doci ' + JSON.stringify(this.bundleMap[BUNDLE_FIELD.DOCTOR][0]));
+      },
+      (err) => this.jhiAlertService.error(err.detail, null, null),
+      () => this.jhiAlertService.success('loaded files info', null, null)
+    );
+  }
+
    // get the snFiles of the task id
    loadSnFiles(taskId) {
     this.extTaskService.findSnFiles(taskId)
     .subscribe(
       (data) => {
-        this.snFiles = data.body;
+        this.snFiles = data;
       },
       (err) => this.jhiAlertService.error(err.detail, null, null),
       () => this.jhiAlertService.success('loaded files info', null, null)
@@ -155,7 +171,7 @@ export class ExtTaskListTemplateComponent implements OnInit {
   loadHistory(taskId) {
     this.extTaskService.findHistory(taskId).subscribe(
         (data) => {
-          this.historyList = data.body;
+          this.historyList = data;
         },
         (err) => this.jhiAlertService.error(err.detail, null, null),
         () => this.jhiAlertService.success('loaded history list', null, null)
@@ -320,4 +336,15 @@ export class ExtTaskListTemplateComponent implements OnInit {
     return historyObe;
   }
 
+}
+
+export enum BUNDLE_FIELD {
+  USER  = 'USER',
+  COMPANY = 'COMPANY',
+  HOSPITAL = 'HOSPITAL',
+  DOCTOR = 'DOCTOR',
+  OWNER = 'OWNER',
+  TRANSCRIPT = 'TRANSCRIPT',
+  EDITOR = 'EDITOR',
+  MANAGER = 'MANAGER'
 }
