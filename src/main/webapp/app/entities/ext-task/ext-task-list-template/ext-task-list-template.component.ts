@@ -25,10 +25,11 @@ import { DownloaderComponent } from '../downloader/downloader.component';
 export class ExtTaskListTemplateComponent implements OnInit {
 
   @Input() source: string;
-  @Input() tasks: Task[];
+  @Input() taskGroupId: number;
   @Output() onReload = new EventEmitter<object>();
 
   // @ViewChild('selectedTasksDownloader') selectedTasksDownloader: DownloaderComponent;
+    tasks: Task[];
 
     // clear these lists when corresponding pop-up is closed
     snFiles: SnFile[];
@@ -62,20 +63,14 @@ export class ExtTaskListTemplateComponent implements OnInit {
         private router: Router,
         private eventManager: JhiEventManager
   ) {
-    this.itemsPerPage = ITEMS_PER_PAGE;
-    this.routeData = this.activatedRoute.data.subscribe((data) => {
-            this.page = data.pagingParams.page;
-            this.previousPage = data.pagingParams.page;
-            this.reverse = data.pagingParams.ascending;
-            this.predicate = data.pagingParams.predicate;
-            console.log('page = ' + this.page);
-        });
-    this.datePipe = new DatePipe('en');
+
   }
 
   ngOnInit() {
     // console.log('in etlt init');
     this.itemsPerPage = ITEMS_PER_PAGE;
+    this.page = 1;
+    this.reverse = false;
     this.routeData = this.activatedRoute.data.subscribe((data) => {
             this.page = data.pagingParams.page;
             this.previousPage = data.pagingParams.page;
@@ -126,6 +121,22 @@ export class ExtTaskListTemplateComponent implements OnInit {
   loadPage(page: number) {
     this.page = page;
     this.uponReload(true);
+  }
+
+  loadTasks(urlParamObj) {
+    // console.log('inside parent loadTasksOfTaskGroup');
+    // const obj = urlParamObj['map'];
+    // obj['taskGroupId'] = this.taskGroupId;
+    urlParamObj['source'] = this.source;
+    urlParamObj['taskGroupId'] = this.taskGroupId;
+    this.extTaskService.queryTasks(urlParamObj).subscribe(
+        (data) => {
+          this.tasks = data.body;
+          // this.templateComponent.setParams(this.tasks);
+        },
+        (err) => this.jhiAlertService.error(err.detail, null, null),
+        () => this.jhiAlertService.success('loaded taskGroup and tasks', null, null)
+    );
   }
 
    // get the snFiles of the task id
@@ -203,9 +214,7 @@ export class ExtTaskListTemplateComponent implements OnInit {
     this.selectedTasks.push(this.tasks[0]);
     this.selectedTasks.push(this.tasks[2]);
 
-    console.log('setting selectedTask with ' + this.selectedTasks.length);
-
-    // this.selectedTasksDownloader.selectedTasks = this.selectedTasks;
+    // console.log('setting selectedTask with ' + this.selectedTasks.length);
   }
 
   updateSnFiles(snFiles: SnFile[]) {
@@ -248,6 +257,7 @@ export class ExtTaskListTemplateComponent implements OnInit {
     // const urlParamObj = { 'map': this.composeUrlParam()};
     // console.log('etlt child before Reload taskLen = ');
     const urlParamObj = this.composeUrlParam();
+    this.loadTasks(urlParamObj);
     this.onReload.emit(urlParamObj);
     // this.onReload(null);
     // console.log('etlt child after Reload');
