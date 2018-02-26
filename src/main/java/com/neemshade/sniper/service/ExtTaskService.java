@@ -80,6 +80,34 @@ public class ExtTaskService {
 		return taskGroupRepository.findAllByCreatedTimeBetweenOrderByCreatedTimeDesc(fromDate, toDate, pageable);
 	}
 	
+
+	/**
+	 * multi handling fn.  gets tasks based on source.  it could be taskgroup's tasks, active tasks or all tasks of user
+	 * @param source - taskGroup or activeTasks or allTasks
+	 * @param taskGroupId - applicable when source = taskGroup
+	 * @param fromDate
+	 * @param toDate
+	 * @param pageable
+	 * @return
+	 * @throws Exception
+	 */
+	public Page<Task> findTasks(
+			String source, Long taskGroupId, 
+			Instant fromDate, Instant toDate, Pageable pageable) 
+					throws Exception {
+		if(source == null || "".equals(source))
+			throw new Exception("Invalid source " + source);
+
+		if(source.equals("taskGroup"))
+			return taskService.findTasksOfTaskGroup(
+				taskGroupId,
+				fromDate,
+				toDate,
+				pageable);
+		
+		throw new Exception("Invalid source " + source);
+	}
+	
 	
 	public  enum TASK_UPDATE_PARAM {
 	    TASKS ("tasks"),

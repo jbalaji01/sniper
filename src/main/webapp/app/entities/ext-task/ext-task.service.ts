@@ -38,11 +38,12 @@ export class ExtTaskService {
     return this.http.get(this.resourceUrl + 'task-groups', { params: options, observe: 'response' });
   }
 
-  // get all the tasks of taskGroup falling in this date range.
-  queryTasksOfTaskGroup(req?: any): Observable<any> {
+  // get all the tasks of taskGroup or active task or all task list, falling in this date range.
+  // the kind of task list depends on the source param
+  queryTasks(req?: any): Observable<any> {
     // const reqObj = {'map': req};
     const options = createRequestOption(req);
-    return this.http.get(this.resourceUrl + 'tasks-of-task-group', { params: options, observe: 'response' });
+    return this.http.get(this.resourceUrl + 'tasks', { params: options, observe: 'response' });
         // .map((res: HttpResponse<Task[]>) => this.taskService.convertArrayResponse(res));
   }
 

@@ -81,18 +81,20 @@ public class ExtTaskResource {
 	}
 	
 //	@GetMapping(value="tasks-of-task-group", params = {"taskGroupId", "fromDate", "toDate"})
-	@GetMapping(value="tasks-of-task-group")
+	@GetMapping(value="tasks")
 	public List<Task> getTasksOfTaskGroup(
+			@RequestParam(value = "source") String source,
 			@RequestParam(value = "taskGroupId") Long taskGroupId,
 			@RequestParam(value = "fromDate") LocalDate fromDate,
 			@RequestParam(value = "toDate") LocalDate toDate,
-			Pageable pageable) {
+			Pageable pageable) throws Exception {
 
 //		log.debug("taskGroupId = " + taskGroupId);
 //		log.debug("fromDate = " + fromDate);
 //		log.debug("toDate = " + toDate);
 		
-		Page<Task> page = taskService.findTasksOfTaskGroup(
+		Page<Task> page = extTaskService.findTasks(
+				source,
 				taskGroupId,
 				fromDate.atStartOfDay(ZoneId.systemDefault()).toInstant(),
 				toDate.atStartOfDay(ZoneId.systemDefault()).plusDays(1).toInstant(),
@@ -129,7 +131,10 @@ public class ExtTaskResource {
 	
 //	@RequestMapping(value= "/uploadFiles/{source}/{id}", method = {RequestMethod.POST, RequestMethod.GET})
 	@PostMapping("/upload-files/{source}/{id}")
-	public Boolean handleFileUpload(@PathVariable String source, @PathVariable Long id, @RequestParam("file[]") List<MultipartFile> mpFileList) throws Exception {
+	public Boolean handleFileUpload(
+			@PathVariable String source, 
+			@PathVariable Long id, 
+			@RequestParam("file[]") List<MultipartFile> mpFileList) throws Exception {
 		
 		try {
 			extUploaderService.handleFileUpload(source, id, mpFileList);
