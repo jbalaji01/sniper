@@ -1,3 +1,18 @@
-<p>
-  ext-task-list works!
-</p>
+
+<h3>Active tasks</h3>
+<jhi-ext-task-list-template 
+  [source]="'activeTasks'"
+  [taskGroupId]="0"
+  (onReload)="reload($event)"
+  #activeTasksTemplate
+  ></jhi-ext-task-list-template>
+
+<hr/>
+
+<h3>All tasks</h3>
+<jhi-ext-task-list-template 
+  [source]="'allTasks'"
+  [taskGroupId]="0"
+  (onReload)="reload($event)"
+  #allTasksTemplate
+  ></jhi-ext-task-list-template>

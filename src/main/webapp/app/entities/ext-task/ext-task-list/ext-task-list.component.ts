@@ -1,4 +1,6 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
+
+import { ExtTaskListTemplateComponent } from '../ext-task-list-template/ext-task-list-template.component';
 
 @Component({
   selector: 'jhi-ext-task-list',
@@ -7,6 +9,9 @@ import { Component, OnInit } from '@angular/core';
 })
 export class ExtTaskListComponent implements OnInit {
 
+  @ViewChild('activeTasksTemplate') activeTasksTemplate: ExtTaskListTemplateComponent;
+  @ViewChild('allTasksTemplate') allTasksTemplate: ExtTaskListTemplateComponent;
+
   constructor() { }
 
   ngOnInit() {
@@ -14,5 +19,14 @@ export class ExtTaskListComponent implements OnInit {
 
   public handleClick(event: Event) {
     event.preventDefault();
+  }
+
+  reload(urlParamObj: any) {
+    console.log('inside task list ' + JSON.stringify(urlParamObj));
+    if (urlParamObj && urlParamObj['source'] === 'allTasks') {
+      this.activeTasksTemplate.refresh();
+    } else {
+      this.allTasksTemplate.refresh();
+    }
   }
 }
