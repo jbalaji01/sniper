@@ -26,18 +26,30 @@ export class ExtTaskService {
               private taskService: TaskService,
               private jhiAlertService: JhiAlertService) { }
 
-  /* queryTaskGroupsByDate(req?: any): Observable<HttpResponse<TaskGroup[]>> {
+  // get all the taskGroup falling in this date range.
+  queryTaskGroupsByDate(req?: any): Observable<HttpResponse<TaskGroup[]>> {
     const options = createRequestOption(req);
     return this.http.get<TaskGroup[]>(this.resourceUrl + 'task-groups', { params: options, observe: 'response' })
         .map((res: HttpResponse<TaskGroup[]>) => this.taskGroupService.convertArrayResponse(res));
-  } */
+  }
 
+  /*
   // get all the taskGroup falling in this date range.
   queryTaskGroupsByDate(req?: any): Observable<any> {
     const options = createRequestOption(req);
     return this.http.get(this.resourceUrl + 'task-groups', { params: options, observe: 'response' });
   }
+  */
 
+   // get all the tasks of taskGroup or active task or all task list, falling in this date range.
+  // the kind of task list depends on the source param
+  queryTasks(req?: any): Observable<HttpResponse<Task[]>> {
+    const options = createRequestOption(req);
+    return this.http.get<Task[]>(this.resourceUrl + 'tasks', { params: options, observe: 'response' })
+        .map((res: HttpResponse<Task[]>) => this.taskService.convertArrayResponse(res));
+  }
+
+  /*
   // get all the tasks of taskGroup or active task or all task list, falling in this date range.
   // the kind of task list depends on the source param
   queryTasks(req?: any): Observable<any> {
@@ -46,6 +58,7 @@ export class ExtTaskService {
     return this.http.get(this.resourceUrl + 'tasks', { params: options, observe: 'response' });
         // .map((res: HttpResponse<Task[]>) => this.taskService.convertArrayResponse(res));
   }
+  */
 
   fetchBundle(): Observable<any> {
     return this.http.get(this.resourceUrl + 'bundle');

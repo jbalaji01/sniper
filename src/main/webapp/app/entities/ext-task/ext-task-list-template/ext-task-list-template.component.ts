@@ -1,4 +1,5 @@
 import { Component, OnInit, EventEmitter, Input, Output, ViewChild } from '@angular/core';
+import { HttpResponse, HttpErrorResponse } from '@angular/common/http';
 import { DatePipe } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Subscription } from 'rxjs/Subscription';
@@ -125,6 +126,27 @@ export class ExtTaskListTemplateComponent implements OnInit {
   }
 
   loadTasks(urlParamObj) {
+
+    this.extTaskService.queryTasks(urlParamObj).subscribe(
+      (res: HttpResponse<Task[]>) => this.onSuccess(res.body, res.headers),
+      (res: HttpErrorResponse) => this.onError(res.message)
+    );
+  }
+
+  private onSuccess(data, headers) {
+    this.links = this.parseLinks.parse(headers.get('link'));
+    this.totalItems = headers.get('X-Total-Count');
+    this.queryCount = this.totalItems;
+    // this.page = pagingParams.page;
+    this.tasks = data;
+  }
+
+  private onError(error) {
+    this.jhiAlertService.error(error.message, null, null);
+  }
+
+  /*
+  loadTasks(urlParamObj) {
     // console.log('inside parent loadTasksOfTaskGroup');
     // const obj = urlParamObj['map'];
     // obj['taskGroupId'] = this.taskGroupId;
@@ -137,6 +159,7 @@ export class ExtTaskListTemplateComponent implements OnInit {
         () => this.jhiAlertService.success('loaded tasks', null, null)
     );
   }
+  */
 
   loadBundle() {
     this.extTaskService.fetchBundle()
