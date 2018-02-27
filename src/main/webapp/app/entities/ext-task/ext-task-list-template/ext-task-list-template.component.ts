@@ -128,15 +128,13 @@ export class ExtTaskListTemplateComponent implements OnInit {
     // console.log('inside parent loadTasksOfTaskGroup');
     // const obj = urlParamObj['map'];
     // obj['taskGroupId'] = this.taskGroupId;
-    urlParamObj['source'] = this.source;
-    urlParamObj['taskGroupId'] = this.taskGroupId;
     this.extTaskService.queryTasks(urlParamObj).subscribe(
         (data) => {
           this.tasks = data.body;
           // this.templateComponent.setParams(this.tasks);
         },
         (err) => this.jhiAlertService.error(err.detail, null, null),
-        () => this.jhiAlertService.success('loaded taskGroup and tasks', null, null)
+        () => this.jhiAlertService.success('loaded tasks', null, null)
     );
   }
 
@@ -153,6 +151,11 @@ export class ExtTaskListTemplateComponent implements OnInit {
       (err) => this.jhiAlertService.error(err.detail, null, null),
       () => this.jhiAlertService.success('loaded files info', null, null)
     );
+  }
+
+  refresh() {
+    const urlParamObj = this.composeUrlParam();
+    this.loadTasks(urlParamObj);
   }
 
    // get the snFiles of the task id
@@ -258,6 +261,9 @@ export class ExtTaskListTemplateComponent implements OnInit {
 
   composeUrlParam() {
     const urlParamObj: object = {
+      source: this.source,
+      taskGroupId: this.taskGroupId,
+
       fromDate: this.fromDate,
       toDate: this.toDate,
       page: this.page - 1,
