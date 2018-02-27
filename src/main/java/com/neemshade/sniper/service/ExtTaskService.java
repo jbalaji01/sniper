@@ -168,6 +168,18 @@ public class ExtTaskService {
 				toDate,
 				pageable);
 		
+		if(source.equals("activeTasks"))
+			return taskService.findActiveTasksOfUser(
+				fromDate,
+				toDate,
+				pageable);
+		
+		if(source.equals("allTasks"))
+			return taskService.findAllTasksOfUser(
+				fromDate,
+				toDate,
+				pageable);
+		
 		throw new Exception("Invalid source " + source);
 	}
 	

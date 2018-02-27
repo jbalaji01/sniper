@@ -11,6 +11,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -78,6 +80,15 @@ public class TaskService {
 	public Page<Task> findTasksOfTaskGroup(Long taskGroupId, Instant fromDate, Instant toDate, Pageable pageable) {
 		
 		return taskRepository.findByTaskGroup_IdAndCreatedTimeBetween(taskGroupId, fromDate, toDate, pageable);
+	}
+	
+	public Page<Task> findActiveTasksOfUser(Instant fromDate, Instant toDate, Pageable pageable) {
+		return taskRepository.findActiveTasksOfUser(fromDate, toDate, pageable);
+	}
+
+	
+	public Page<Task> findAllTasksOfUser(Instant fromDate, Instant toDate, Pageable pageable) {
+		return taskRepository.findAllTasksOfUser(fromDate, toDate, pageable);
 	}
 
 	public List<Task> findTasksOfTaskGroup(Long taskGroupId) {
