@@ -1,186 +1,208 @@
 <div>
 
-  <div class="row">
-  </div>
-  <br/>
-  <button (click)="sampleEvent()">Sample</button>
-  
-  <div class="row">
-    <div class="col-md-5">
-      <h4>Filter by date</h4>
-      <div class="input-group mb-3">
-        <div class="input-group-prepend">
-          <span class="input-group-text">from</span>
-        </div>
-        <input type="date" class="form-control" name="start" [(ngModel)]="fromDate" (ngModelChange)="onChangeDate($event)" required/>
-
-        <div class="input-group-append">
-          <span class="input-group-text">To</span>
-        </div>
-        <input type="date" class="form-control" name="end" [(ngModel)]="toDate" (ngModelChange)="onChangeDate($event)" required/>
-      </div>
+    <div class="row">
     </div>
-  </div>
+    <br/>
+</div>
 
-  <jhi-downloader [source]="'selectedTasks'" [id]="0" [selectedTasks]="selectedTasks"
-                  (onCompletion)="uponSelectedTasksDownloadCompletion($event)"></jhi-downloader>
 
-  <div *ngIf="(!tasks) || tasks.length == 0">
+<div class="row">
+    <div class="col-md-5">
+        <h4>Filter by date</h4>
+        <div class="input-group mb-3">
+            <div class="input-group-prepend">
+                <span class="input-group-text">from</span>
+            </div>
+            <input type="date" class="form-control" name="start" [(ngModel)]="fromDate" (ngModelChange)="onChangeDate($event)" required/>
+
+            <div class="input-group-append">
+                <span class="input-group-text">To</span>
+            </div>
+            <input type="date" class="form-control" name="end" [(ngModel)]="toDate" (ngModelChange)="onChangeDate($event)" required/>
+        </div>
+    </div>
+</div>
+
+<jhi-downloader [source]="'selectedTasks'" [id]="0" [selectedTasks]="selectedTasks" (onCompletion)="uponSelectedTasksDownloadCompletion($event)"></jhi-downloader>
+
+<div *ngIf="(!tasks) || tasks.length == 0">
     <b>No tasks in this list</b>
-  </div>
+</div>
 
-  <div class="table-responsive" *ngIf="tasks && tasks.length > 0">
+<div class="table-responsive" *ngIf="tasks && tasks.length > 0">
     <table class="table table-striped">
-      <thead>
-        <!-- <tr> -->
-        <tr jhiSort [(predicate)]="predicate" [(ascending)]="reverse" [callback]="transition.bind(this)">
-          <th jhiSortBy="id">
-            <span>ID</span>
-            <span class="fa fa-sort"></span>
-          </th>
-          <th jhiSortBy="taskTitle">
-            <span>Task Title</span>
-            <span class="fa fa-sort"></span>
-          </th>
-          <th jhiSortBy="taskStatus">
-            <span>Task Status</span>
-            <span class="fa fa-sort"></span>
-          </th>
-          <th jhiSortBy="createdTime">
-            <span>Created Time</span>
-            <span class="fa fa-sort"></span>
-          </th>
-          <th jhiSortBy="hasPMSignedOff">
-            <span>Has PM Signed Off</span>
-            <span class="fa fa-sort"></span>
-          </th>
-          <th jhiSortBy="isActive">
-            <span>Is Active</span>
-            <span class="fa fa-sort"></span>
-          </th>
-          <th jhiSortBy="peckOrder">
-            <span>Peck Order</span>
-            <span class="fa fa-sort"></span>
-          </th>
-          <th jhiSortBy="notes">
-            <span>Notes</span>
-            <span class="fa fa-sort"></span>
-          </th>
-          <th jhiSortBy="company.companyName">
-            <span>Company</span>
-            <span class="fa fa-sort"></span>
-          </th>
-          <th jhiSortBy="taskGroup.id">
-            <span>Task Group</span>
-            <span class="fa fa-sort"></span>
-          </th>
-          <th jhiSortBy="owner.empCode">
-            <span>Owner</span>
-            <span class="fa fa-sort"></span>
-          </th>
-          <th jhiSortBy="transcript.empCode">
-            <span>Transcript</span>
-            <span class="fa fa-sort"></span>
-          </th>
-          <th jhiSortBy="editor.empCode">
-            <span>Editor</span>
-            <span class="fa fa-sort"></span>
-          </th>
-          <th jhiSortBy="manager.empCode">
-            <span>Manager</span>
-            <span class="fa fa-sort"></span>
-          </th>
-          <th jhiSortBy="doctor.doctorName">
-            <span>Doctor</span>
-            <span class="fa fa-sort"></span>
-          </th>
-          <th jhiSortBy="hospital.hospitalName">
-            <span>Hospital</span>
-            <span class="fa fa-sort"></span>
-          </th>
-          <th></th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr *ngFor="let task of tasks; trackBy: trackId">
-          <td>
-            <a [routerLink]="['../task', task.id ]">{{task.id}}</a>
-          </td>
-          <td>{{task.taskTitle}} <br> 
-            <jhi-uploader [source]="'task'" [id]="task.id"
-                  (onCompletion)="uponUploadCompletion($event)"></jhi-uploader>
+        <thead>
+            <!-- <tr> -->
+            <tr jhiSort [(predicate)]="predicate" [(ascending)]="reverse" [callback]="transition.bind(this)">
+                <th>
+                    <span>Mark</span>
+                </th>
+                <th><span>Done</span>
+                </th>
+                <th jhiSortBy="id">
+                    <span>ID</span>
+                    <span class="fa fa-sort"></span>
+                </th>
+                <th jhiSortBy="taskTitle">
+                    <span>Title</span>
+                    <span class="fa fa-sort"></span>
+                </th>
+                <th jhiSortBy="taskStatus">
+                    <span>Status</span>
+                    <span class="fa fa-sort"></span>
+                </th>
+                <th jhiSortBy="Source">
+                    Source
+                </th>
+                <th jhiSortBy="Players">
+                    Players
+                </th>
+                <th jhiSortBy="createdTime">
+                    <span>Created Time</span>
+                    <span class="fa fa-sort"></span>
+                </th>
+                <!--<th jhiSortBy="isActive">
+                        <span>Is Active</span>
+                        <span class="fa fa-sort"></span>
+                    </th>-->
+                <th jhiSortBy="History">
+                    <span>History</span>
+                    <span class="fa fa-sort"></span>
+                </th>
+                <th jhiSortBy="peckOrder">
+                    <span>Peck Order</span>
+                    <span class="fa fa-sort"></span>
+                </th>
+                <!--<th jhiSortBy="notes">
+                        <span>Notes</span>
+                        <span class="fa fa-sort"></span>
+                    </th>-->
+                <!--<th jhiSortBy="company.companyName">
+                    <span>Company</span>
+                    <span class="fa fa-sort"></span>
+                </th>
+                <th jhiSortBy="hospital.hospitalName">
+                    <span>Hospital</span>
+                    <span class="fa fa-sort"></span>
+                </th>
+                <th jhiSortBy="doctor.doctorName">
+                    <span>Doctor</span>
+                    <span class="fa fa-sort"></span>
+                </th>-->
 
-            <jhi-downloader [source]="'task'" [id]="task.id"
-                  (onCompletion)="uponDownloadCompletion($event)"></jhi-downloader>
-          </td>
-          <td>{{task.taskStatus}}</td>
-          <td>{{task.createdTime | date:'medium'}}</td>
-          <td>{{task.hasPMSignedOff}}</td>
-          <td>{{task.isActive}}</td>
-          <td>{{task.peckOrder}}</td>
-          <td>{{task.notes}}</td>
-          <td>
-            <div *ngIf="task.company">
-              <a [routerLink]="['../company', task.company?.id ]">{{task.company?.companyName}}</a>
-            </div>
-          </td>
-          <td>
-            <div *ngIf="task.taskGroup">
-              <a [routerLink]="['../task-group', task.taskGroup?.id ]">{{task.taskGroup?.id}}</a>
-            </div>
-          </td>
-          <td>
-            <div *ngIf="task.owner">
-              <a [routerLink]="['../user-info', task.owner?.id ]">{{task.owner?.empCode}}</a>
-            </div>
-          </td>
-          <td>
-            <div *ngIf="task.transcript">
-              <a [routerLink]="['../user-info', task.transcript?.id ]">{{task.transcript?.empCode}}</a>
-            </div>
-          </td>
-          <td>
-            <div *ngIf="task.editor">
-              <a [routerLink]="['../user-info', task.editor?.id ]">{{task.editor?.empCode}}</a>
-            </div>
-          </td>
-          <td>
-            <div *ngIf="task.manager">
-              <a [routerLink]="['../user-info', task.manager?.id ]">{{task.manager?.empCode}}</a>
-            </div>
-          </td>
-          <td>
-            <div *ngIf="task.doctor">
-              <a [routerLink]="['../doctor', task.doctor?.id ]">{{task.doctor?.doctorName}}</a>
-            </div>
-          </td>
-          <td>
-            <div *ngIf="task.hospital">
-              <a [routerLink]="['../hospital', task.hospital?.id ]">{{task.hospital?.hospitalName}}</a>
-            </div>
-          </td>
-          <td class="text-right">
-            <div class="btn-group flex-btn-group-container">
-              <button type="submit" [routerLink]="['../task', task.id ]" class="btn btn-info btn-sm">
+
+                <!--<th jhiSortBy="taskGroup.id">
+                        <span>Task Group</span>
+                        <span class="fa fa-sort"></span>
+                    </th>-->
+
+
+
+
+                <!--<th jhiSortBy="owner.empCode">
+                    <span>Owner</span>
+                    <span class="fa fa-sort"></span>
+                </th>
+                <th jhiSortBy="transcript.empCode">
+                    <span>Transcript</span>
+                    <span class="fa fa-sort"></span>
+                </th>
+                <th jhiSortBy="editor.empCode">
+                    <span>Editor</span>
+                    <span class="fa fa-sort"></span>
+                </th>
+                <th jhiSortBy="manager.empCode">
+                    <span>Manager</span>
+                    <span class="fa fa-sort"></span>
+                </th>-->
+
+
+                <th></th>
+            </tr>
+
+        </thead>
+        <tbody>
+            <tr *ngFor="let task of tasks; trackBy: trackId">
+                <td><input type="checkbox" name="mark"></td>
+                <td><button type="button" name="Done" value="Done">Done</button></td>
+                <td>
+                    <a [routerLink]="['../task', task.id ]">{{task.id}}</a>
+                </td>
+                <td>{{task.taskTitle}}
+                    <br/>
+                    <jhi-uploader [source]="'task'" [id]="task.id" (onCompletion)="uponUploadCompletion($event)"></jhi-uploader>
+
+                    <jhi-downloader [source]="'task'" [id]="task.id" (onCompletion)="uponDownloadCompletion($event)"></jhi-downloader>
+                </td>
+
+                <td>{{task.taskStatus}}</td>
+                <td>Company: {{task.company?.companyName}} <br/> Hospital: {{task.hospital?.hospitalName}} <br/> Doctor: {{task.doctor?.doctorName}} </td>
+                <td>Owner: {{task.owner?.empCode}} <br/> Transcript: {{task.transcript?.empCode}} <br/> Editor: {{task.editor?.empCode}} <br/> Manager: {{task.manager?.empCode}} </td>
+                <td>{{task.createdTime | date:'medium'}}</td>
+                <td>History</td>
+                <td>{{task.peckOrder}}</td>
+                <!--<td>
+                    <div *ngIf="task.company">
+                        <a [routerLink]="['../company', task.company?.id ]">{{task.company?.companyName}}</a>
+                    </div>
+                </td>
+                <td>
+                    <div *ngIf="task.hospital">
+                        <a [routerLink]="['../hospital', task.hospital?.id ]">{{task.hospital?.hospitalName}}</a>
+                    </div>
+                </td>
+                <td>
+                    <div *ngIf="task.doctor">
+                        <a [routerLink]="['../doctor', task.doctor?.id ]">{{task.doctor?.doctorName}}</a>
+                    </div>
+                </td>-->
+
+                <!--<td>
+                    <div *ngIf="task.taskGroup">
+                        <a [routerLink]="['../task-group', task.taskGroup?.id ]">{{task.taskGroup?.id}}</a>
+                    </div>
+                </td>-->
+                <!--<td>
+                    <div *ngIf="task.owner">
+                        <a [routerLink]="['../user-info', task.owner?.id ]">{{task.owner?.empCode}}</a>
+                    </div>
+                </td>
+                <td>
+                    <div *ngIf="task.transcript">
+                        <a [routerLink]="['../user-info', task.transcript?.id ]">{{task.transcript?.empCode}}</a>
+                    </div>
+                </td>
+                <td>
+                    <div *ngIf="task.editor">
+                        <a [routerLink]="['../user-info', task.editor?.id ]">{{task.editor?.empCode}}</a>
+                    </div>
+                </td>
+                <td>
+                    <div *ngIf="task.manager">
+                        <a [routerLink]="['../user-info', task.manager?.id ]">{{task.manager?.empCode}}</a>
+                    </div>
+                </td>-->
+                <td class="text-right">
+                    <div class="btn-group flex-btn-group-container">
+                        <button type="submit" [routerLink]="['../task', task.id ]" class="btn btn-info btn-sm">
                 <span class="fa fa-eye"></span>
                 <span class="d-none d-md-inline">View</span>
               </button>
-              <button type="submit" [routerLink]="['/', { outlets: { popup: 'task/'+ task.id + '/edit'} }]" replaceUrl="true" queryParamsHandling="merge"
-                class="btn btn-primary btn-sm">
+                        <button type="submit" [routerLink]="['/', { outlets: { popup: 'task/'+ task.id + '/edit'} }]" replaceUrl="true" queryParamsHandling="merge" class="btn btn-primary btn-sm">
                 <span class="fa fa-pencil"></span>
                 <span class="d-none d-md-inline">Edit</span>
               </button>
-              <button type="submit" [routerLink]="['/', { outlets: { popup: 'task/'+ task.id + '/delete'} }]" replaceUrl="true" queryParamsHandling="merge"
-                class="btn btn-danger btn-sm">
+                        <button type="submit" [routerLink]="['/', { outlets: { popup: 'task/'+ task.id + '/delete'} }]" replaceUrl="true" queryParamsHandling="merge" class="btn btn-danger btn-sm">
                 <span class="fa fa-remove"></span>
                 <span class="d-none d-md-inline">Delete</span>
               </button>
-            </div>
-          </td>
-        </tr>
-      </tbody>
+                    </div>
+                </td>
+            </tr>
+        </tbody>
     </table>
-  </div>
+</div>
+
 
   <div *ngIf="tasks && tasks.length">
         <div class="row justify-content-center">
@@ -195,4 +217,4 @@
         </div>
     </div>
 </div>
-
+</div>
