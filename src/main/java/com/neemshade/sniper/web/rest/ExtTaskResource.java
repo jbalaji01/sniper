@@ -10,6 +10,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
@@ -38,6 +39,7 @@ import com.neemshade.sniper.service.ExtTaskService;
 import com.neemshade.sniper.service.ExtUploaderService;
 import com.neemshade.sniper.service.SnFileService;
 import com.neemshade.sniper.service.TaskService;
+import com.neemshade.sniper.web.rest.util.PaginationUtil;
 
 @RestController
 @RequestMapping("/api/ext")
@@ -63,6 +65,31 @@ public class ExtTaskResource {
     public ExtTaskResource() {
     }
 	
+    /**
+     * GET  /task-groups : get all the taskGroups between given dates.
+     *
+     * @param pageable the pagination information
+     * @return the ResponseEntity with status 200 (OK) and the list of taskGroups in body
+     */
+    @RequestMapping(value="task-groups", method=RequestMethod.GET)
+    @GetMapping(params = {"fromDate", "toDate"})
+	@Secured({AuthoritiesConstants.MANAGER})
+	@Timed
+	public ResponseEntity<List<TaskGroup>> getTaskGroupByDates(
+       @RequestParam(value = "fromDate") LocalDate fromDate,
+       @RequestParam(value = "toDate") LocalDate toDate,
+       Pageable pageable) {
+
+       Page<TaskGroup> page = extTaskService.findTaskGroupByDates(
+           fromDate.atStartOfDay(ZoneId.systemDefault()).toInstant(),
+           toDate.atStartOfDay(ZoneId.systemDefault()).plusDays(1).toInstant(),
+           pageable);
+       HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(page, "/ext-task-group-list");
+       return new ResponseEntity<>(page.getContent(), headers, HttpStatus.OK);
+//       return page.getContent();
+	}
+    
+    /*
 	@RequestMapping(value="task-groups", method=RequestMethod.GET)
     @GetMapping(params = {"fromDate", "toDate"})
 	@Secured({AuthoritiesConstants.MANAGER})
@@ -80,9 +107,38 @@ public class ExtTaskResource {
 //       return new ResponseEntity<>(page.getContent(), headers, HttpStatus.OK);
        return page.getContent();
 	}
+	*/
 	
-//	@GetMapping(value="tasks-of-task-group", params = {"taskGroupId", "fromDate", "toDate"})
+    
 	@GetMapping(value="tasks")
+	public ResponseEntity<List<Task>> getTasks(
+			@RequestParam(value = "source") String source,
+			@RequestParam(value = "taskGroupId") Long taskGroupId,
+			@RequestParam(value = "fromDate") LocalDate fromDate,
+			@RequestParam(value = "toDate") LocalDate toDate,
+			Pageable pageable) throws Exception {
+
+//		log.debug("taskGroupId = " + taskGroupId);
+//		log.debug("fromDate = " + fromDate);
+//		log.debug("toDate = " + toDate);
+		
+		String url = source != null && "taskGroup".equals(source) ?
+				"/ext-task-group-detail/" + taskGroupId :
+				"/ext-task-list";
+		
+		Page<Task> page = extTaskService.findTasks(
+				source,
+				taskGroupId,
+				fromDate.atStartOfDay(ZoneId.systemDefault()).toInstant(),
+				toDate.atStartOfDay(ZoneId.systemDefault()).plusDays(1).toInstant(),
+				pageable);
+		HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(page, url);
+	    return new ResponseEntity<>(page.getContent(), headers, HttpStatus.OK);
+//		return new ArrayList<Task>();
+	}
+    
+//	@GetMapping(value="tasks-of-task-group", params = {"taskGroupId", "fromDate", "toDate"})
+	/*@GetMapping(value="tasks")
 	public List<Task> getTasks(
 			@RequestParam(value = "source") String source,
 			@RequestParam(value = "taskGroupId") Long taskGroupId,
@@ -104,7 +160,7 @@ public class ExtTaskResource {
 		//		       HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(page, "/ext-task-group-list");
 		//		       return new ResponseEntity<>(page.getContent(), headers, HttpStatus.OK);
 //		return new ArrayList<Task>();
-	}
+	}*/
 	
 	
 	@GetMapping(value="snfiles-of-task/{taskId}")

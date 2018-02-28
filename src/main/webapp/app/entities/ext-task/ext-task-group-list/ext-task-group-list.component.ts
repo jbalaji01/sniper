@@ -62,6 +62,7 @@ export class ExtTaskGroupListComponent implements OnInit, OnDestroy {
 
   loadAll() {
     //   console.log('etgl loadAll');
+        /*
         this.extTaskService.queryTaskGroupsByDate({
             page: this.page - 1,
             size: this.itemsPerPage,
@@ -72,8 +73,9 @@ export class ExtTaskGroupListComponent implements OnInit, OnDestroy {
                 (err) => this.jhiAlertService.error(err, null, null),
                 () => this.jhiAlertService.success('loaded taskGroups', null, null)
         );
+        */
 
-        /* this.extTaskService.queryTaskGroupsByDate({
+        this.extTaskService.queryTaskGroupsByDate({
             page: this.page - 1,
             size: this.itemsPerPage,
             fromDate: this.fromDate,
@@ -81,7 +83,7 @@ export class ExtTaskGroupListComponent implements OnInit, OnDestroy {
             sort: this.sort()}).subscribe(
                 (res: HttpResponse<TaskGroup[]>) => this.onSuccess(res.body, res.headers),
                 (res: HttpErrorResponse) => this.onError(res.message)
-        ); */
+        );
     }
     loadPage(page: number) {
         if (page !== this.previousPage) {
