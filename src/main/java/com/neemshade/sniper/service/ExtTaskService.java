@@ -26,6 +26,7 @@ import com.neemshade.sniper.domain.enumeration.TaskStatus;
 import com.neemshade.sniper.repository.CompanyRepository;
 import com.neemshade.sniper.repository.DoctorRepository;
 import com.neemshade.sniper.repository.HospitalRepository;
+import com.neemshade.sniper.repository.PatientRepository;
 import com.neemshade.sniper.repository.TaskGroupRepository;
 import com.neemshade.sniper.repository.TaskHistoryRepository;
 import com.neemshade.sniper.repository.UserInfoRepository;
@@ -65,6 +66,9 @@ public class ExtTaskService {
 	@Autowired
 	private DoctorRepository doctorRepository;
 	
+	@Autowired
+	private PatientRepository patientRepository;
+	
 	public enum TASK_UPDATE_PARAM {
 	    TASKS ("tasks"),
 	    HISTORY_OBE ("historyObe"),
@@ -91,10 +95,12 @@ public class ExtTaskService {
 	    COMPANY ("COMPANY"),
 	    HOSPITAL ("HOSPITAL"),
 	    DOCTOR ("DOCTOR"),
+	    PATIENT("PATIENT"),
 	    OWNER ("OWNER"),
 	    TRANSCRIPT ("TRANSCRIPT"),
 	    EDITOR ("EDITOR"),
-	    MANAGER ("MANAGER");
+	    MANAGER ("MANAGER"),
+	    DIRECTOR ("DIRECTOR");
 		
 		private String field;
 		
@@ -190,6 +196,7 @@ public class ExtTaskService {
 		map.put(BUNDLE_FIELD.COMPANY, companyRepository.findAllByOrderByCompanyName());
 		map.put(BUNDLE_FIELD.HOSPITAL, hospitalRepository.findAllByOrderByHospitalName());
 		map.put(BUNDLE_FIELD.DOCTOR, doctorRepository.findAllByOrderByDoctorName());
+//		map.put(BUNDLE_FIELD.PATIENT, patientRepository.findAllByOrderByPatientName());
 		map.put(BUNDLE_FIELD.USER, userInfoRepository.findAllByOrderByEmpCode());
 		
 		return map;
