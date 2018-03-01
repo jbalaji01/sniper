@@ -10,6 +10,8 @@ import { ExtTaskGroupListComponent } from './ext-task-group-list/ext-task-group-
 import { ExtTaskListComponent } from './ext-task-list/ext-task-list.component';
 import { UploaderComponent } from './uploader/uploader.component';
 import { HelpComponent } from './help/help.component';
+import { ExtSnFileComponent, ExtSnFilePopupComponent } from './ext-sn-file/ext-sn-file.component';
+import { ExtHistoryComponent } from './ext-history/ext-history.component';
 
 @Injectable()
 export class ExtTaskResolvePagingParams implements Resolve<any> {
@@ -27,7 +29,7 @@ export class ExtTaskResolvePagingParams implements Resolve<any> {
     }
 }
 
-const routes: Routes = [
+export const routes: Routes = [
     {
         path: 'downloader',
         component: DownloaderComponent,
@@ -36,7 +38,7 @@ const routes: Routes = [
         },
         data: {
             authorities: ['ROLE_USER'],
-            pageTitle: 'Download files'
+            pageTitle: 'Sniper - Download files'
         },
         canActivate: [UserRouteAccessService]
     },
@@ -49,7 +51,7 @@ const routes: Routes = [
         },
         data: {
             authorities: ['ROLE_USER'],
-            pageTitle: 'Upload files'
+            pageTitle: 'Sniper - Upload files'
         },
         canActivate: [UserRouteAccessService]
     },
@@ -62,7 +64,7 @@ const routes: Routes = [
         },
         data: {
             authorities: ['ROLE_USER'],
-            pageTitle: 'task group detail'
+            pageTitle: 'Sniper - task group detail'
         },
         canActivate: [UserRouteAccessService]
     },
@@ -75,7 +77,7 @@ const routes: Routes = [
         },
         data: {
             authorities: ['ROLE_USER'],
-            pageTitle: 'task group list'
+            pageTitle: 'Sniper - task group list'
         },
         canActivate: [UserRouteAccessService]
     },
@@ -88,7 +90,7 @@ const routes: Routes = [
         },
         data: {
             authorities: ['ROLE_USER'],
-            pageTitle: 'Task list'
+            pageTitle: 'Sniper - Task list'
         },
         canActivate: [UserRouteAccessService]
     },
@@ -101,7 +103,7 @@ const routes: Routes = [
         },
         data: {
             authorities: [],
-            pageTitle: 'Help'
+            pageTitle: 'Sniper - Help'
         },
         canActivate: [UserRouteAccessService]
     },
@@ -114,9 +116,37 @@ const routes: Routes = [
         },
         data: {
             authorities: ['ROLE_USER'],
-            pageTitle: 'Purge'
+            pageTitle: 'Sniper - Purge'
         },
         canActivate: [UserRouteAccessService]
+    },
+
+    {
+        path: 'ext-sn-file/:id',
+        component: ExtSnFileComponent,
+        resolve: {
+            'pagingParams': ExtTaskResolvePagingParams
+        },
+        data: {
+            authorities: ['ROLE_USER'],
+            pageTitle: 'Sniper - files of task'
+        },
+        canActivate: [UserRouteAccessService],
+        outlet: 'popup'
+    },
+
+    {
+        path: 'ext-history/:id',
+        component: ExtHistoryComponent,
+        resolve: {
+            'pagingParams': ExtTaskResolvePagingParams
+        },
+        data: {
+            authorities: ['ROLE_USER'],
+            pageTitle: 'Sniper - history of task'
+        },
+        canActivate: [UserRouteAccessService],
+        outlet: 'popup'
     },
 
 ];

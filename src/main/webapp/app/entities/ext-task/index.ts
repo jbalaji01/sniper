@@ -9,6 +9,9 @@ export * from './help/help.component';
 export * from './purge/purge.component';
 export * from './uploader/uploader.component';
 
+export * from './ext-sn-file/ext-sn-file.component';
+export * from './ext-history/ext-history.component';
+
 export * from './ext-task-routing.module';
 export * from './ext-task.module';
 export * from './ext-task.service';

@@ -181,29 +181,6 @@ export class ExtTaskListTemplateComponent implements OnInit {
     this.loadTasks(urlParamObj);
   }
 
-   // get the snFiles of the task id
-   loadSnFiles(taskId) {
-    this.extTaskService.findSnFiles(taskId)
-    .subscribe(
-      (data) => {
-        this.snFiles = data;
-      },
-      (err) => this.jhiAlertService.error(err.detail, null, null),
-      () => this.jhiAlertService.success('loaded files info', null, null)
-  );
-  }
-
-     // get the history of the task id
-  loadHistory(taskId) {
-    this.extTaskService.findHistory(taskId).subscribe(
-        (data) => {
-          this.historyList = data;
-        },
-        (err) => this.jhiAlertService.error(err.detail, null, null),
-        () => this.jhiAlertService.success('loaded history list', null, null)
-    );
-    }
-
   trackId(index: number, item: Task) {
     return item.id;
   }
