@@ -124,6 +124,7 @@ export const routes: Routes = [
     {
         path: 'ext-sn-file/:id',
         component: ExtSnFileComponent,
+        //   ExtSnFilePopupComponent,
         resolve: {
             'pagingParams': ExtTaskResolvePagingParams
         },
@@ -132,7 +133,7 @@ export const routes: Routes = [
             pageTitle: 'Sniper - files of task'
         },
         canActivate: [UserRouteAccessService],
-        outlet: 'popup'
+        // outlet: 'popup'
     },
 
     {
@@ -146,7 +147,7 @@ export const routes: Routes = [
             pageTitle: 'Sniper - history of task'
         },
         canActivate: [UserRouteAccessService],
-        outlet: 'popup'
+        // outlet: 'popup'
     },
 
 ];

@@ -49,6 +49,10 @@ export class ExtHistoryComponent implements OnInit, OnDestroy {
      );
   }
 
+  previousState() {
+    window.history.back();
+  }
+
   ngOnDestroy() {
     this.subscription.unsubscribe();
   }

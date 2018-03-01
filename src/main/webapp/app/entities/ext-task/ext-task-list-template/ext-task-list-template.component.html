@@ -54,7 +54,7 @@
                 <th jhiSortBy="Source">
                     Source
                 </th>
-                <th jhiSortBy="Players">
+                <th *jhiHasAnyAuthority="'ROLE_MANAGER'" jhiSortBy="Players">
                     Players
                 </th>
                 <th jhiSortBy="createdTime">
@@ -65,7 +65,7 @@
                         <span>Is Active</span>
                         <span class="fa fa-sort"></span>
                     </th>-->
-                <th jhiSortBy="History">
+                <th *jhiHasAnyAuthority="'ROLE_MANAGER'" jhiSortBy="History">
                     <span>History</span>
                 </th>
                 <th jhiSortBy="peckOrder">
@@ -116,7 +116,7 @@
                 </th>-->
 
 
-                <th></th>
+                <th *jhiHasAnyAuthority="'ROLE_MANAGER'"></th>
             </tr>
 
         </thead>
@@ -129,10 +129,15 @@
                 </td>
                 <td>{{task.taskTitle}}
                     <br/>
-                    <div class="btn-group flex-btn-group-container">
+                    <!-- <div class="btn-group flex-btn-group-container">
                             <button type="submit" [routerLink]="['/', { outlets: { popup: 'ext-sn-file/'+ task.id } }]" replaceUrl="true" queryParamsHandling="merge" class="btn btn-primary btn-sm">
                     <span class="fa fa-eye"></span>
-                  </button></div> 
+                  </button></div>  -->
+                    <div class="btn-group flex-btn-group-container">
+                        <button type="submit" [routerLink]="['/ext-sn-file/', task.id ]" replaceUrl="true" queryParamsHandling="merge" class="btn btn-primary btn-sm">
+                        <span class="fa fa-eye"></span>
+                    </button></div>
+
                     <jhi-uploader [source]="'task'" [id]="task.id" (onCompletion)="uponUploadCompletion($event)"></jhi-uploader>
 
                     <jhi-downloader [source]="'task'" [id]="task.id" (onCompletion)="uponDownloadCompletion($event)"></jhi-downloader>
@@ -144,17 +149,25 @@
                     Hospital: {{task.hospital?.hospitalName}} <br/> 
                     Doctor: {{task.doctor?.doctorName}} 
                 </td>
-                <td>
+                <td *jhiHasAnyAuthority="'ROLE_MANAGER'">
                     Owner: {{task.owner?.empCode}} <br/> 
                     Transcript: {{task.transcript?.empCode}} <br/> 
                     Editor: {{task.editor?.empCode}} <br/> 
                     Manager: {{task.manager?.empCode}} 
                 </td>
                 <td>{{task.createdTime | date:'medium'}}</td>
-                <td><div class="btn-group flex-btn-group-container">
+                <!-- <td *jhiHasAnyAuthority="'ROLE_MANAGER'"><div class="btn-group flex-btn-group-container">
                         <button type="submit" [routerLink]="['/', { outlets: { popup: 'ext-history/'+ task.id }, modal: 'true' }]" replaceUrl="true" queryParamsHandling="merge" class="btn btn-primary btn-sm">
                 <span class="fa fa-eye"></span>
-              </button></div></td>
+              </button></div></td> -->
+
+                <td *jhiHasAnyAuthority="'ROLE_MANAGER'">
+                    <div class="btn-group flex-btn-group-container">
+                    <button type="submit" [routerLink]="['/ext-history/', task.id ]" replaceUrl="true" queryParamsHandling="merge" class="btn btn-primary btn-sm">
+                    <span class="fa fa-eye"></span>
+                    </button></div>
+                </td>
+
                 <td>{{task.peckOrder}}</td>
                 <!--<td>
                     <div *ngIf="task.company">
@@ -197,7 +210,7 @@
                         <a [routerLink]="['../user-info', task.manager?.id ]">{{task.manager?.empCode}}</a>
                     </div>
                 </td>-->
-                <td class="text-right">
+                <td *jhiHasAnyAuthority="'ROLE_MANAGER'" class="text-right">
                     <div class="btn-group flex-btn-group-container">
                         <button type="submit" [routerLink]="['/task', task.id ]" class="btn btn-info btn-sm">
                 <span class="fa fa-eye"></span>

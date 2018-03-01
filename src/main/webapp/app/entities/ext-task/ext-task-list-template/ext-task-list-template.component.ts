@@ -236,16 +236,16 @@ export class ExtTaskListTemplateComponent implements OnInit {
     // console.log('setting selectedTask with ' + this.selectedTasks.length);
   }
 
-  updateSnFiles(snFiles: SnFile[]) {
-    this.extTaskService.updateSnFiles(snFiles).subscribe(
-      (data) => {
-        this.jhiAlertService.success('success! ' + data.msg);
-        console.log('updateSnFiles msg=' + JSON.stringify(data.msg));
-      },
-      (err) => this.jhiAlertService.error('error in updating snFiles!' + err, null, null),
-      () => this.jhiAlertService.success('updated snFiles', null, null)
-    );
-  }
+  // updateSnFiles(snFiles: SnFile[]) {
+  //   this.extTaskService.updateSnFiles(snFiles).subscribe(
+  //     (data) => {
+  //       this.jhiAlertService.success('success! ' + data.msg);
+  //       console.log('updateSnFiles msg=' + JSON.stringify(data.msg));
+  //     },
+  //     (err) => this.jhiAlertService.error('error in updating snFiles!' + err, null, null),
+  //     () => this.jhiAlertService.success('updated snFiles', null, null)
+  //   );
+  // }
 
   updateTasks(tasks: Task[], historyObe: TaskHistory, fieldNames: String) {
     this.extTaskService.updateTasks(tasks, historyObe, fieldNames).subscribe(

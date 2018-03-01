@@ -20,6 +20,8 @@ export class ExtSnFileComponent implements OnInit, OnDestroy {
   taskId: number;
   snFiles: SnFile[];
 
+  selectedSnFiles: SnFile[];
+
   constructor(
     public activeModal: NgbActiveModal,
     private extTaskService: ExtTaskService,
@@ -32,10 +34,6 @@ export class ExtSnFileComponent implements OnInit, OnDestroy {
       this.taskId = params['id'];
       this.loadAll();
     });
-  }
-
-  clear() {
-    this.activeModal.dismiss('cancel');
   }
 
   loadAll() {
@@ -54,8 +52,23 @@ export class ExtSnFileComponent implements OnInit, OnDestroy {
     );
   }
 
+  clear() {
+    this.activeModal.dismiss('cancel');
+  }
+
   saveSnFiles() {
-    // TODO save selected files
+    this.extTaskService.updateSnFiles(this.selectedSnFiles).subscribe(
+      (data) => {
+        this.jhiAlertService.success('success! ' + data.msg);
+        console.log('updateSnFiles msg=' + JSON.stringify(data.msg));
+      },
+      (err) => this.jhiAlertService.error('error in updating snFiles!' + err, null, null),
+      () => this.jhiAlertService.success('updated snFiles', null, null)
+    );
+  }
+
+  previousState() {
+    window.history.back();
   }
 
   ngOnDestroy() {

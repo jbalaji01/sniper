@@ -2,6 +2,7 @@ import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 
+import { NgbActiveModal, NgbModalRef, NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { SniperSharedModule } from '../../shared';
 
 import { ExtTaskRoutingModule } from './ext-task-routing.module';
@@ -36,6 +37,7 @@ const ENTITY_STATES = [
   ],
   declarations: [DownloaderComponent, PurgeComponent, ExtTaskGroupDetailComponent, ExtTaskGroupListComponent, ExtTaskListComponent,
                  UploaderComponent, HelpComponent, ExtTaskListTemplateComponent, ExtSnFileComponent, ExtHistoryComponent],
-  providers: [ExtTaskService, ExtTaskResolvePagingParams],
+  providers: [ExtTaskService, ExtTaskResolvePagingParams, NgbActiveModal],
+  entryComponents: [ExtSnFileComponent, ExtHistoryComponent],
 })
 export class ExtTaskModule { }
