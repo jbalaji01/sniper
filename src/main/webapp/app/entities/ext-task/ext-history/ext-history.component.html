@@ -1,0 +1,71 @@
+<div>
+    <h3>History of task {{ taskId }}</h3>
+    <jhi-alert></jhi-alert>
+    <div class="row">
+    </div>
+
+    <div *ngIf="(!taskHistories) || taskHistories.length == 0">
+        <b>Task's history is empty</b>
+    </div>
+
+    <br/>
+    <div class="table-responsive" *ngIf="taskHistories">
+        <table class="table table-striped">
+            <thead>
+            <tr>
+            <th><span>ID</span></th>
+            <th><span>Task Status</span></th>
+            <th><span>Punch Time</span></th>
+            <th><span>Notes</span></th>
+            <th><span>Task</span></th>
+            <th><span>User Info</span></th>
+            <th></th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr *ngFor="let taskHistory of taskHistories ;trackBy: trackId">
+                <td><a [routerLink]="['../task-history', taskHistory.id ]">{{taskHistory.id}}</a></td>
+                <td>{{taskHistory.taskStatus}}</td>
+                <td>{{taskHistory.punchTime | date:'medium'}}</td>
+                <td>{{taskHistory.notes}}</td>
+                <td>
+                    <div *ngIf="taskHistory.task">
+                        <a [routerLink]="['../task', taskHistory.task?.id ]" >{{taskHistory.task?.id}}</a>
+                    </div>
+                </td>
+                <td>
+                    <div *ngIf="taskHistory.userInfo">
+                        <a [routerLink]="['../user-info', taskHistory.userInfo?.id ]" >{{taskHistory.userInfo?.empCode}}</a>
+                    </div>
+                </td>
+                <td class="text-right">
+                    <div class="btn-group flex-btn-group-container">
+                        <button type="submit"
+                                [routerLink]="['../task-history', taskHistory.id ]"
+                                class="btn btn-info btn-sm">
+                            <span class="fa fa-eye"></span>
+                            <span class="d-none d-md-inline">View</span>
+                        </button>
+                        <button type="submit"
+                                [routerLink]="['/', { outlets: { popup: 'task-history/'+ taskHistory.id + '/edit'} }]"
+                                replaceUrl="true"
+                                queryParamsHandling="merge"
+                                class="btn btn-primary btn-sm">
+                            <span class="fa fa-pencil"></span>
+                            <span class="d-none d-md-inline">Edit</span>
+                        </button>
+                        <button type="submit"
+                                [routerLink]="['/', { outlets: { popup: 'task-history/'+ taskHistory.id + '/delete'} }]"
+                                replaceUrl="true"
+                                queryParamsHandling="merge"
+                                class="btn btn-danger btn-sm">
+                            <span class="fa fa-remove"></span>
+                            <span class="d-none d-md-inline">Delete</span>
+                        </button>
+                    </div>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>

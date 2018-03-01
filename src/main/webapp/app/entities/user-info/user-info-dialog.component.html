@@ -13,6 +13,13 @@
                    [(ngModel)]="userInfo.id" readonly />
         </div>
         <div class="form-group">
+            <label class="form-control-label" for="field_user">User</label>
+            <select class="form-control" id="field_user" name="user" [(ngModel)]="userInfo.user" (change)="updateEmpCode()">
+                <option [ngValue]="null"></option>
+                <option [ngValue]="userOption.id === userInfo.user?.id ? userInfo.user : userOption" *ngFor="let userOption of users; trackBy: trackUserById">{{userOption.login}}</option>
+            </select>
+        </div>
+        <div class="form-group">
             <label class="form-control-label" for="field_empCode">Emp Code</label>
             <input type="text" class="form-control" name="empCode" id="field_empCode"
                 [(ngModel)]="userInfo.empCode" />
@@ -70,13 +77,6 @@
             </div>
         </div>
 
-        <div class="form-group">
-            <label class="form-control-label" for="field_user">User</label>
-            <select class="form-control" id="field_user" name="user" [(ngModel)]="userInfo.user" >
-                <option [ngValue]="null"></option>
-                <option [ngValue]="userOption.id === userInfo.user?.id ? userInfo.user : userOption" *ngFor="let userOption of users; trackBy: trackUserById">{{userOption.login}}</option>
-            </select>
-        </div>
         <div class="form-group">
             <label class="form-control-label" for="field_company">Company</label>
             <select class="form-control" id="field_company" name="company" [(ngModel)]="userInfo.company" >

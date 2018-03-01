@@ -151,8 +151,9 @@ public class ExtUploaderService {
 		task.setTaskTitle(snFile.getFileName() + "." + snFile.getFileExt());
 		task.setTaskStatus(TaskStatus.CREATED);
 		task.setCreatedTime(Instant.now());
+		task.setManager(extTaskService.fetchLoggedInUserInfo());
 		task.setHasPMSignedOff(false);
-		task.setIsActive(true);
+		task.setIsActive(false);
 		task.setPeckOrder(peckOrder);
 		task.setNotes("created task");
 		Task newTask = taskService.save(task);

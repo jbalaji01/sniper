@@ -67,7 +67,6 @@
                     </th>-->
                 <th jhiSortBy="History">
                     <span>History</span>
-                    <span class="fa fa-sort"></span>
                 </th>
                 <th jhiSortBy="peckOrder">
                     <span>Peck Order</span>
@@ -126,20 +125,36 @@
                 <td><input type="checkbox" name="mark"></td>
                 <td><button type="button" name="Done" value="Done">Done</button></td>
                 <td>
-                    <a [routerLink]="['../task', task.id ]">{{task.id}}</a>
+                    {{task.id}}
                 </td>
                 <td>{{task.taskTitle}}
                     <br/>
+                    <div class="btn-group flex-btn-group-container">
+                            <button type="submit" [routerLink]="['/', { outlets: { popup: 'ext-sn-file/'+ task.id } }]" replaceUrl="true" queryParamsHandling="merge" class="btn btn-primary btn-sm">
+                    <span class="fa fa-eye"></span>
+                  </button></div> 
                     <jhi-uploader [source]="'task'" [id]="task.id" (onCompletion)="uponUploadCompletion($event)"></jhi-uploader>
 
                     <jhi-downloader [source]="'task'" [id]="task.id" (onCompletion)="uponDownloadCompletion($event)"></jhi-downloader>
                 </td>
 
                 <td>{{task.taskStatus}}</td>
-                <td>Company: {{task.company?.companyName}} <br/> Hospital: {{task.hospital?.hospitalName}} <br/> Doctor: {{task.doctor?.doctorName}} </td>
-                <td>Owner: {{task.owner?.empCode}} <br/> Transcript: {{task.transcript?.empCode}} <br/> Editor: {{task.editor?.empCode}} <br/> Manager: {{task.manager?.empCode}} </td>
+                <td>
+                    Company: {{task.company?.companyName}} <br/> 
+                    Hospital: {{task.hospital?.hospitalName}} <br/> 
+                    Doctor: {{task.doctor?.doctorName}} 
+                </td>
+                <td>
+                    Owner: {{task.owner?.empCode}} <br/> 
+                    Transcript: {{task.transcript?.empCode}} <br/> 
+                    Editor: {{task.editor?.empCode}} <br/> 
+                    Manager: {{task.manager?.empCode}} 
+                </td>
                 <td>{{task.createdTime | date:'medium'}}</td>
-                <td>History</td>
+                <td><div class="btn-group flex-btn-group-container">
+                        <button type="submit" [routerLink]="['/', { outlets: { popup: 'ext-history/'+ task.id }, modal: 'true' }]" replaceUrl="true" queryParamsHandling="merge" class="btn btn-primary btn-sm">
+                <span class="fa fa-eye"></span>
+              </button></div></td>
                 <td>{{task.peckOrder}}</td>
                 <!--<td>
                     <div *ngIf="task.company">
@@ -184,7 +199,7 @@
                 </td>-->
                 <td class="text-right">
                     <div class="btn-group flex-btn-group-container">
-                        <button type="submit" [routerLink]="['../task', task.id ]" class="btn btn-info btn-sm">
+                        <button type="submit" [routerLink]="['/task', task.id ]" class="btn btn-info btn-sm">
                 <span class="fa fa-eye"></span>
                 <span class="d-none d-md-inline">View</span>
               </button>
@@ -202,7 +217,6 @@
         </tbody>
     </table>
 </div>
-
 
   <div *ngIf="tasks && tasks.length">
         <div class="row justify-content-center">

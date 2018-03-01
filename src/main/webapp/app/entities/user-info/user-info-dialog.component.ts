@@ -49,6 +49,10 @@ export class UserInfoDialogComponent implements OnInit {
         this.activeModal.dismiss('cancel');
     }
 
+    updateEmpCode() {
+        this.userInfo.empCode = this.userInfo.user.login;
+    }
+
     save() {
         this.isSaving = true;
         if (this.userInfo.id !== undefined) {
