@@ -54,7 +54,7 @@ export class ExtTaskListTemplateComponent implements OnInit {
     datePipe: DatePipe;
 
     // when task table checkbox is ticked or unticked, update this list
-    selectedTasks: Task[];
+    selectedTasks: Task[] = [];
 
   constructor(
         private extTaskService: ExtTaskService,
@@ -66,6 +66,20 @@ export class ExtTaskListTemplateComponent implements OnInit {
         private eventManager: JhiEventManager
   ) {
 
+  }
+  displayCheckedTaskId(selectedTask: Task) {
+    selectedTask['isSelected'] = !(selectedTask && selectedTask['isSelected']);
+    this.selectedTasks.length = 0;
+    this.tasks.forEach((task) => {
+    if (task ['isSelected']) {
+      this.selectedTasks.push (task);
+  // console.log(task.id);
+    }});
+    let str = '';
+    for (const selected of this.selectedTasks) {
+      str += selected.id + ', ';
+    }
+    console.log(str);
   }
 
   ngOnInit() {
