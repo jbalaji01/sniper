@@ -94,5 +94,9 @@ public class TaskService {
 	public List<Task> findTasksOfTaskGroup(Long taskGroupId) {
 		return taskRepository.findByTaskGroupIdOrderByPeckOrder(taskGroupId);
 	}
+	
+	public List<?> findStatusCount(Long taskGroupId) {
+		return taskRepository.findStatusCount(taskGroupId);
+	}
 
 }

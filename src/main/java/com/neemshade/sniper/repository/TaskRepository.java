@@ -29,6 +29,10 @@ public interface TaskRepository extends JpaRepository<Task, Long> {
 
 	List<Task> findByTaskGroupIdOrderByPeckOrder(Long taskGroupId);
 	
+	@Query("select new map(count(task) as ord, task.taskStatus as status) from Task task "
+			+ "where task.taskGroup.id = :taskGroupId  group by task.taskStatus ")
+	public List<?> findStatusCount(@Param("taskGroupId") Long taskGroupId);
+	
 	@Query("select task from Task task "
 			+ " where task.owner.user.login = ?#{principal.username} "
 			+ " and task.isActive = true "

@@ -40,6 +40,9 @@ export class ExtTaskGroupDetailComponent implements OnInit, OnDestroy {
   taskGroup: TaskGroup;
   // tasks: Task[];
 
+  statusCountList: [any];
+  totalTasks: number;
+
   constructor(
       private eventManager: JhiEventManager,
       private taskGroupService: TaskGroupService,
@@ -62,6 +65,7 @@ export class ExtTaskGroupDetailComponent implements OnInit, OnDestroy {
     // const urlParamObj = this.templateComponent.composeUrlParam();
     // this.loadWithUrlParamObj(urlParamObj);
     this.loadTaskGroup(this.taskGroupId);
+    this.prepareChart(this.taskGroupId);
   }
 
   // loadWithUrlParamObj(urlParamObj) {
@@ -101,6 +105,18 @@ export class ExtTaskGroupDetailComponent implements OnInit, OnDestroy {
   //   }
   //   return result;
   // }
+
+  prepareChart(taskGroupId: number) {
+    this.extTaskService.countTaskStatus(taskGroupId)
+    .subscribe((response: [any]) => {
+        // const data = response.body;
+        console.log(JSON.stringify(response));
+        this.statusCountList = response;
+
+        this.totalTasks = 0;
+        this.statusCountList.forEach((statusCount) => this.totalTasks += statusCount.ord);
+    });
+  }
 
   previousState() {
       window.history.back();

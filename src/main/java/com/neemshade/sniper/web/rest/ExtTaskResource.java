@@ -179,6 +179,14 @@ public class ExtTaskResource {
 
 	}
 	
+	@GetMapping(value="count-of-status/{taskGroupId}")
+	public List<?> countStatus(
+			@PathVariable(value = "taskGroupId") Long taskGroupId) {
+
+		return taskService.findStatusCount(taskGroupId);
+
+	}
+	
 	/**
 	 * fn collects user, company, hospital and doctor info
 	 * 
