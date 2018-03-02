@@ -60,6 +60,10 @@ export class ExtTaskService {
   }
   */
 
+ countTaskStatus(taskGroupId: number): Observable<any> {
+   return this.http.get(this.resourceUrl + 'count-of-status/' + taskGroupId);
+ }
+
   fetchBundle(): Observable<any> {
     return this.http.get(this.resourceUrl + 'bundle');
   }
