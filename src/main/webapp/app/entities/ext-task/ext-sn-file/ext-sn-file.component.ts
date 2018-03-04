@@ -2,10 +2,14 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 
 import { NgbActiveModal, NgbModalRef, NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { Subscription } from 'rxjs/Subscription';
+import { HttpResponse } from '@angular/common/http';
 import { ActivatedRoute, Router } from '@angular/router';
-import { JhiEventManager, JhiParseLinks, JhiAlertService } from 'ng-jhipster';
+import { JhiEventManager, JhiParseLinks, JhiAlertService, JhiDataUtils } from 'ng-jhipster';
+import { Principal } from '../../../shared';
 
-import { SnFile } from '../../sn-file/sn-file.model';
+import { Task } from '../../task/task.model';
+import { TaskService } from '../../task/task.service';
+import { SnFile, ChosenFactor } from '../../sn-file/sn-file.model';
 import { ExtTaskService } from '../ext-task.service';
 
 @Component({
@@ -18,13 +22,18 @@ export class ExtSnFileComponent implements OnInit, OnDestroy {
   private subscription: Subscription;
 
   taskId: number;
+  task: Task;
   snFiles: SnFile[];
 
-  selectedSnFiles: SnFile[];
+  // selectedSnFiles: SnFile[];
+  // ChosenFactor = ChosenFactor;
 
   constructor(
+    private principal: Principal,
     public activeModal: NgbActiveModal,
     private extTaskService: ExtTaskService,
+    private taskService: TaskService,
+    private dataUtils: JhiDataUtils,
     private jhiAlertService: JhiAlertService,
     private activatedRoute: ActivatedRoute
     ) { }
@@ -37,7 +46,16 @@ export class ExtSnFileComponent implements OnInit, OnDestroy {
   }
 
   loadAll() {
-    this.loadSnFiles(this.taskId);
+    this.loadTask(this.taskId);
+    // this.loadSnFiles(this.taskId);
+  }
+
+  loadTask(taskId: number) {
+    this.taskService.find(taskId)
+            .subscribe((taskResponse: HttpResponse<Task>) => {
+                this.task = taskResponse.body;
+                this.loadSnFiles(this.taskId);
+            });
   }
 
   // get the snFiles of the task id
@@ -46,6 +64,7 @@ export class ExtSnFileComponent implements OnInit, OnDestroy {
     .subscribe(
       (data) => {
         this.snFiles = data;
+        this.decideFinalCountOfSnFiles();
       },
       (err) => this.jhiAlertService.error(err.detail, null, null),
       () => this.jhiAlertService.success('loaded files info', null, null)
@@ -56,8 +75,22 @@ export class ExtSnFileComponent implements OnInit, OnDestroy {
     this.activeModal.dismiss('cancel');
   }
 
+  composeSelectedSnFiles(): SnFile[] {
+    const selectedSnFiles: SnFile[] = [];
+
+    this.snFiles.forEach((snFile) => {
+      if (snFile['isSelected']) {
+        selectedSnFiles.push(snFile);
+      }
+    });
+
+    console.log('got ' + selectedSnFiles.length + ' files');
+    return selectedSnFiles;
+  }
+
   saveSnFiles() {
-    this.extTaskService.updateSnFiles(this.selectedSnFiles).subscribe(
+    const selectedSnFiles: SnFile[] = this.composeSelectedSnFiles();
+    this.extTaskService.updateSnFiles(selectedSnFiles).subscribe(
       (data) => {
         this.jhiAlertService.success('success! ' + data.msg);
         console.log('updateSnFiles msg=' + JSON.stringify(data.msg));
@@ -65,6 +98,59 @@ export class ExtSnFileComponent implements OnInit, OnDestroy {
       (err) => this.jhiAlertService.error('error in updating snFiles!' + err, null, null),
       () => this.jhiAlertService.success('updated snFiles', null, null)
     );
+  }
+
+  decideFinalCountOfSnFiles() {
+    this.snFiles.forEach((snFile) => {
+      this.decideFinalCountOfSnFile(snFile);
+    });
+  }
+
+  decideFinalCountOfSnFile(snFile: SnFile) {
+    snFile['finalCount'] = '';
+    if (!this.principal.hasAnyAuthorityDirect(['ROLE_MANAGER']) && !this.task.hasPMSignedOff) {
+      return;
+    }
+    // console.log('test2231 ' + snFile['finalCount'] + ' ' + snFile.chosenFactor);
+    // console.log(JSON.stringify(snFile));
+
+    if (snFile.isAudio && snFile.chosenFactor === ChosenFactor.TIME_FRAME) {
+      // console.log('test 100 ' + snFile.finalTimeFrame);
+      snFile['finalCount'] = snFile.finalTimeFrame;
+    }
+    // console.log('test2232 ' + snFile['finalCount'] + ' ' + snFile.chosenFactor);
+
+    if ((!snFile.isAudio) && (snFile.chosenFactor === ChosenFactor.WS_LINE_COUNT)) {
+      snFile['finalCount'] = snFile.wsFinalLineCount;
+    }
+    // console.log('test2233 ' + snFile['finalCount'] + ' ' + snFile.chosenFactor);
+
+    if ((!snFile.isAudio) && (snFile.chosenFactor === ChosenFactor.WOS_LINE_COUNT)) {
+      snFile['finalCount'] = snFile.wosFinalLineCount;
+    }
+    console.log('test2234 ' + snFile['finalCount'] + ' ' + snFile.chosenFactor);
+  }
+
+  // called when input changes in ws, wos or audio time count field
+  updateChosenFactor(snFile: SnFile, chosenFactorStr: string) {
+    // console.log(chosenFactor);
+    snFile['isSelected'] = true;
+    snFile.chosenFactor = (ChosenFactor) [chosenFactorStr];
+    this.decideFinalCountOfSnFile(snFile);
+    console.log('test223 ' + snFile['finalCount']);
+  }
+
+  // called when choosen drop down is selected
+  updateChosenFactorDropdown(snFile: SnFile) {
+    this.updateChosenFactor(snFile, snFile.chosenFactor + '');
+  }
+
+  byteSize(field) {
+    return this.dataUtils.byteSize(field);
+  }
+
+  openFile(contentType, field) {
+    return this.dataUtils.openFile(contentType, field);
   }
 
   previousState() {

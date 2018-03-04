@@ -199,6 +199,34 @@ public class ExtTaskResource {
 	}
 	
 	
+	@PostMapping("/clone")
+    @Timed
+    public String cloneTasks(@RequestBody List<Task> tasks) throws Exception {
+        log.debug("Post request to clone tasks list : {}");
+        
+        if(tasks == null || tasks.size() <= 0)
+        {
+        	throw new Exception("Error! empty tasks");
+        }
+        
+        return extTaskService.cloneTasks(tasks);
+    }
+	
+	@PostMapping("/merge")
+    @Timed
+    public String mergeTasks(@RequestBody List<Task> tasks) throws Exception {
+        log.debug("Post request to merge tasks  : {}");
+        
+        if(tasks == null || tasks.size() <= 1)
+        {
+        	throw new Exception("Error! too few tasks to merge");
+        }
+        
+        return extTaskService.mergeTasks(tasks);
+    }
+	
+	
+	
 	  // upload all the files
 	  // source can be task or taskGroup
 	  // id can be zero or any id

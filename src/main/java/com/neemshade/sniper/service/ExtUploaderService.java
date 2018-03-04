@@ -136,32 +136,7 @@ public class ExtUploaderService {
 		return task;
 	}
 	
-	/**
-	 * create a new task.  The title is given by the filename
-	 * @param taskGroup
-	 * @param peckOrder
-	 * @param snFile
-	 * @return
-	 * @throws Exception 
-	 */
-	private Task createTask(TaskGroup taskGroup, Integer peckOrder, SnFile snFile) throws Exception {
-		Task task = new Task();
-		
-		task.setTaskGroup(taskGroup);
-		task.setTaskTitle(snFile.getFileName() + "." + snFile.getFileExt());
-		task.setTaskStatus(TaskStatus.CREATED);
-		task.setCreatedTime(Instant.now());
-		task.setManager(extTaskService.fetchLoggedInUserInfo());
-		task.setHasPMSignedOff(false);
-		task.setIsActive(false);
-		task.setPeckOrder(peckOrder);
-		task.setNotes("created task");
-		Task newTask = taskService.save(task);
-		
-		extTaskService.createTaskHistory(newTask, TaskStatus.CREATED, newTask.getNotes());
-		
-		return newTask;
-	}
+	
 
 	
 
@@ -294,7 +269,7 @@ public class ExtUploaderService {
 			// if no match, then create task and set the maps
 			if(matchingTask == null)
 			{
-				Task task = createTask(taskGroup, lastPeckOrder, snFile);
+				Task task = extTaskService.createTask(taskGroup, lastPeckOrder, snFile);
 				lastPeckOrder += 10;
 				taskMap.put(task, new ArrayList<SnFile>());
 				fileNameMap.put(snFile.getFileName(), task);
