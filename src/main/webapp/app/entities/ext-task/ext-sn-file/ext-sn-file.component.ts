@@ -114,20 +114,31 @@ export class ExtSnFileComponent implements OnInit, OnDestroy {
     // console.log('test2231 ' + snFile['finalCount'] + ' ' + snFile.chosenFactor);
     // console.log(JSON.stringify(snFile));
 
-    if (snFile.isAudio && snFile.chosenFactor === ChosenFactor.TIME_FRAME) {
-      // console.log('test 100 ' + snFile.finalTimeFrame);
-      snFile['finalCount'] = snFile.finalTimeFrame;
+    const finalCountMap = new Map<ChosenFactor, number>();
+    if (snFile.isAudio) {
+      finalCountMap.set(ChosenFactor.TIME_FRAME, snFile.finalTimeFrame);
+    } else {
+      finalCountMap.set(ChosenFactor.WS_LINE_COUNT, snFile.wsFinalLineCount);
+      finalCountMap.set(ChosenFactor.WOS_LINE_COUNT, snFile.wosFinalLineCount);
     }
-    // console.log('test2232 ' + snFile['finalCount'] + ' ' + snFile.chosenFactor);
 
-    if ((!snFile.isAudio) && (snFile.chosenFactor === ChosenFactor.WS_LINE_COUNT)) {
-      snFile['finalCount'] = snFile.wsFinalLineCount;
-    }
-    // console.log('test2233 ' + snFile['finalCount'] + ' ' + snFile.chosenFactor);
+    snFile['finalCount'] = finalCountMap.has(snFile.chosenFactor) ?
+                            finalCountMap.get(snFile.chosenFactor) : '';
 
-    if ((!snFile.isAudio) && (snFile.chosenFactor === ChosenFactor.WOS_LINE_COUNT)) {
-      snFile['finalCount'] = snFile.wosFinalLineCount;
-    }
+    // if (snFile.isAudio && snFile.chosenFactor === ChosenFactor.TIME_FRAME) {
+    //   // console.log('test 100 ' + snFile.finalTimeFrame);
+    //   snFile['finalCount'] = snFile.finalTimeFrame;
+    // }
+    // // console.log('test2232 ' + snFile['finalCount'] + ' ' + snFile.chosenFactor);
+
+    // if ((!snFile.isAudio) && (snFile.chosenFactor === ChosenFactor.WS_LINE_COUNT)) {
+    //   snFile['finalCount'] = snFile.wsFinalLineCount;
+    // }
+    // // console.log('test2233 ' + snFile['finalCount'] + ' ' + snFile.chosenFactor);
+
+    // if ((!snFile.isAudio) && (snFile.chosenFactor === ChosenFactor.WOS_LINE_COUNT)) {
+    //   snFile['finalCount'] = snFile.wosFinalLineCount;
+    // }
     console.log('test2234 ' + snFile['finalCount'] + ' ' + snFile.chosenFactor);
   }
 
@@ -166,7 +177,7 @@ export class ExtSnFileComponent implements OnInit, OnDestroy {
   }
 
 }
-
+/* 
 @Component({
   selector: 'jhi-ext-snfile-info-popup',
   template: ''
@@ -248,4 +259,4 @@ userInfoModalRef(component: Component): NgbModalRef {
   ngOnDestroy() {
       this.routeSub.unsubscribe();
   }
-}
+} */
