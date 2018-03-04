@@ -396,6 +396,33 @@ public class ExtTaskService {
 	}
 	
 	/**
+	 * if doctor or hospital info available, update ws and wos line count in the snFile
+	 * @param task
+	 * @param snFile
+	 */
+	public void adjustLineCount(Task task, SnFile snFile) {
+		Integer templateCount = null;
+		
+		if(task != null && task.getDoctor() != null && task.getDoctor().getTemplateCount() != null) {
+			templateCount = task.getDoctor().getTemplateCount();
+		}
+		else {
+			if(task != null && task.getHospital() != null && task.getHospital().getTemplateCount() != null) {
+				templateCount = task.getHospital().getTemplateCount();
+			}
+		}
+		
+		if(templateCount == null || templateCount == 0)
+			return; // nothing to update
+		
+		snFile.setWsAdjustedLineCount(snFile.getWsActualLineCount() - templateCount);
+		snFile.setWsFinalLineCount(snFile.getWsAdjustedLineCount());
+		
+		snFile.setWosAdjustedLineCount(snFile.getWosActualLineCount() - templateCount);
+		snFile.setWosFinalLineCount(snFile.getWosAdjustedLineCount());
+	}
+	
+	/**
 	 * most likely the pm would have changed the final count.  update all the given snFiles
 	 * @param snFiles
 	 * @return
@@ -461,6 +488,8 @@ public class ExtTaskService {
 	public List<TaskHistory> findHistoryOfTask(Long taskId) {
 		return taskHistoryRepository.findByTaskIdOrderByPunchTimeDesc(taskId);
 	}
+
+	
 
 		
 }

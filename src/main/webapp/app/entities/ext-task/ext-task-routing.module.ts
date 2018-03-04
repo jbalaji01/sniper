@@ -10,7 +10,7 @@ import { ExtTaskGroupListComponent } from './ext-task-group-list/ext-task-group-
 import { ExtTaskListComponent } from './ext-task-list/ext-task-list.component';
 import { UploaderComponent } from './uploader/uploader.component';
 import { HelpComponent } from './help/help.component';
-import { ExtSnFileComponent, ExtSnFilePopupComponent } from './ext-sn-file/ext-sn-file.component';
+import { ExtSnFileComponent } from './ext-sn-file/ext-sn-file.component';
 import { ExtHistoryComponent } from './ext-history/ext-history.component';
 
 @Injectable()

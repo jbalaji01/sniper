@@ -154,6 +154,8 @@ public class ExtUploaderService {
 		{
 			snFile.getTasks().add(task);
 			snFile.setPeckOrder(lastPeckOrder);
+			extTaskService.adjustLineCount(task, snFile);
+			
 			lastPeckOrder += 10;
 			snFileService.save(snFile);
 			
