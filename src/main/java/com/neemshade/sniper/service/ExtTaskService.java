@@ -1,6 +1,7 @@
 package com.neemshade.sniper.service;
 
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -202,6 +203,140 @@ public class ExtTaskService {
 		return map;
 	}
 
+	/**
+	 * duplicate all the tasks.  If 3 tasks are given, there will be 3 more copies of these given tasks
+	 * @param tasks
+	 * @return
+	 * @throws Exception 
+	 */
+	public String cloneTasks(List<Task> tasks) throws Exception {
+		
+		if(tasks == null || tasks.size() <= 0)
+        {
+        	throw new Exception("Error! empty tasks");
+        }
+		
+		TaskHistory historyObe = new TaskHistory();
+		historyObe.setTaskStatus(TaskStatus.CREATED);
+		
+		for (Task givenTask : tasks) {
+			Task newTask = createTask(givenTask.getTaskGroup(), givenTask.getPeckOrder() + 5, null);
+			xerox(givenTask, newTask);
+			xeroxFiles(givenTask, newTask);
+			taskService.save(newTask);
+			
+			historyObe.setNotes("Cloned from Task " + givenTask.getId());
+			createTaskHistory(newTask, historyObe);
+		}
+
+		return "{ \"msg\" : \"Cloned " + tasks.size() + " tasks \" }";
+	}
+	
+	/**
+	 * merge tasks into one task.  For eg, if 3 tasks are given, one new task is created
+	 * the new task will have data from the first task out of the given list
+	 * all 3 given tasks will be marked inActive with the status Merged
+	 * @param tasks
+	 * @return
+	 * @throws Exception 
+	 */
+	public String mergeTasks(List<Task> tasks) throws Exception {
+		if(tasks == null || tasks.size() <= 1)
+        {
+        	throw new Exception("Error! too few tasks");
+        }
+		
+		Task firstTask = tasks.get(0);
+		Task newTask = createTask(firstTask.getTaskGroup(), firstTask.getPeckOrder() + 5, null);
+		xerox(firstTask, newTask);
+		
+		TaskHistory historyObe = new TaskHistory();
+		historyObe.setTaskStatus(TaskStatus.MERGED);
+		historyObe.setNotes("Merged into Task " + newTask.getId());
+		
+		String taskIds = "";
+		
+		for (Task givenTask : tasks) {
+			
+			xeroxFiles(givenTask, newTask);
+			
+			givenTask.setIsActive(false);
+			givenTask.setTaskStatus(TaskStatus.MERGED);
+			taskService.save(givenTask);
+			createTaskHistory(givenTask, historyObe);
+			
+			taskIds += ("".equals(taskIds) ? "" : ", ") + givenTask.getId();
+		}
+		
+		taskService.save(newTask);
+		
+		historyObe.setTaskStatus(TaskStatus.CREATED);
+		historyObe.setNotes("Merged from Tasks " + taskIds);
+		createTaskHistory(newTask, historyObe);
+
+		return "{ \"msg\" : \"Merged " + tasks.size() + " tasks \" }";
+	}
+
+	
+
+	/**
+	 * copy data from source to dest
+	 * @param sourceTask
+	 * @param destTask
+	 */
+	private void xerox(Task sourceTask, Task destTask) {
+		destTask.setTaskTitle(sourceTask.getTaskTitle());
+		destTask.setTaskStatus(sourceTask.getTaskStatus());
+		destTask.setHasPMSignedOff(sourceTask.isHasPMSignedOff());
+		destTask.setIsActive(sourceTask.isIsActive());
+		destTask.setNotes(sourceTask.getNotes());
+		
+		destTask.setCompany(sourceTask.getCompany());
+		destTask.setOwner(sourceTask.getOwner());
+		destTask.setTranscript(sourceTask.getTranscript());
+		destTask.setEditor(sourceTask.getEditor());
+		destTask.setManager(sourceTask.getManager());
+		destTask.setDoctor(sourceTask.getDoctor());
+		destTask.setHospital(sourceTask.getHospital());
+	}
+	
+	/**
+	 * copy files from sourceTask into destTask
+	 * @param sourceTask
+	 * @param destTask
+	 */
+	private void xeroxFiles(Task sourceTask, Task destTask) {
+		List<SnFile> snFiles = snFileService.findSnFilesOfTask(sourceTask.getId());
+		destTask.getSnFiles().addAll(snFiles);
+	}
+	
+
+	/**
+	 * create a new task.  The title is given by the filename
+	 * @param taskGroup
+	 * @param peckOrder
+	 * @param snFile
+	 * @return
+	 * @throws Exception 
+	 */
+	public Task createTask(TaskGroup taskGroup, Integer peckOrder, SnFile snFile) throws Exception {
+		Task task = new Task();
+		
+		task.setTaskGroup(taskGroup);
+		task.setTaskTitle(snFile == null ? "" : snFile.getFileName() + "." + snFile.getFileExt());
+		task.setTaskStatus(TaskStatus.CREATED);
+		task.setCreatedTime(Instant.now());
+		task.setManager(fetchLoggedInUserInfo());
+		task.setHasPMSignedOff(false);
+		task.setIsActive(false);
+		task.setPeckOrder(peckOrder);
+		task.setNotes("created task");
+		Task newTask = taskService.save(task);
+		
+		createTaskHistory(newTask, TaskStatus.CREATED, newTask.getNotes());
+		
+		return newTask;
+	}
 	
 	/**
 	   * update given list of tasks,  Given map contains the following
@@ -327,7 +462,5 @@ public class ExtTaskService {
 		return taskHistoryRepository.findByTaskIdOrderByPunchTimeDesc(taskId);
 	}
 
-	
-
-	
+		
 }

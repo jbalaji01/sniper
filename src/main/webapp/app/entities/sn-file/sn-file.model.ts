@@ -1,6 +1,6 @@
 import { BaseEntity } from './../../shared';
 
-export const enum ChosenFactor {
+export enum ChosenFactor {
     'NONE',
     'TIME_FRAME',
     'WS_LINE_COUNT',

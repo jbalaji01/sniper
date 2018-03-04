@@ -68,6 +68,21 @@ export class ExtTaskService {
     return this.http.get(this.resourceUrl + 'bundle');
   }
 
+  /**
+   * clone given tasks.  Equal number of tasks created
+   */
+  cloneTasks(tasks: Task[]): Observable<any> {
+    return this.http.post(this.resourceUrl + 'clone', tasks);
+  }
+
+  /**
+   * merge given tasks.  One new task is created with data from first given task and files from all given tasks
+   * all given tasks are marked as merged and inactive
+   */
+  mergeTasks(tasks: Task[]): Observable<any> {
+    return this.http.post(this.resourceUrl + 'merge', tasks);
+  }
+
   // upload all the files
   // source can be task or taskGroup
   // id can be zero or any id
@@ -116,6 +131,12 @@ export class ExtTaskService {
   downloadFiles(source: string, id: number, selectedTasks: Task[]): Observable<any> {
     const finalUrl: string = this.getDownloadLink(source, id, selectedTasks);
     return this.http.get(finalUrl, { responseType: 'blob' });
+  }
+
+
+
+  updateTemplateCount(tasks: Task[], templateCount: number): Observable<any> {
+    return this.http.put(this.resourceUrl + 'update-template-count', tasks);
   }
 
   /**
