@@ -1,6 +1,6 @@
 import { BaseEntity } from './../../shared';
 
-export const enum TaskStatus {
+export enum TaskStatus {
     'CREATED',
     'ASSIGNED',
     'DOWNLOADED',
