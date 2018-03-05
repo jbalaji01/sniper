@@ -4,6 +4,7 @@ import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,6 +34,7 @@ import com.neemshade.sniper.domain.SnFile;
 import com.neemshade.sniper.domain.Task;
 import com.neemshade.sniper.domain.TaskGroup;
 import com.neemshade.sniper.domain.TaskHistory;
+import com.neemshade.sniper.domain.UserInfo;
 import com.neemshade.sniper.security.AuthoritiesConstants;
 import com.neemshade.sniper.service.ExtDownloaderService;
 import com.neemshade.sniper.service.ExtTaskService;
@@ -65,6 +67,13 @@ public class ExtTaskResource {
     public ExtTaskResource() {
     }
 	
+    @GetMapping(value="login-user-info")
+	public UserInfo getLoginUserInfo() throws Exception {
+
+		return extTaskService.fetchLoggedInUserInfo();
+
+	}
+    
     /**
      * GET  /task-groups : get all the taskGroups between given dates.
      *
@@ -271,7 +280,7 @@ public class ExtTaskResource {
 	@PutMapping("/update-snfiles")
 	@Secured({AuthoritiesConstants.MANAGER})
     @Timed
-    public String updateSnFiles(@RequestBody List<SnFile> snFiles) throws Exception {
+    public String updateSnFiles(@RequestBody Set<SnFile> snFiles) throws Exception {
         log.debug("Put request to update snFile list : {}");
         
         if(snFiles == null)

@@ -133,8 +133,6 @@ export class ExtTaskService {
     return this.http.get(finalUrl, { responseType: 'blob' });
   }
 
-
-
   updateTemplateCount(tasks: Task[], templateCount: number): Observable<any> {
     return this.http.put(this.resourceUrl + 'update-template-count', tasks);
   }
@@ -171,5 +169,18 @@ export class ExtTaskService {
 
   findHistory(taskId: number): Observable<any> {
     return this.http.get(this.resourceUrl + 'history-of-task/' + taskId);
+  }
+
+  // convert any type to corresponding enum value string
+  varToEnumStringVal(value: any, enumerator: any): string {
+    const en: { [index: string]: any } = enumerator;
+
+    if (!isNaN(parseInt(value, 10))) {
+        return en[value];
+    }
+
+    const num = en[value];
+
+    return en[num];
   }
 }

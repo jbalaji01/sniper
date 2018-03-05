@@ -8,6 +8,7 @@ import org.springframework.stereotype.Repository;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -48,4 +49,6 @@ public interface TaskRepository extends JpaRepository<Task, Long> {
 			+ " or task.manager.user.login = ?#{principal.username} )"
 			+ " and task.createdTime between :fromDate and :toDate ")
 	Page<Task> findAllTasksOfUser(@Param("fromDate") Instant fromDate, @Param("toDate") Instant toDate, Pageable pageable);
+	
+	Set<Task> findBySnFilesId(Long snFileId);
 }

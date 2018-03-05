@@ -1,13 +1,19 @@
 package com.neemshade.sniper.service;
 
 import com.neemshade.sniper.domain.SnFile;
+import com.neemshade.sniper.domain.Task;
 import com.neemshade.sniper.repository.SnFileRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Set;
+
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 
 /**
  * Service Implementation for managing SnFile.
@@ -18,7 +24,13 @@ public class SnFileService {
 
     private final Logger log = LoggerFactory.getLogger(SnFileService.class);
 
+	@Autowired
+	private TaskService taskService;
+    
     private final SnFileRepository snFileRepository;
+    
+    @PersistenceContext
+    private EntityManager em;
 
     public SnFileService(SnFileRepository snFileRepository) {
         this.snFileRepository = snFileRepository;
@@ -33,6 +45,31 @@ public class SnFileService {
     public SnFile save(SnFile snFile) {
         log.debug("Request to save SnFile : {}", snFile);
         return snFileRepository.save(snFile);
+    }
+    
+    /**
+     * merge a snFile.
+     *
+     * @param snFile the entity to merge
+     * @return the persisted entity
+     */
+    public SnFile merge(SnFile snFile) {
+        log.debug("Request to merge SnFile : {}", snFile);
+		
+		Set<Task> tasks = taskService.findBySnFilesId(snFile.getId());
+		if(snFile.getTasks() != null) {
+			snFile.getTasks().clear();
+		}
+		em.merge(snFile);
+		em.flush();
+		if(tasks != null) {
+			if(snFile.getTasks() != null)
+				snFile.getTasks().addAll(tasks);
+			else
+				snFile.setTasks(tasks);
+		}
+		
+        return em.merge(snFile);
     }
 
     /**

@@ -64,6 +64,7 @@ export class ExtSnFileComponent implements OnInit, OnDestroy {
     .subscribe(
       (data) => {
         this.snFiles = data;
+        // console.log(JSON.stringify(this.snFiles));
         this.decideFinalCountOfSnFiles();
       },
       (err) => this.jhiAlertService.error(err.detail, null, null),
@@ -94,6 +95,7 @@ export class ExtSnFileComponent implements OnInit, OnDestroy {
       (data) => {
         this.jhiAlertService.success('success! ' + data.msg);
         console.log('updateSnFiles msg=' + JSON.stringify(data.msg));
+        this.loadAll();
       },
       (err) => this.jhiAlertService.error('error in updating snFiles!' + err, null, null),
       () => this.jhiAlertService.success('updated snFiles', null, null)
@@ -114,16 +116,39 @@ export class ExtSnFileComponent implements OnInit, OnDestroy {
     // console.log('test2231 ' + snFile['finalCount'] + ' ' + snFile.chosenFactor);
     // console.log(JSON.stringify(snFile));
 
-    const finalCountMap = new Map<ChosenFactor, number>();
-    if (snFile.isAudio) {
-      finalCountMap.set(ChosenFactor.TIME_FRAME, snFile.finalTimeFrame);
-    } else {
-      finalCountMap.set(ChosenFactor.WS_LINE_COUNT, snFile.wsFinalLineCount);
-      finalCountMap.set(ChosenFactor.WOS_LINE_COUNT, snFile.wosFinalLineCount);
+    // const finalCountMap = new Map<ChosenFactor, number>();
+    // if (snFile.isAudio) {
+    //   finalCountMap.set(ChosenFactor.TIME_FRAME, snFile.finalTimeFrame);
+    // } else {
+    //   finalCountMap.set(ChosenFactor.WS_LINE_COUNT, snFile.wsFinalLineCount);
+    //   finalCountMap.set(ChosenFactor.WOS_LINE_COUNT, snFile.wosFinalLineCount);
+    // }
+
+    if (this.extTaskService.varToEnumStringVal(ChosenFactor.TIME_FRAME, ChosenFactor) ===
+        this.extTaskService.varToEnumStringVal(snFile.chosenFactor, ChosenFactor)) {
+          snFile['finalCount'] = snFile.finalTimeFrame;
     }
 
-    snFile['finalCount'] = finalCountMap.has(snFile.chosenFactor) ?
-                            finalCountMap.get(snFile.chosenFactor) : '';
+    if (this.extTaskService.varToEnumStringVal(ChosenFactor.WS_LINE_COUNT, ChosenFactor) ===
+        this.extTaskService.varToEnumStringVal(snFile.chosenFactor, ChosenFactor)) {
+          snFile['finalCount'] = snFile.wsFinalLineCount;
+    }
+
+    if (this.extTaskService.varToEnumStringVal(ChosenFactor.WOS_LINE_COUNT, ChosenFactor) ===
+        this.extTaskService.varToEnumStringVal(snFile.chosenFactor, ChosenFactor)) {
+          snFile['finalCount'] = snFile.wosFinalLineCount;
+    }
+
+    // finalCountMap.forEach((value: number, key: ChosenFactor) => {
+    //   // console.log( '[' + this.extTaskService.varToEnumStringVal(key, ChosenFactor) + '] = [' + snFile.chosenFactor + ']' );
+
+    //   if (this.extTaskService.varToEnumStringVal(key, ChosenFactor) === this.extTaskService.varToEnumStringVal(snFile.chosenFactor, ChosenFactor)) {
+
+    //   }
+    // });
+
+    // snFile['finalCount'] = finalCountMap.has(ChosenFactor[snFile.chosenFactor]) ?
+    //                         finalCountMap.get(ChosenFactor[snFile.chosenFactor]) : '';
 
     // if (snFile.isAudio && snFile.chosenFactor === ChosenFactor.TIME_FRAME) {
     //   // console.log('test 100 ' + snFile.finalTimeFrame);
@@ -139,14 +164,14 @@ export class ExtSnFileComponent implements OnInit, OnDestroy {
     // if ((!snFile.isAudio) && (snFile.chosenFactor === ChosenFactor.WOS_LINE_COUNT)) {
     //   snFile['finalCount'] = snFile.wosFinalLineCount;
     // }
-    console.log('test2234 ' + snFile['finalCount'] + ' ' + snFile.chosenFactor);
+    console.log('test2234 [' + snFile['finalCount'] + '] [' + snFile.chosenFactor + ']');
   }
 
   // called when input changes in ws, wos or audio time count field
   updateChosenFactor(snFile: SnFile, chosenFactorStr: string) {
     // console.log(chosenFactor);
     snFile['isSelected'] = true;
-    snFile.chosenFactor = (ChosenFactor) [chosenFactorStr];
+    snFile.chosenFactor = ChosenFactor[this.extTaskService.varToEnumStringVal(chosenFactorStr, ChosenFactor)];
     this.decideFinalCountOfSnFile(snFile);
     console.log('test223 ' + snFile['finalCount']);
   }
@@ -177,7 +202,7 @@ export class ExtSnFileComponent implements OnInit, OnDestroy {
   }
 
 }
-/* 
+/*
 @Component({
   selector: 'jhi-ext-snfile-info-popup',
   template: ''

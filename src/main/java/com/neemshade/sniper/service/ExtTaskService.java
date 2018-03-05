@@ -3,11 +3,15 @@ package com.neemshade.sniper.service;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -69,6 +73,9 @@ public class ExtTaskService {
 	
 	@Autowired
 	private PatientRepository patientRepository;
+	
+	@PersistenceContext
+	private EntityManager em;
 	
 	public enum TASK_UPDATE_PARAM {
 	    TASKS ("tasks"),
@@ -229,7 +236,7 @@ public class ExtTaskService {
 			createTaskHistory(newTask, historyObe);
 		}
 
-		return "{ \"msg\" : \"Cloned " + tasks.size() + " tasks \" }";
+		return "{ \"msg\" : \"Cloned " + tasks.size() + " tasks.   New Task id = \" + newTask.getId() + \" \" }";
 	}
 	
 	/**
@@ -274,7 +281,7 @@ public class ExtTaskService {
 		historyObe.setNotes("Merged from Tasks " + taskIds);
 		createTaskHistory(newTask, historyObe);
 
-		return "{ \"msg\" : \"Merged " + tasks.size() + " tasks \" }";
+		return "{ \"msg\" : \"Merged " + tasks.size() + " tasks.  New Task id = " + newTask.getId() + "  \" }";
 	}
 
 	
@@ -415,11 +422,15 @@ public class ExtTaskService {
 		if(templateCount == null || templateCount == 0)
 			return; // nothing to update
 		
-		snFile.setWsAdjustedLineCount(snFile.getWsActualLineCount() - templateCount);
-		snFile.setWsFinalLineCount(snFile.getWsAdjustedLineCount());
+		if(snFile.getWsActualLineCount() > templateCount) {
+			snFile.setWsAdjustedLineCount(snFile.getWsActualLineCount() - templateCount);
+			snFile.setWsFinalLineCount(snFile.getWsAdjustedLineCount());
+		}
 		
-		snFile.setWosAdjustedLineCount(snFile.getWosActualLineCount() - templateCount);
-		snFile.setWosFinalLineCount(snFile.getWosAdjustedLineCount());
+		if(snFile.getWosActualLineCount() > templateCount) {
+			snFile.setWosAdjustedLineCount(snFile.getWosActualLineCount() - templateCount);
+			snFile.setWosFinalLineCount(snFile.getWosAdjustedLineCount());
+		}
 	}
 	
 	/**
@@ -427,11 +438,13 @@ public class ExtTaskService {
 	 * @param snFiles
 	 * @return
 	 */
-	public String updateSnFiles(List<SnFile> snFiles) {
+	public String updateSnFiles(Set<SnFile> snFiles) {
 		
 		
 		for(SnFile snFile : snFiles) {
-			SnFile updatedSnFile = snFileService.save(snFile);
+			
+//			SnFile updatedSnFile = snFileService.save(snFile);
+			SnFile updatedSnFile = snFileService.merge(snFile);
 		}
 //		
 		return "{ \"msg\" : \"Updated " + snFiles.size() + " files \" }";

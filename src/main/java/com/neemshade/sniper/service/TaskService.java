@@ -6,6 +6,7 @@ import com.neemshade.sniper.repository.TaskRepository;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.util.List;
+import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -99,4 +100,7 @@ public class TaskService {
 		return taskRepository.findStatusCount(taskGroupId);
 	}
 
+	public Set<Task> findBySnFilesId(Long snFileId) {
+		return taskRepository.findBySnFilesId(snFileId);
+	}
 }
