@@ -26,10 +26,13 @@
 <jhi-downloader [source]="'selectedTasks'" [id]="0" [selectedTasks]="selectedTasks" (onCompletion)="uponSelectedTasksDownloadCompletion($event)"></jhi-downloader>
 <br/>
 <select>
+    <optgroup label="Control">
+        <option></option>
     <option value="Refresh" (click)="refresh()">Refresh</option>
     <option value="Clone" (click)="clone()">Clone</option>
     <option value="Merge" (click)="merge()">Merge</option>
     <option value="Done" (click)="uponDoneMenuClick()">Done</option>
+</optgroup>
 </select>
 <select (change)="loadChildMenu()" [(ngModel)]="masterSelectedItem">
    <optgroup *ngFor="let heading of masterMenuArr" label="{{heading['head']}}">{{heading['head']}} 
@@ -54,7 +57,7 @@
             <!-- <tr> -->
             <tr jhiSort [(predicate)]="predicate" [(ascending)]="reverse" [callback]="transition.bind(this)">
                 <th>
-                    <span>CheckBox</span>
+                    <span><input [(ngModel)]="selectionFlag" type="checkbox" (click)="selectAllCheckBox()"></span>
                 </th>
                 <th><span>Done</span>
                 </th>
