@@ -1,6 +1,6 @@
-import { Component, OnInit, EventEmitter, Input, Output, ViewChild } from '@angular/core';
+import { Component, OnInit, EventEmitter, Input, Output, ViewChild, SkipSelf } from '@angular/core';
 import { HttpResponse, HttpErrorResponse } from '@angular/common/http';
-import { DatePipe } from '@angular/common';
+import { DatePipe, LowerCasePipe } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Subscription } from 'rxjs/Subscription';
 import { JhiEventManager, JhiParseLinks, JhiAlertService } from 'ng-jhipster';
@@ -14,6 +14,10 @@ import { TaskStatus as HistoryStatus} from '../../task-history/task-history.mode
 import { ExtTaskService } from '../ext-task.service';
 
 import { DownloaderComponent } from '../downloader/downloader.component';
+import { SOURCE } from '@angular/core/src/di/injector';
+import {PatternValidator} from '@angular/forms';
+import { isNull } from 'util';
+import { isDefined } from '@ng-bootstrap/ng-bootstrap/util/util';
 
 // import { componentRefresh } from '@angular/core/src/render3/instructions';
 // import { OnChanges } from '@angular/core/src/metadata/lifecycle_hooks';
@@ -55,7 +59,14 @@ export class ExtTaskListTemplateComponent implements OnInit {
 
     // when task table checkbox is ticked or unticked, update this list
     selectedTasks: Task[] = [];
-
+    masterMenuArr: Array<object> = [
+      { 'head': MASTER_MENU_HEADER.SOURCE, 'list' : [BUNDLE_FIELD.COMPANY, BUNDLE_FIELD.HOSPITAL, BUNDLE_FIELD.DOCTOR]},
+      { 'head': MASTER_MENU_HEADER.PLAYER, 'list' : [ BUNDLE_FIELD.OWNER, BUNDLE_FIELD.TRANSCRIPT, BUNDLE_FIELD.EDITOR, BUNDLE_FIELD.MANAGER]},
+      { 'head': MASTER_MENU_HEADER.STATUS, 'list' : ['Status']},
+    ];
+    masterSelectedItem: any;
+    childSelectedItem: any;
+    childMenuList: any[]= [];
   constructor(
         private extTaskService: ExtTaskService,
         private parseLinks: JhiParseLinks,
@@ -67,10 +78,197 @@ export class ExtTaskListTemplateComponent implements OnInit {
   ) {
 
   }
-  displayCheckedTaskId(selectedTask: Task) {
+  // To load child menu accordingly
+  loadChildMenu() {
+    let masterHead: MASTER_MENU_HEADER;
+    console.log(this.masterSelectedItem);
+    this.childMenuList = [];
+    masterHead = this.findMasterSelectedItemType();
+   // console.log('lcm ' + masterHead);
+    this.loadChildItems(masterHead);
+    // if(masterHead==MASTER_MENU_HEADER.SOURCE && this.masterSelectedItem==BUNDLE_FIELD)
+   /* for (let i = 1 ; i < 11 ; i++)  {
+    this. childMenuList. push (this.masterSelectedItem + ' ' + i);
+    }*/
+    }
+    // To find the heading of master selected item
+    findMasterSelectedItemType(): MASTER_MENU_HEADER {
+
+      let requiredType: MASTER_MENU_HEADER = null;
+
+      this.masterMenuArr.forEach((masterItemType ) => {
+
+        const fieldMap = new Map<string, string>();
+        masterItemType['list'].forEach ( (masterType) => {
+          const localMasterType = (BUNDLE_FIELD)[masterType];
+          const localSelectedItem = (BUNDLE_FIELD)[this.masterSelectedItem];
+         fieldMap.set(masterType, '');
+          // console.log('test 12 ' + localMasterType + ' selected= ' + localSelectedItem);
+          // if((localSelectedItem + '') === (localMasterType + '')) {
+            //  if(BUNDLE_FIELD[masterType]===BUNDLE_FIELD[this.masterSelectedItem]) {
+            //   return masterItemType['head'];
+          // }
+        });
+
+          if (fieldMap.has(this.masterSelectedItem)) {
+            // console.log("hurray!!! " + masterItemType['head']);
+            requiredType = masterItemType['head'];
+          }
+
+        });
+        // console.log('sorry no type');
+        return requiredType;
+          }
+   /*  findMasterSelectedItemType(): MASTER_MENU_HEADER {
+    this.masterMenuArr.forEach((masterItemType ) => {
+      masterItemType['list'].forEach( masterType => {
+        const localMasterType = (BUNDLE_FIELD)[masterType];
+        const localSelectedItem = (BUNDLE_FIELD)[this.masterSelectedItem];
+       console.log('test 12 ' + localMasterType + ' selected= ' + localSelectedItem);
+        // if((localSelectedItem + '') === (localMasterType + '')) {
+           if(BUNDLE_FIELD[masterType]===BUNDLE_FIELD[this.masterSelectedItem]) {
+            return masterItemType['head'];
+        }
+      })
+      });
+      return null;
+        } */
+       /* var typeArray = Object.keys(types).map(function(type) {
+          return types[type];*/
+    loadChildItems(masterHead) {
+      this.childMenuList = [];
+      // console.log('I am' + masterHead);
+      // let statuses: TaskStatus = TaskStatus;
+      // let statusArray=Object.keys(statuses).map(function(type) {
+      //   return TaskStatus[type];
+      // });
+
+    //   for (var enumMember in TaskStatus) {
+    //     var isValueProperty = parseInt(enumMember, 10) >= 0
+    //     if (isValueProperty) {
+    //        console.log("enum member: ", myEnum[enumMember]);
+    //     }
+    //  }
+
+      const statusArray = [];
+      Object.keys(TaskStatus).forEach((status) => {
+        // use  regex to check for digit.  skip if digit.  it is easy one
+        const pattern = /^[0-9]*$/;
+        if (!(status.match(pattern))) {
+          statusArray.push(status);
+          }
+        });
+      // console.log('all status = ' + JSON.stringify(statusArray));
+     const menuMap = new Map<string, any>();
+      menuMap.set(MASTER_MENU_HEADER.SOURCE, this.bundleMap[this.masterSelectedItem]);
+      menuMap.set(MASTER_MENU_HEADER.PLAYER, this.bundleMap[BUNDLE_FIELD.USER]);
+      menuMap.set(MASTER_MENU_HEADER.STATUS, statusArray);
+
+      this.childMenuList = menuMap.get(masterHead);
+
+// if(masterHead===MASTER_MENU_HEADER.SOURCE) {
+//   this.childMenuList.concat(this.bundleMap[this.masterSelectedItem]);
+// }
+// if(masterHead===MASTER_MENU_HEADER.PLAYER) {
+//   this.childMenuList.concat(this.bundleMap[BUNDLE_FIELD.USER]);
+// }
+// console.log('done');
+// console.log(JSON.stringify(this.childMenuList));
+    }
+
+    // return display string as presented  in the menu
+    displayName(child) {
+      // console.log('in dn ' + JSON.stringify(child));
+     let  field: string;
+     field = this.masterSelectedItem.toLowerCase();
+      const fieldName = field + 'Name';
+     // console.log('fieldName = ' + fieldName);
+    if (child.hasOwnProperty(fieldName)) {
+      return child[fieldName]; 
+    }
+     if (child.hasOwnProperty('empCode')) {
+      return child['empCode'];
+    }
+    return child;
+    }
+    onChildMenuSelection() {
+    // console.log(this.childSelectedItem);
+    let selectionType: MASTER_MENU_HEADER = null;
+    selectionType = this.findMasterSelectedItemType();
+    const functionName = 'set_' + selectionType.toLowerCase() + '_from_menu';
+    console.log('calling ' + functionName);
+    this[functionName]();
+    const historyObe: TaskHistory = this.composeHistoryObe(TaskStatus.SETTING, 'updated ' + this.masterSelectedItem + ' with ' + this.childSelectedItem);
+    this.updateTasks(this.selectedTasks, historyObe, this.masterSelectedItem);
+    }
+  set_source_from_menu() {
+    // console.log('in source ' + 'assigning ' + this.masterSelectedItem + ' with ' 
+    //          + JSON.stringify(this.childSelectedItem));
+    this.selectedTasks.forEach( (task) => {
+  this.setField(task , this.masterSelectedItem , this.childSelectedItem);
+});   
+} 
+  set_player_from_menu() {
+     // console.log('in player ' + 'assigning ' + this.masterSelectedItem + ' with ' + this.childSelectedItem);
+      this.selectedTasks.forEach( (task) => {
+          this.setField(task , this.masterSelectedItem , this.childSelectedItem);
+
+          if (isNull(task.transcript) && isDefined(task.owner)) {
+            task.transcript = task.owner ;
+          }
+        if (isNull(task.owner) && isDefined(task.transcript)) {
+          task.owner = task.transcript ;
+        }
+        if (isDefined(task.owner) && isDefined(task.editor) && isDefined(task.transcript) && isDefined(task.manager)) {
+          this.setStatus(task , TaskStatus.ASSIGNED);
+        }
+        });
+    }
+  set_status_from_menu() {
+      // console.log('in status ' + 'assigning ' + this.masterSelectedItem + ' with ' + this.childSelectedItem);
+      this.selectedTasks.forEach( (task) => {
+          // this.setField(task , this.masterSelectedItem , this.childSelectedItem);
+          this.setStatus(task, this.childSelectedItem);
+        });
+     }
+
+    setField(task, field, value) {
+      const rightField = field.toLowerCase();
+      task[rightField] = value;
+     // console.log('task[' + rightField + '] = ' + task[rightField]);
+     // console.log(JSON.stringify(task));
+    }
+
+    // set the status into task
+    // also set task's active flag based on status
+    setStatus(task: Task, taskStatus) {
+      task.taskStatus = taskStatus;
+
+      const activeStatusMap = new Map<TaskStatus, string>();
+      activeStatusMap.set(TaskStatus.ASSIGNED, '');
+      activeStatusMap.set(TaskStatus.TRANSFERRED, '');
+
+      const deactiveStatusMap = new Map<TaskStatus, string>();
+      deactiveStatusMap.set(TaskStatus.COMPLETED, '');
+      deactiveStatusMap.set(TaskStatus.CREATED, '');
+      deactiveStatusMap.set(TaskStatus.MERGED, '');
+      deactiveStatusMap.set(TaskStatus.DELETED, '');
+
+      if (activeStatusMap.has(taskStatus)) {
+        task.isActive = true;
+      }
+
+      if (deactiveStatusMap.has(taskStatus)) {
+        task.isActive = false;
+      }
+    }
+
+// To collect selected tasks
+  collectSelectedTasks(selectedTask: Task) {
     selectedTask['isSelected'] = !(selectedTask && selectedTask['isSelected']);
     this.selectedTasks.length = 0;
     this.tasks.forEach((task) => {
+    console.log('test 333 id= ' + task.id + ' flag= ' + task['isSelected']);
     if (task ['isSelected']) {
       this.selectedTasks.push (task);
   // console.log(task.id);
@@ -191,9 +389,31 @@ export class ExtTaskListTemplateComponent implements OnInit {
   }
 
   refresh() {
+    console.log('refresh function is called');
     const urlParamObj = this.composeUrlParam();
     this.loadTasks(urlParamObj);
   }
+clone() {
+
+}
+merge() {
+
+}
+uponDoneMenuClick() {
+  this.selectedTasks.forEach( (task) => {
+    if (isDefined(task.transcript)) {
+      task.owner = task.editor;
+      this.setStatus(task , TaskStatus.ASSIGNED);
+    }
+    if (isDefined(task.editor)) {
+      task.owner = task.manager;
+      this.setStatus(task , TaskStatus.ASSIGNED);
+    }
+    if (isDefined(task.manager)) {
+      this.setStatus(task , TaskStatus.COMPLETED);
+    }
+  });
+}
 
   trackId(index: number, item: Task) {
     return item.id;
@@ -234,11 +454,11 @@ export class ExtTaskListTemplateComponent implements OnInit {
     // });
 
     // this.updateTasks(this.tasks, historyObe, 'peckOrder');
-    this.updateSelectedTasks();
+    // this.updateSelectedTasks();
   }
 
   // call this fn when task checkbox is ticked or unticked
-  updateSelectedTasks() {
+  updateSelectedTasks_dummy() {
     if (this.selectedTasks == null) {
       this.selectedTasks = [];
     }
@@ -367,4 +587,10 @@ export enum BUNDLE_FIELD {
   TRANSCRIPT = 'TRANSCRIPT',
   EDITOR = 'EDITOR',
   MANAGER = 'MANAGER'
+}
+
+export enum MASTER_MENU_HEADER {
+  SOURCE = 'Source',
+  PLAYER = 'Player',
+  STATUS = 'Status'
 }

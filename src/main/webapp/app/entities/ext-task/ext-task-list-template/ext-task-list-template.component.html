@@ -24,6 +24,25 @@
 </div>
 
 <jhi-downloader [source]="'selectedTasks'" [id]="0" [selectedTasks]="selectedTasks" (onCompletion)="uponSelectedTasksDownloadCompletion($event)"></jhi-downloader>
+<br/>
+<select>
+    <option value="Refresh" (click)="refresh()">Refresh</option>
+    <option value="Clone" (click)="clone()">Clone</option>
+    <option value="Merge" (click)="merge()">Merge</option>
+    <option value="Done" (click)="uponDoneMenuClick()">Done</option>
+</select>
+<select (change)="loadChildMenu()" [(ngModel)]="masterSelectedItem">
+   <optgroup *ngFor="let heading of masterMenuArr" label="{{heading['head']}}">{{heading['head']}} 
+        <option *ngFor="let master of heading['list']" >{{master}}</option>
+    </optgroup>
+    <!--<option *ngFor="let heading of masterMenuArr" value="{{heading}}"  disabled>{{heading}} </option>-->
+</select>
+<select (change)="onChildMenuSelection()" [(ngModel)]="childSelectedItem">
+    <optgroup label="{{this.masterSelectedItem}}">  <!-- is this disabled? -->
+    <option *ngFor="let child of childMenuList" [ngValue]="child">{{displayName(child)}}</option>
+    </optgroup>
+
+</select>
 
 <div *ngIf="(!tasks) || tasks.length == 0">
     <b>No tasks in this list</b>
@@ -35,7 +54,7 @@
             <!-- <tr> -->
             <tr jhiSort [(predicate)]="predicate" [(ascending)]="reverse" [callback]="transition.bind(this)">
                 <th>
-                    <span>Mark</span>
+                    <span>CheckBox</span>
                 </th>
                 <th><span>Done</span>
                 </th>
@@ -122,7 +141,7 @@
         </thead>
         <tbody>
             <tr *ngFor="let task of tasks; trackBy: trackId">
-                <td><input type="checkbox" (click)="displayCheckedTaskId(task)" name="mark"></td>
+                <td><input [(ngModel)]="task['isSelected']" type="checkbox" (click)="collectSelectedTasks(task)" name="mark"></td>
                 <td><button type="button" name="Done" value="Done">Done</button></td>
                 <td>
                     {{task.id}}
@@ -187,7 +206,7 @@
                 </td>-->
                 <!--<td>
                     <div *ngIf="task.owner">
-                        <a [routerLink]="['../user-info', task.owner?.id ]">{{task.owner?.empCode}}</a>
+                        <a [routerLink]="['../user-info', task.transcript?.id ]">{{task.owner?.empCode}}</a>
                     </div>
                 </td>
                 <td>
@@ -237,6 +256,4 @@
     <div class="row justify-content-center">
         <ngb-pagination [collectionSize]="totalItems" [(page)]="page" [pageSize]="itemsPerPage" [maxSize]="5" [rotate]="true" [boundaryLinks]="true" (pageChange)="loadPage(page)"></ngb-pagination>
     </div>
-</div>
-</div>
 </div>
