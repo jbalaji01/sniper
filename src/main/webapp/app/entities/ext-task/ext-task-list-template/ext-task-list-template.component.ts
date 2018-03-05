@@ -67,6 +67,7 @@ export class ExtTaskListTemplateComponent implements OnInit {
     masterSelectedItem: any;
     childSelectedItem: any;
     childMenuList: any[]= [];
+    selectionFlag = false;
   constructor(
         private extTaskService: ExtTaskService,
         private parseLinks: JhiParseLinks,
@@ -77,6 +78,18 @@ export class ExtTaskListTemplateComponent implements OnInit {
         private eventManager: JhiEventManager
   ) {
 
+  }
+  // select all checkBox content goes here
+  selectAllCheckBox() {
+    this.selectionFlag = ! this.selectionFlag;
+    if (this.selectionFlag) {
+      this.selectedTasks = this.tasks;
+    } else {
+      this.selectedTasks = [];
+    }
+      this.tasks.forEach((task) => {
+        task['isSelected'] = this.selectionFlag;
+      });
   }
   // To load child menu accordingly
   loadChildMenu() {
@@ -163,7 +176,6 @@ export class ExtTaskListTemplateComponent implements OnInit {
       menuMap.set(MASTER_MENU_HEADER.SOURCE, this.bundleMap[this.masterSelectedItem]);
       menuMap.set(MASTER_MENU_HEADER.PLAYER, this.bundleMap[BUNDLE_FIELD.USER]);
       menuMap.set(MASTER_MENU_HEADER.STATUS, statusArray);
-
       this.childMenuList = menuMap.get(masterHead);
 
 // if(masterHead===MASTER_MENU_HEADER.SOURCE) {
@@ -184,7 +196,7 @@ export class ExtTaskListTemplateComponent implements OnInit {
       const fieldName = field + 'Name';
      // console.log('fieldName = ' + fieldName);
     if (child.hasOwnProperty(fieldName)) {
-      return child[fieldName]; 
+      return child[fieldName];
     }
      if (child.hasOwnProperty('empCode')) {
       return child['empCode'];
@@ -202,12 +214,12 @@ export class ExtTaskListTemplateComponent implements OnInit {
     this.updateTasks(this.selectedTasks, historyObe, this.masterSelectedItem);
     }
   set_source_from_menu() {
-    // console.log('in source ' + 'assigning ' + this.masterSelectedItem + ' with ' 
-    //          + JSON.stringify(this.childSelectedItem));
+    // console.log('in source ' + 'assigning ' + this.masterSelectedItem + ' with '
+    // + JSON.stringify(this.childSelectedItem));
     this.selectedTasks.forEach( (task) => {
   this.setField(task , this.masterSelectedItem , this.childSelectedItem);
-});   
-} 
+});
+}
   set_player_from_menu() {
      // console.log('in player ' + 'assigning ' + this.masterSelectedItem + ' with ' + this.childSelectedItem);
       this.selectedTasks.forEach( (task) => {
@@ -268,7 +280,7 @@ export class ExtTaskListTemplateComponent implements OnInit {
     selectedTask['isSelected'] = !(selectedTask && selectedTask['isSelected']);
     this.selectedTasks.length = 0;
     this.tasks.forEach((task) => {
-    console.log('test 333 id= ' + task.id + ' flag= ' + task['isSelected']);
+    console.log(' id= ' + task.id + ' flag= ' + task['isSelected']);
     if (task ['isSelected']) {
       this.selectedTasks.push (task);
   // console.log(task.id);
@@ -346,11 +358,13 @@ export class ExtTaskListTemplateComponent implements OnInit {
   }
 
   private onSuccess(data, headers) {
+    this.selectionFlag = false;
     this.links = this.parseLinks.parse(headers.get('link'));
     this.totalItems = headers.get('X-Total-Count');
     this.queryCount = this.totalItems;
     // this.page = pagingParams.page;
     this.tasks = data;
+
   }
 
   private onError(error) {
