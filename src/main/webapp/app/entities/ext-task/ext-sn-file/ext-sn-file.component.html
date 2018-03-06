@@ -30,7 +30,7 @@
         <table class="table table-striped">
             <thead>
             <tr>
-            <th><span><input [(ngModel)]="masterCheckbox" type="checkbox"/></span></th>
+            <th></th>
             <th><span>ID</span></th>
             <th *jhiHasAnyAuthority="'ROLE_MANAGER'"><span>Uploader</span></th>
             <!-- <th><span>File Path</span></th> -->
@@ -57,7 +57,7 @@
             <th *jhiHasAnyAuthority="'ROLE_MANAGER'"><span>Chosen Factor</span></th>
             <th><span>Final count</span></th>
             <th><span>Peck Order</span></th>
-            <th><span>Content</span></th> <!-- blob -->
+            <!-- <th><span>Content</span></th> -->
             <!-- <th><span>Patient</span></th>
             <th><span>Task</span></th> -->
             <th *jhiHasAnyAuthority="'ROLE_MANAGER'"></th>
@@ -147,11 +147,11 @@
                 </td>
                 <th><span>{{snFile['finalCount']}}</span></th>
                 <td>{{snFile.peckOrder}}</td>
-                <td>
+                <!-- <td>
                     <div *ngIf="snFile.snFileBlob">
                         <a [routerLink]="['../sn-file-blob', snFile.snFileBlob?.id ]" >{{snFile.snFileBlob?.id}}</a>
                     </div>
-                </td>
+                </td> -->
                 <!-- <td>
                     <span *ngFor="let patient of snFile.patients; let last = last">
                             {{patient.patientName}}{{last ? '' : ', '}}
@@ -195,7 +195,7 @@
     </div>
 </div>
 
-<div class="modal-footer">
+<div class="modal-footer" *jhiHasAnyAuthority="'ROLE_MANAGER'">
     <!-- <button type="button" class="btn btn-secondary" data-dismiss="modal" (click)="clear()">
         <span class="fa fa-ban"></span>&nbsp;<span>Cancel</span>
     </button> -->

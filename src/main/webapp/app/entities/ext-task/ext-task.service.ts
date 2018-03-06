@@ -68,6 +68,10 @@ export class ExtTaskService {
     return this.http.get(this.resourceUrl + 'bundle');
   }
 
+  fetchLoggedInUserInfo(): Observable<any> {
+    return this.http.get(this.resourceUrl + 'login-user-info');
+  }
+
   /**
    * clone given tasks.  Equal number of tasks created
    */

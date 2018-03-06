@@ -110,7 +110,7 @@ export class ExtTaskGroupDetailComponent implements OnInit, OnDestroy {
     this.extTaskService.countTaskStatus(taskGroupId)
     .subscribe((response: [any]) => {
         // const data = response.body;
-        console.log(JSON.stringify(response));
+        // console.log(JSON.stringify(response));
         this.statusCountList = response;
 
         this.totalTasks = 0;

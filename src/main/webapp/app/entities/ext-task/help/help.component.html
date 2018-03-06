@@ -1,5 +1,7 @@
 
-<div>
+Welcome to help page.
+
+<div *jhiHasAnyAuthority="'ROLE_TRANSCRIPT'">
 <h2><p><strong>Terminologies used:</h2></strong></p>
 <ul>
   <li><b>Task:</b> <br>An activity assigned to MT needs to understand the requirements, use the provided files and upload completed work.</li>
@@ -8,7 +10,11 @@
 </ul>
 </div>
 
-<div>
+<div *jhiHasAnyAuthority="'ROLE_DIRECTOR'">
+  <h2>Manager:</h2>
+</div>
+
+<div *jhiHasAnyAuthority="'ROLE_MANAGER'">
     <h2>Manager:</h2>
 
 <ul>
@@ -44,7 +50,7 @@
 </ul>
 </div>
 
-<div>
+<div *jhiHasAnyAuthority="'ROLE_EDITOR'">
   <h2>Editor:</h2>
     <ul>
   <li>Once MT upload their finished documents, they will transfer control to editors.<br/></li>
@@ -53,7 +59,8 @@
 </ul>
   <em>Please go through following section 'MT' to understand the process of handling tasks.</em>
 </div>
-<div>
+
+<div *jhiHasAnyAuthority="'ROLE_TRANSCRIPT'">
   <br>
     <h2>Transcript:</h2>
 <ul>
@@ -66,7 +73,7 @@
 </ul>
 </div>
 
-<div>
+<div *jhiHasAnyAuthority="'ROLE_MANAGER'">
     <h2>Web admin:</h2>
         <ul>
           <li>To add new audio file format.

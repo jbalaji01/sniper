@@ -87,7 +87,7 @@ public class ExtUploaderService {
 	 * @param mpFileList - list of multipart files
 	 * @throws Exception
 	 */
-	public void handleFileUpload(String source, Long id, List<MultipartFile> mpFileList) throws Exception {
+	public synchronized void handleFileUpload(String source, Long id, List<MultipartFile> mpFileList) throws Exception {
 		
 		if(source == null)
 		{

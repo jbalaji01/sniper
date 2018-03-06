@@ -25,15 +25,18 @@
 
 <jhi-downloader [source]="'selectedTasks'" [id]="0" [selectedTasks]="selectedTasks" (onCompletion)="uponSelectedTasksDownloadCompletion($event)"></jhi-downloader>
 <br/>
-<select>
+
+<!-- <select>
     <optgroup label="Control">
         <option></option>
     <option value="Refresh" (click)="refresh()">Refresh</option>
-    <option value="Clone" (click)="clone()">Clone</option>
-    <option value="Merge" (click)="merge()">Merge</option>
+    <option value="Clone" (click)="clone()" disabled="true">Clone</option>
+    <option value="Merge" (click)="merge()" disabled="true">Merge</option>
     <option value="Done" (click)="uponDoneMenuClick()">Done</option>
 </optgroup>
-</select>
+</select> -->
+
+<span *jhiHasAnyAuthority="'ROLE_MANAGER'">
 <select (change)="loadChildMenu()" [(ngModel)]="masterSelectedItem">
    <optgroup *ngFor="let heading of masterMenuArr" label="{{heading['head']}}">{{heading['head']}} 
         <option *ngFor="let master of heading['list']" >{{master}}</option>
@@ -46,6 +49,7 @@
     </optgroup>
 
 </select>
+</span>
 
 <div *ngIf="(!tasks) || tasks.length == 0">
     <b>No tasks in this list</b>
@@ -76,18 +80,18 @@
                 <th jhiSortBy="Source">
                     Source
                 </th>
-                <th *jhiHasAnyAuthority="'ROLE_MANAGER'" jhiSortBy="Players">
+                <th *jhiHasAnyAuthority="'ROLE_MANAGER'">
                     Players
                 </th>
                 <th jhiSortBy="createdTime">
                     <span>Created Time</span>
-                    <span class="fa fa-sort"></span>
+                    <!-- <span class="fa fa-sort"></span> -->
                 </th>
                 <!--<th jhiSortBy="isActive">
                         <span>Is Active</span>
                         <span class="fa fa-sort"></span>
                     </th>-->
-                <th *jhiHasAnyAuthority="'ROLE_MANAGER'" jhiSortBy="History">
+                <th *jhiHasAnyAuthority="'ROLE_MANAGER'">
                     <span>History</span>
                 </th>
                 <th jhiSortBy="peckOrder">
@@ -145,7 +149,9 @@
         <tbody>
             <tr *ngFor="let task of tasks; trackBy: trackId">
                 <td><input [(ngModel)]="task['isSelected']" type="checkbox" (click)="collectSelectedTasks(task)" name="mark"></td>
-                <td><button type="button" name="Done" value="Done">Done</button></td>
+                <td><button type="button" name="Done" value="Done"
+                          [disabled]="task['isDoneDisabled']"
+                          (click)="uponDoneButtonClick(task)">Done</button></td>
                 <td>
                     {{task.id}}
                 </td>

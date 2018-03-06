@@ -7,6 +7,7 @@ import { JhiEventManager, JhiParseLinks, JhiAlertService } from 'ng-jhipster';
 import { ITEMS_PER_PAGE, Principal } from '../../../shared';
 
 import {SnFile} from '../../sn-file/sn-file.model';
+import {UserInfo} from '../../user-info/user-info.model';
 
 import { Task, TaskStatus } from '../../task/task.model';
 import { TaskHistory } from '../../task-history/task-history.model';
@@ -36,6 +37,7 @@ export class ExtTaskListTemplateComponent implements OnInit {
   // @ViewChild('selectedTasksDownloader') selectedTasksDownloader: DownloaderComponent;
     tasks: Task[];
     bundleMap: object[];
+    loggedInUserInfo: UserInfo;
 
     // clear these lists when corresponding pop-up is closed
     snFiles: SnFile[];
@@ -79,18 +81,7 @@ export class ExtTaskListTemplateComponent implements OnInit {
   ) {
 
   }
-  // select all checkBox content goes here
-  selectAllCheckBox() {
-    this.selectionFlag = ! this.selectionFlag;
-    if (this.selectionFlag) {
-      this.selectedTasks = this.tasks;
-    } else {
-      this.selectedTasks = [];
-    }
-      this.tasks.forEach((task) => {
-        task['isSelected'] = this.selectionFlag;
-      });
-  }
+
   // To load child menu accordingly
   loadChildMenu() {
     let masterHead: MASTER_MENU_HEADER;
@@ -210,7 +201,8 @@ export class ExtTaskListTemplateComponent implements OnInit {
     const functionName = 'set_' + selectionType.toLowerCase() + '_from_menu';
     console.log('calling ' + functionName);
     this[functionName]();
-    const historyObe: TaskHistory = this.composeHistoryObe(TaskStatus.SETTING, 'updated ' + this.masterSelectedItem + ' with ' + this.childSelectedItem);
+    const historyObe: TaskHistory = this.composeHistoryObe(TaskStatus.SETTING, 'updated '
+                   + this.masterSelectedItem + ' with ' + this.displayName(this.childSelectedItem));
     this.updateTasks(this.selectedTasks, historyObe, this.masterSelectedItem);
     }
   set_source_from_menu() {
@@ -275,6 +267,20 @@ export class ExtTaskListTemplateComponent implements OnInit {
       }
     }
 
+  // select all checkBox content goes here
+  selectAllCheckBox() {
+    this.selectionFlag = ! this.selectionFlag;
+    this.selectedTasks = [];
+
+    this.tasks.forEach((task) => {
+        task['isSelected'] = this.selectionFlag;
+
+        if (this.selectionFlag) {
+          this.selectedTasks.push(task);
+        }
+    });
+  }
+
 // To collect selected tasks
   collectSelectedTasks(selectedTask: Task) {
     selectedTask['isSelected'] = !(selectedTask && selectedTask['isSelected']);
@@ -285,11 +291,11 @@ export class ExtTaskListTemplateComponent implements OnInit {
       this.selectedTasks.push (task);
   // console.log(task.id);
     }});
-    let str = '';
-    for (const selected of this.selectedTasks) {
-      str += selected.id + ', ';
-    }
-    console.log(str);
+    // let str = '';
+    // for (const selected of this.selectedTasks) {
+    //   str += selected.id + ', ';
+    // }
+    // console.log(str);
   }
 
   ngOnInit() {
@@ -307,9 +313,10 @@ export class ExtTaskListTemplateComponent implements OnInit {
 
     this.today();
     this.previousMonth();
-    this.onChangeDate();
+    // this.onChangeDate();
     this.registerChangeInTaskTemplate();
     this.loadBundle();
+    this.loadLoggedInUserInfo();
   }
 
   onChangeDate() {
@@ -365,6 +372,14 @@ export class ExtTaskListTemplateComponent implements OnInit {
     // this.page = pagingParams.page;
     this.tasks = data;
 
+    this.prepareTasks();
+  }
+
+  // do any setup in this fn
+  prepareTasks() {
+    this.tasks.forEach((task) => {
+      this.isDoneDisabled(task);
+    });
   }
 
   private onError(error) {
@@ -398,36 +413,154 @@ export class ExtTaskListTemplateComponent implements OnInit {
         // console.log('doci ' + JSON.stringify(this.bundleMap[BUNDLE_FIELD.DOCTOR][0]));
       },
       (err) => this.jhiAlertService.error(err.detail, null, null),
-      () => this.jhiAlertService.success('loaded files info', null, null)
+      () => this.jhiAlertService.success('loaded bundle info', null, null)
+    );
+  }
+
+  loadLoggedInUserInfo() {
+    this.extTaskService.fetchLoggedInUserInfo()
+    .subscribe(
+      (data) => {
+        this.loggedInUserInfo = data;
+        // console.log('logged in userInfo = ' + JSON.stringify(this.loggedInUserInfo));
+        console.log('logged in userInfo = ' + this.loggedInUserInfo.empCode);
+        this.onChangeDate();
+      },
+      (err) => this.jhiAlertService.error(err.detail, null, null),
+      () => this.jhiAlertService.success('loaded logged in user info', null, null)
     );
   }
 
   refresh() {
     console.log('refresh function is called');
-    const urlParamObj = this.composeUrlParam();
-    this.loadTasks(urlParamObj);
+    this.uponReload(true);
+    // const urlParamObj = this.composeUrlParam();
+    // this.loadTasks(urlParamObj);
   }
-clone() {
 
-}
-merge() {
+  clone() {
+    this.extTaskService.cloneTasks(this.selectedTasks).subscribe(
+      (data) => {
+        this.jhiAlertService.success('success! ' + data.msg);
+        console.log('clone msg=' + JSON.stringify(data.msg));
+        this.uponReload(true);
+      },
+      (err) => this.jhiAlertService.error('error in cloning tasks!' + err, null, null),
+      () => this.jhiAlertService.success('cloned tasks', null, null)
+    );
+  }
 
-}
+  merge() {
+    this.extTaskService.mergeTasks(this.selectedTasks).subscribe(
+      (data) => {
+        this.jhiAlertService.success('success! ' + data.msg);
+        console.log('merge msg=' + JSON.stringify(data.msg));
+        this.uponReload(true);
+      },
+      (err) => this.jhiAlertService.error('error in merging tasks!' + err, null, null),
+      () => this.jhiAlertService.success('merged tasks', null, null)
+    );
+  }
+
+  // used by the view.  determines if a done button of a task should be disabled or not
+  // if pm login, allow button.  if logged in user = task.owner, then allow button
+  // isDoneDisabled flag is set in task
+  isDoneDisabled(task: Task): boolean {
+
+    console.log('isMgr=' + this.principal.hasAnyAuthorityDirect(['ROLE_MANAGER']) + ' log=' + this.loggedInUserInfo.empCode);
+
+    // manager gets privilage to operate the button at all state
+    if (this.principal.hasAnyAuthorityDirect(['ROLE_MANAGER'])) {
+      task['isDoneDisabled'] = false;
+      return false;
+    }
+
+    // if the task is not active, disable the button
+    if (task && !task.isActive) {
+      task['isDoneDisabled'] = true;
+      return true;
+    }
+
+    // user can operate the button only if they are the owner of the task
+    if (this.loggedInUserInfo &&
+      task && task.owner &&
+      this.loggedInUserInfo.empCode === task.owner['empCode']) {
+        task['isDoneDisabled'] = false;
+        return false;
+      }
+
+    task['isDoneDisabled'] = true;
+    return true;
+  }
+
+  // this fn is not used
 uponDoneMenuClick() {
   this.selectedTasks.forEach( (task) => {
-    if (isDefined(task.transcript)) {
-      task.owner = task.editor;
-      this.setStatus(task , TaskStatus.ASSIGNED);
-    }
-    if (isDefined(task.editor)) {
-      task.owner = task.manager;
-      this.setStatus(task , TaskStatus.ASSIGNED);
-    }
-    if (isDefined(task.manager)) {
-      this.setStatus(task , TaskStatus.COMPLETED);
-    }
+    this.handleDoneOnTask(task);
   });
+
+  const historyObe: TaskHistory = this.composeHistoryObe(TaskStatus.TRANSFERRED, 'task transferred to owner and status');
+  this.updateTasks(this.selectedTasks, historyObe, 'owner, taskStatus');
 }
+
+  uponDoneButtonClick(task: Task) {
+    this.handleDoneOnTask(task);
+
+    const historyObe: TaskHistory = this.composeHistoryObe(TaskStatus.TRANSFERRED, 'task transferred to owner and status');
+    this.updateTasks([task], historyObe, 'owner, taskStatus');
+  }
+
+  /**
+   * current owner hand over the task to next player
+   * owner.empcode is checked to find the player
+   * same empcode are skipped to find the next player
+   * if manager is clicking the done, then task is marked as completed
+   */
+  handleDoneOnTask(task: Task) {
+
+    if (task == null || task.owner == null) {
+      this.jhiAlertService.error('Owner is not assigned', null, null);
+      return;
+    }
+
+    const players: UserInfo[] = [task.transcript, task.editor, task.manager];
+
+    let hasReachedSpot = false;
+    let spot = -1;
+    let i = 0;
+    for ( ; i < players.length; i++) {
+      if (players[i] == null) {
+        this.jhiAlertService.error('Not all players are assigned', null, null);
+        return;
+      }
+
+      if (!hasReachedSpot) { // we didnt reach the required player
+        if (task.owner['empCode'] === players[i].empCode) {
+          spot = i;
+          hasReachedSpot = true;
+        }
+      } else {  // we have already reached the player.  checking if consecutive players are same as owner
+        if (task.owner['empCode'] === players[i].empCode) {
+          spot = i;
+        } else {
+          break;
+        }
+      }
+    }
+
+    // no luck
+    if (spot < 0) {
+      this.jhiAlertService.error('Transfer failed.  Unable to find next person');
+      return;
+    }
+
+    if (spot === players.length - 1) { // the manager
+      this.setStatus(task , TaskStatus.COMPLETED);
+    } else {
+      task.owner = players[spot + 1];
+      this.setStatus(task , TaskStatus.ASSIGNED);
+    }
+  }
 
   trackId(index: number, item: Task) {
     return item.id;
@@ -541,6 +674,7 @@ uponDoneMenuClick() {
 
   uponDownloadCompletion(taskId: number) {
     this.createHistoryWithId(taskId, TaskStatus.DOWNLOADED, 'updated taskStatus to download');
+    this.loadAll();
   }
 
   uponSelectedTasksDownloadCompletion(dummyTaskId: number) {
