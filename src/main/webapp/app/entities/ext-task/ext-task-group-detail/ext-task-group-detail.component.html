@@ -35,19 +35,20 @@
         <span> Edit</span>
     </button>
 
-
-    <h3>
-        <span>Tasks of the taskGroup</span>
-    </h3>
-
     <div *ngIf="totalTasks > 0">
-        <div *ngFor="let statusCount of statusCountList">
+        <br>
+        <div class="col-sm-6">
+                <div class="card card-info mb-3 text-left">
+                  <div class="card-block">
+                    <h5 class="card-title">tasks for the Taskgroup</h5>
+                       <div *ngFor="let statusCount of statusCountList">
             <p>
-                <span>{{statusCount.status}}</span> ({{statusCount.ord}} / {{totalTasks}})</p>
-            <ngb-progressbar type="{{statusCount.status == 'CREATED' ? 'danger' : statusCount.status == 'COMPLETED' ? 'success' : 'info'}}"
+                       <span>{{statusCount.status}}</span> ({{statusCount.ord}} / {{totalTasks}})</p>
+                    <ngb-progressbar type="{{statusCount.status == 'CREATED' ? 'danger' : statusCount.status == 'COMPLETED' ? 'success' : 'info'}}"
                 [max]="totalTasks" [value]="statusCount.ord" [striped]="true" [animated]="true">
                 <span>{{statusCount.ord * 100 / totalTasks | number:'1.0-0'}}%</span>
             </ngb-progressbar>
+            </div>
         </div>
     </div>
 
