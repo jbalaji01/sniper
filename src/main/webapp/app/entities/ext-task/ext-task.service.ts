@@ -3,8 +3,8 @@ import { HttpClient, HttpResponse, HttpRequest, HttpEvent } from '@angular/commo
 import { Observable } from 'rxjs/Observable';
 import { SERVER_API_URL } from '../../app.constants';
 
-import { JhiEventManager, JhiParseLinks, JhiAlertService } from 'ng-jhipster';
-import { JhiDateUtils } from 'ng-jhipster';
+// import { JhiEventManager, JhiParseLinks, JhiAlertService } from 'ng-jhipster';
+// import { JhiDateUtils } from 'ng-jhipster';
 import { createRequestOption } from '../../shared';
 
 import {SnFile} from '../sn-file/sn-file.model';
@@ -21,10 +21,9 @@ export class ExtTaskService {
   private resourceUrl =  SERVER_API_URL + 'api/ext/';
 
   constructor(private http: HttpClient,
-              private dateUtils: JhiDateUtils,
               private taskGroupService: TaskGroupService,
-              private taskService: TaskService,
-              private jhiAlertService: JhiAlertService) { }
+              private taskService: TaskService
+            ) { }
 
   // get all the taskGroup falling in this date range.
   queryTaskGroupsByDate(req?: any): Observable<HttpResponse<TaskGroup[]>> {

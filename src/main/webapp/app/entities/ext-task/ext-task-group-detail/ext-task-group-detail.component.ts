@@ -2,13 +2,13 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 
 import { ActivatedRoute } from '@angular/router';
 import { HttpResponse } from '@angular/common/http';
-import { DatePipe } from '@angular/common';
+// import { DatePipe } from '@angular/common';
 import { Subscription } from 'rxjs/Subscription';
 
-import { JhiEventManager, JhiParseLinks, JhiAlertService } from 'ng-jhipster';
-import { ITEMS_PER_PAGE, Principal } from '../../../shared';
+import { JhiEventManager } from 'ng-jhipster';
+// import { ITEMS_PER_PAGE, Principal } from '../../../shared';
 
-import { Task } from '../../task/task.model';
+// import { Task } from '../../task/task.model';
 import { TaskGroup } from '../../task-group/task-group.model';
 import { TaskGroupService } from '../../task-group/task-group.service';
 import { ExtTaskService } from '../ext-task.service';
@@ -48,7 +48,7 @@ export class ExtTaskGroupDetailComponent implements OnInit, OnDestroy {
       private taskGroupService: TaskGroupService,
       private extTaskService: ExtTaskService,
       private activatedRoute: ActivatedRoute,
-      private jhiAlertService: JhiAlertService
+    //   private jhiAlertService: JhiAlertService
   ) {
 
   }
@@ -145,5 +145,6 @@ export class ExtTaskGroupDetailComponent implements OnInit, OnDestroy {
   }
 
   uponDownloadCompletion(id: number) {
+    // this.loadAll();
   }
 }

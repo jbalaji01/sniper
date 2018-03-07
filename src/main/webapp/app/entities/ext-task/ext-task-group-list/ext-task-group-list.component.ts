@@ -6,7 +6,7 @@ import { Subscription } from 'rxjs/Subscription';
 import { JhiEventManager, JhiParseLinks, JhiAlertService } from 'ng-jhipster';
 
 import { TaskGroup } from '../../task-group/task-group.model';
-import { TaskGroupService } from '../../task-group/task-group.service';
+// import { TaskGroupService } from '../../task-group/task-group.service';
 import { ITEMS_PER_PAGE, Principal } from '../../../shared';
 import { ExtTaskService } from '../ext-task.service';
 
@@ -38,7 +38,7 @@ export class ExtTaskGroupListComponent implements OnInit, OnDestroy {
     datePipe: DatePipe;
 
     constructor(
-        private taskGroupService: TaskGroupService,
+        // private taskGroupService: TaskGroupService,
         private extTaskService: ExtTaskService,
         private parseLinks: JhiParseLinks,
         private jhiAlertService: JhiAlertService,

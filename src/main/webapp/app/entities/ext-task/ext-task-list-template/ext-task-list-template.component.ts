@@ -1,6 +1,6 @@
-import { Component, OnInit, EventEmitter, Input, Output, ViewChild, SkipSelf } from '@angular/core';
+import { Component, OnInit, EventEmitter, Input, Output } from '@angular/core';
 import { HttpResponse, HttpErrorResponse } from '@angular/common/http';
-import { DatePipe, LowerCasePipe } from '@angular/common';
+import { DatePipe } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Subscription } from 'rxjs/Subscription';
 import { JhiEventManager, JhiParseLinks, JhiAlertService } from 'ng-jhipster';
@@ -14,9 +14,9 @@ import { TaskHistory } from '../../task-history/task-history.model';
 import { TaskStatus as HistoryStatus} from '../../task-history/task-history.model';
 import { ExtTaskService } from '../ext-task.service';
 
-import { DownloaderComponent } from '../downloader/downloader.component';
-import { SOURCE } from '@angular/core/src/di/injector';
-import {PatternValidator} from '@angular/forms';
+// import { DownloaderComponent } from '../downloader/downloader.component';
+// import { SOURCE } from '@angular/core/src/di/injector';
+// import {PatternValidator} from '@angular/forms';
 import { isNull } from 'util';
 import { isDefined } from '@ng-bootstrap/ng-bootstrap/util/util';
 
@@ -104,8 +104,8 @@ export class ExtTaskListTemplateComponent implements OnInit {
 
         const fieldMap = new Map<string, string>();
         masterItemType['list'].forEach ( (masterType) => {
-          const localMasterType = (BUNDLE_FIELD)[masterType];
-          const localSelectedItem = (BUNDLE_FIELD)[this.masterSelectedItem];
+          // const localMasterType = (BUNDLE_FIELD)[masterType];
+          // const localSelectedItem = (BUNDLE_FIELD)[this.masterSelectedItem];
          fieldMap.set(masterType, '');
           // console.log('test 12 ' + localMasterType + ' selected= ' + localSelectedItem);
           // if((localSelectedItem + '') === (localMasterType + '')) {
@@ -313,10 +313,11 @@ export class ExtTaskListTemplateComponent implements OnInit {
 
     this.today();
     this.previousMonth();
-    // this.onChangeDate();
-    this.registerChangeInTaskTemplate();
-    this.loadBundle();
+
     this.loadLoggedInUserInfo();
+    this.loadBundle();
+    this.onChangeDate();
+    this.registerChangeInTaskTemplate();
   }
 
   onChangeDate() {
@@ -424,7 +425,7 @@ export class ExtTaskListTemplateComponent implements OnInit {
         this.loggedInUserInfo = data;
         // console.log('logged in userInfo = ' + JSON.stringify(this.loggedInUserInfo));
         console.log('logged in userInfo = ' + this.loggedInUserInfo.empCode);
-        this.onChangeDate();
+        // this.onChangeDate();
       },
       (err) => this.jhiAlertService.error(err.detail, null, null),
       () => this.jhiAlertService.success('loaded logged in user info', null, null)
@@ -473,6 +474,12 @@ export class ExtTaskListTemplateComponent implements OnInit {
     if (this.principal.hasAnyAuthorityDirect(['ROLE_MANAGER'])) {
       task['isDoneDisabled'] = false;
       return false;
+    }
+
+    if (isNull(this.loggedInUserInfo)) {
+      console.log('logged in user info yet to be available');
+      task['isDoneDisabled'] = true;
+      return true;
     }
 
     // if the task is not active, disable the button
@@ -668,12 +675,12 @@ uponDoneMenuClick() {
   }
 
   uponUploadCompletion(taskId: number) {
-    this.createHistoryWithId(taskId, TaskStatus.UPLOADED, 'updated taskStatus to upload');
+    this.createHistoryWithId(taskId, TaskStatus.UPLOADED, 'files uploaded to task');
     this.loadAll();
   }
 
   uponDownloadCompletion(taskId: number) {
-    this.createHistoryWithId(taskId, TaskStatus.DOWNLOADED, 'updated taskStatus to download');
+    this.createHistoryWithId(taskId, TaskStatus.DOWNLOADED, 'task\'s files downloaded');
     this.loadAll();
   }
 
@@ -683,7 +690,7 @@ uponDoneMenuClick() {
       task.taskStatus = TaskStatus.DOWNLOADED;
     });
 
-    const historyObe: TaskHistory = this.composeHistoryObe(TaskStatus.DOWNLOADED, 'updated taskStatus to download');
+    const historyObe: TaskHistory = this.composeHistoryObe(TaskStatus.DOWNLOADED, 'task\'s files downloaded');
 
     this.updateTasks(this.selectedTasks, historyObe, 'taskStatus');
   }

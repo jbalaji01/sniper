@@ -2,7 +2,7 @@ import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 
 import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
 
-import { JhiEventManager, JhiParseLinks, JhiAlertService } from 'ng-jhipster';
+import { JhiAlertService } from 'ng-jhipster';
 
 import { Task } from '../../task/task.model';
 import { ExtTaskService } from '../ext-task.service';
