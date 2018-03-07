@@ -3,7 +3,7 @@
 <jhi-ext-task-list-template 
   [source]="'activeTasks'"
   [taskGroupId]="0"
-  (onReload)="reload($event)"
+  (onReload)="reload(0)"
   #activeTasksTemplate
   ></jhi-ext-task-list-template>
 
@@ -13,6 +13,6 @@
 <jhi-ext-task-list-template 
   [source]="'allTasks'"
   [taskGroupId]="0"
-  (onReload)="reload($event)"
+  (onReload)="reload(0)"
   #allTasksTemplate
   ></jhi-ext-task-list-template>

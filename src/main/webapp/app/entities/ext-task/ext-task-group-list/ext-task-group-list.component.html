@@ -19,12 +19,12 @@
             <div class="input-group-prepend">
                 <span class="input-group-text">From</span>
             </div>
-            <input type="date" class="form-control" name="start" [(ngModel)]="fromDate" (ngModelChange)="onChangeDate($event)" required/>
+            <input type="date" class="form-control" name="start" [(ngModel)]="fromDate" (ngModelChange)="onChangeDate()" required/>
             <br>
             <div class="input-group-append">
                     <span class="input-group-text">To</span>
             </div>
-            <input type="date" class="form-control" name="end" [(ngModel)]="toDate" (ngModelChange)="onChangeDate($event)" required/>
+            <input type="date" class="form-control" name="end" [(ngModel)]="toDate" (ngModelChange)="onChangeDate()" required/>
         </div>
     </div>
    </div> 

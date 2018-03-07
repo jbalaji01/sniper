@@ -1,3 +1,4 @@
+
 <div>
 
     <div class="row">
@@ -13,17 +14,19 @@
             <div class="input-group-prepend">
                 <span class="input-group-text">from</span>
             </div>
-            <input type="date" class="form-control" name="start" [(ngModel)]="fromDate" (ngModelChange)="onChangeDate($event)" required/>
+            <input type="date" class="form-control" name="start" [(ngModel)]="fromDate" (ngModelChange)="onChangeDate()" required/>
 
             <div class="input-group-append">
                 <span class="input-group-text">To</span>
             </div>
-            <input type="date" class="form-control" name="end" [(ngModel)]="toDate" (ngModelChange)="onChangeDate($event)" required/>
+            <input type="date" class="form-control" name="end" [(ngModel)]="toDate" (ngModelChange)="onChangeDate()" required/>
         </div>
     </div>
 </div>
 
+
 <jhi-downloader [source]="'selectedTasks'" [id]="0" [selectedTasks]="selectedTasks" (onCompletion)="uponSelectedTasksDownloadCompletion($event)"></jhi-downloader>
+
 
 <!-- <select>
     <optgroup label="Control">

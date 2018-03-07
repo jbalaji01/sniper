@@ -1,6 +1,6 @@
 import { Component, OnInit, EventEmitter, Input, Output } from '@angular/core';
-import { HttpClient, HttpResponse, HttpEventType } from '@angular/common/http';
-import { JhiEventManager, JhiParseLinks, JhiAlertService } from 'ng-jhipster';
+import { HttpResponse, HttpEventType } from '@angular/common/http';
+import { JhiAlertService } from 'ng-jhipster';
 
 import { ExtTaskService } from '../ext-task.service';
 import { HttpHeaderResponse } from '@angular/common/http/src/response';

@@ -27,9 +27,9 @@ spring:
             enabled: false
     datasource:
         type: com.zaxxer.hikari.HikariDataSource
-        url: jdbc:mysql://localhost:3306/sniper?useUnicode=true&characterEncoding=utf8&useSSL=false
-        username: root
-        password:
+        url: jdbc:mysql://localhost:3306/sn?useUnicode=true&characterEncoding=utf8&useSSL=false
+        username: snuser
+        password: #db.password#
         hikari:
             data-source-properties:
                 cachePrepStmts: true
@@ -50,7 +50,7 @@ spring:
         host: smtp.gmail.com
         port: 587
         username: snipertranscribe@gmail.com
-        password:
+        password: #mail.password#
         protocol: smtp
         properties.mail.smtp:
           auth: true
