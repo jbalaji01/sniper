@@ -23,10 +23,10 @@ export class ExtTaskListComponent implements OnInit {
 
   reload(urlParamObj: any) {
     console.log('inside task list ' + JSON.stringify(urlParamObj));
-    if (urlParamObj && urlParamObj['source'] === 'allTasks') {
-      this.activeTasksTemplate.refresh();
-    } else {
-      this.allTasksTemplate.refresh();
-    }
+    // if (urlParamObj && urlParamObj['source'] === 'allTasks') {
+    //   this.activeTasksTemplate.refresh();
+    // } else {
+    //   this.allTasksTemplate.refresh();
+    // }
   }
 }
