@@ -24,8 +24,9 @@
     </div>
 </div>
 
-<jhi-downloader [source]="'selectedTasks'" [id]="0" [selectedTasks]="selectedTasks" (onCompletion)="uponSelectedTasksDownloadCompletion(0)"></jhi-downloader>
-<br/>
+
+<jhi-downloader [source]="'selectedTasks'" [id]="0" [selectedTasks]="selectedTasks" (onCompletion)="uponSelectedTasksDownloadCompletion($event)"></jhi-downloader>
+
 
 <!-- <select>
     <optgroup label="Control">
@@ -157,15 +158,14 @@
                     {{task.id}}
                 </td>
                 <td>{{task.taskTitle}}
-                    <br/>
-                    <!-- <div class="btn-group flex-btn-group-container">
+                    <!-- <span class="btn-group flex-btn-group-container">
                             <button type="submit" [routerLink]="['/', { outlets: { popup: 'ext-sn-file/'+ task.id } }]" replaceUrl="true" queryParamsHandling="merge" class="btn btn-primary btn-sm">
                     <span class="fa fa-eye"></span>
-                  </button></div>  -->
-                    <div class="btn-group flex-btn-group-container">
+                  </button></span>  -->
+                    <span class="btn-group flex-btn-group-container">
                         <button type="submit" [routerLink]="['/ext-sn-file/', task.id ]" replaceUrl="true" queryParamsHandling="merge" class="btn btn-primary btn-sm">
-                        <span class="fa fa-eye"></span>
-                    </button></div>
+                            <span class="fa fa-eye"></span>
+                    </button></span>
 
                     <jhi-uploader [source]="'task'" [id]="task.id" (onCompletion)="uponUploadCompletion($event)"></jhi-uploader>
 
