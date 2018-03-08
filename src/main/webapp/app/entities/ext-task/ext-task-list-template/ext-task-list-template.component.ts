@@ -26,7 +26,7 @@ import { isDefined } from '@ng-bootstrap/ng-bootstrap/util/util';
 @Component({
   selector: 'jhi-ext-task-list-template',
   templateUrl: './ext-task-list-template.component.html',
-  styles: []
+  styleUrls: ['./ext-task-list-template.component.scss']
 })
 export class ExtTaskListTemplateComponent implements OnInit {
 

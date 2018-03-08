@@ -42,12 +42,12 @@
                   <div class="card-block">
                     <h5 class="card-title">tasks for the Taskgroup</h5>
                        <div *ngFor="let statusCount of statusCountList">
-            <p>
-                       <span>{{statusCount.status}}</span> ({{statusCount.ord}} / {{totalTasks}})</p>
+                       <span>{{statusCount.status}}</span> ({{statusCount.ord}} / {{totalTasks}})<br/>
                     <ngb-progressbar type="{{statusCount.status == 'CREATED' ? 'danger' : statusCount.status == 'COMPLETED' ? 'success' : 'info'}}"
                 [max]="totalTasks" [value]="statusCount.ord" [striped]="true" [animated]="true">
                 <span>{{statusCount.ord * 100 / totalTasks | number:'1.0-0'}}%</span>
             </ngb-progressbar>
+              <br/>
             </div>
         </div>
     </div>

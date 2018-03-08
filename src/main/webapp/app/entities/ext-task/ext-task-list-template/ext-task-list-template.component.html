@@ -157,13 +157,13 @@
                 <td>
                     {{task.id}}
                 </td>
-                <td>{{task.taskTitle}}
+                <td class='fit'>{{task.taskTitle}}<br/><br/>
                     <!-- <span class="btn-group flex-btn-group-container">
                             <button type="submit" [routerLink]="['/', { outlets: { popup: 'ext-sn-file/'+ task.id } }]" replaceUrl="true" queryParamsHandling="merge" class="btn btn-primary btn-sm">
                     <span class="fa fa-eye"></span>
                   </button></span>  -->
-                    <span class="btn-group flex-btn-group-container">
-                        <button type="submit" [routerLink]="['/ext-sn-file/', task.id ]" replaceUrl="true" queryParamsHandling="merge" class="btn btn-primary btn-sm">
+                    <span class="btn-group">
+                        <button type="submit" [routerLink]="['/ext-sn-file/', task.id ]" replaceUrl="true" queryParamsHandling="merge" class="btn btn-primary btn-md">
                             <span class="fa fa-eye"></span>
                     </button></span>
 
@@ -173,10 +173,10 @@
                 </td>
 
                 <td>{{task.taskStatus}}</td>
-                <td>
+                <td  class='fit'>
                     Company: {{task.company?.companyName}} <br/> Hospital: {{task.hospital?.hospitalName}} <br/> Doctor: {{task.doctor?.doctorName}}
                 </td>
-                <td *jhiHasAnyAuthority="'ROLE_MANAGER'">
+                <td *jhiHasAnyAuthority="'ROLE_MANAGER'"  class='fit'>
                     Owner: {{task.owner?.empCode}} <br/> Transcript: {{task.transcript?.empCode}} <br/> Editor: {{task.editor?.empCode}} <br/> Manager: {{task.manager?.empCode}}
                 </td>
                 <td>{{task.createdTime | date:'medium'}}</td>

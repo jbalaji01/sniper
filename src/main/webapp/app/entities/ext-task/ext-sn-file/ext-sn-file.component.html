@@ -27,7 +27,7 @@
     </div>
 
     <div class="table-responsive" *ngIf="snFiles">
-        <table class="table table-bordered">
+        <table class="table table-bordered table-striped">
             <thead>
             <tr>
             <th></th>
@@ -84,11 +84,11 @@
                 <td>{{snFile.isAudio}}</td>
                 <td>{{snFile.uploadedTime | date:'medium'}}</td>
 
-                <td *jhiHasAnyAuthority="'ROLE_MANAGER'">
+                <td *jhiHasAnyAuthority="'ROLE_MANAGER'" class='fit'>
                     <div *ngIf="snFile.isAudio">
-                    Actual : {{snFile.actualTimeFrame}}
-                    Adjusted : {{snFile.adjustedTimeFrame}}
-                    Final : {{snFile.finalTimeFrame}}
+                    Actual : {{snFile.actualTimeFrame}}<br/>
+                    Adjusted : {{snFile.adjustedTimeFrame}}<br/>
+                    Final : {{snFile.finalTimeFrame}}<br/>
                     <div class="form-group">
                             <label class="form-control-label" for="field_time_{{snFile.id}}">final time</label>
                             <input type="number" class="form-control" name="field_time_{{snFile.id}}" id="field_time_{{snFile.id}}"
@@ -98,11 +98,11 @@
                     </div>
                 </td>
 
-                <td *jhiHasAnyAuthority="'ROLE_MANAGER'">
+                <td *jhiHasAnyAuthority="'ROLE_MANAGER'" class="fit">
                         <div *ngIf="!snFile.isAudio">
-                    Actual : {{snFile.wsActualLineCount}}
-                    Adjusted : {{snFile.wsAdjustedLineCount}}
-                    Final : {{snFile.wsFinalLineCount}}
+                    Actual : {{snFile.wsActualLineCount}}<br/>
+                    Adjusted : {{snFile.wsAdjustedLineCount}}<br/>
+                    Final : {{snFile.wsFinalLineCount}}<br/>
                     <div class="form-group">
                             <label class="form-control-label" for="field_ws_{{snFile.id}}">final ws</label>
                             <input type="number" class="form-control" name="field_ws_{{snFile.id}}" id="field_ws_{{snFile.id}}"
@@ -112,11 +112,11 @@
                     </div>
                 </td>
 
-                <td *jhiHasAnyAuthority="'ROLE_MANAGER'">
+                <td *jhiHasAnyAuthority="'ROLE_MANAGER'" class="fit">
                         <div *ngIf="!snFile.isAudio">
-                    Actual : {{snFile.wosActualLineCount}}
-                    Adjusted : {{snFile.wosAdjustedLineCount}}
-                    Final : {{snFile.wosFinalLineCount}}
+                    Actual : {{snFile.wosActualLineCount}}<br/>
+                    Adjusted : {{snFile.wosAdjustedLineCount}}<br/>
+                    Final : {{snFile.wosFinalLineCount}}<br/>
                     <div class="form-group">
                             <label class="form-control-label" for="field_wos_{{snFile.id}}">final wos</label>
                             <input type="number" class="form-control" name="field_wos_{{snFile.id}}" id="field_wos_{{snFile.id}}"
@@ -135,8 +135,9 @@
                 <td>{{snFile.wosActualLineCount}}</td>
                 <td>{{snFile.wosAdjustedLineCount}}</td>
                 <td>{{snFile.wosFinalLineCount}}</td> -->
-                <td *jhiHasAnyAuthority="'ROLE_MANAGER'">
+                <td *jhiHasAnyAuthority="'ROLE_MANAGER'" class="fit">
                         <!-- <label class="form-control-label" for="field_chosenFactor">Chosen Factor</label> -->
+                        <div class="myForm">
                         <select class="form-control" name="chosenFactor_{{snFile.id}}" [(ngModel)]="snFile.chosenFactor" 
                            (change)="updateChosenFactorDropdown(snFile)" id="field_chosenFactor_{{snFile.id}}" >
                             <option value="NONE">NONE</option>
@@ -144,6 +145,7 @@
                             <option value="WS_LINE_COUNT" *ngIf="!snFile.isAudio">WS_LINE_COUNT</option>
                             <option value="WOS_LINE_COUNT" *ngIf="!snFile.isAudio">WOS_LINE_COUNT</option>
                         </select>
+                        </div>
                 </td>
                 <th><span>{{snFile['finalCount']}}</span></th>
                 <td>{{snFile.peckOrder}}</td>

@@ -15,7 +15,7 @@ import { ExtTaskService } from '../ext-task.service';
 @Component({
   selector: 'jhi-ext-sn-file',
   templateUrl: './ext-sn-file.component.html',
-  styles: []
+  styleUrls: ['./ext-sn-file.component.scss']
 })
 export class ExtSnFileComponent implements OnInit, OnDestroy {
 
