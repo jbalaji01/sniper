@@ -38,19 +38,34 @@
 </optgroup>
 </select> -->
 
-<span *jhiHasAnyAuthority="'ROLE_MANAGER'">
+<!-- <span *jhiHasAnyAuthority="'ROLE_MANAGER'">
 <select (change)="loadChildMenu()" [(ngModel)]="masterSelectedItem">
    <optgroup *ngFor="let heading of masterMenuArr" label="{{heading['head']}}">{{heading['head']}} 
         <option *ngFor="let master of heading['list']" >{{master}}</option>
     </optgroup>
-    <!--<option *ngFor="let heading of masterMenuArr" value="{{heading}}"  disabled>{{heading}} </option>-->
 </select>
 <select (change)="onChildMenuSelection()" [(ngModel)]="childSelectedItem">
-    <optgroup label="{{this.masterSelectedItem}}">  <!-- is this disabled? -->
+    <optgroup label="{{this.masterSelectedItem}}"> 
     <option *ngFor="let child of childMenuList" [ngValue]="child">{{displayName(child)}}</option>
     </optgroup>
 
 </select>
+</span> -->
+
+<span *jhiHasAnyAuthority="'ROLE_MANAGER'">
+    
+       <span *ngFor="let heading of masterMenuArr">
+            <span *ngFor="let master of heading['list']" >{{master}}
+    
+    <select [(ngModel)]="selectedItems[master]">
+        <option [ngValue]=""></option>
+        <option *ngFor="let child of getChildMenuList(master)" [ngValue]="child">{{displayName(child)}}</option>
+    </select>
+</span>
+</span>
+
+    <button (click)="saveSelectedParam()">Save param</button>
+    <button (click)="initializeSelectedItems()">Reset</button>
 </span>
 
 <div *ngIf="(!tasks) || tasks.length == 0">
@@ -71,6 +86,27 @@
                     <span>ID</span>
                     <span class="fa fa-sort"></span>
                 </th>
+                
+                <!-- <th jhiSortBy="Source">
+                    Source
+                </th>
+                <th *jhiHasAnyAuthority="'ROLE_MANAGER'">
+                    Players
+                </th> -->
+
+                <th jhiSortBy="company.companyName"  *jhiHasAnyAuthority="'ROLE_DIRECTOR'">
+                    <span>Company</span>
+                    <span class="fa fa-sort"></span>
+                </th>
+                <th jhiSortBy="hospital.hospitalName">
+                    <span>Client</span>
+                    <span class="fa fa-sort"></span>
+                </th>
+                <th jhiSortBy="doctor.doctorName">
+                    <span>Doctor</span>
+                    <span class="fa fa-sort"></span>
+                </th>
+
                 <th jhiSortBy="taskTitle">
                     <span>Title</span>
                     <span class="fa fa-sort"></span>
@@ -79,15 +115,39 @@
                     <span>Status</span>
                     <span class="fa fa-sort"></span>
                 </th>
-                <th jhiSortBy="Source">
-                    Source
+
+                
+                <!--<th jhiSortBy="notes">
+                        <span>Notes</span>
+                        <span class="fa fa-sort"></span>
+                    </th>-->
+                <!---->
+
+                <!--<th jhiSortBy="taskGroup.id">
+                        <span>Task Group</span>
+                        <span class="fa fa-sort"></span>
+                    </th>-->
+
+                <th jhiSortBy="owner.empCode" *jhiHasAnyAuthority="'ROLE_MANAGER'">
+                    <span>Owner</span>
+                    <span class="fa fa-sort"></span>
                 </th>
-                <th *jhiHasAnyAuthority="'ROLE_MANAGER'">
-                    Players
+                <th jhiSortBy="transcript.empCode" *jhiHasAnyAuthority="'ROLE_MANAGER'">
+                    <span>Transcript</span>
+                    <span class="fa fa-sort"></span>
                 </th>
+                <th jhiSortBy="editor.empCode" *jhiHasAnyAuthority="'ROLE_MANAGER'">
+                    <span>Editor</span>
+                    <span class="fa fa-sort"></span>
+                </th>
+                <th jhiSortBy="manager.empCode" *jhiHasAnyAuthority="'ROLE_MANAGER'">
+                    <span>Manager</span>
+                    <span class="fa fa-sort"></span>
+                </th>
+
                 <th jhiSortBy="createdTime">
                     <span>Created Time</span>
-                    <!-- <span class="fa fa-sort"></span> -->
+                    <span class="fa fa-sort"></span>
                 </th>
                 <!--<th jhiSortBy="isActive">
                         <span>Is Active</span>
@@ -96,53 +156,11 @@
                 <th *jhiHasAnyAuthority="'ROLE_MANAGER'">
                     <span>History</span>
                 </th>
+
                 <th jhiSortBy="peckOrder">
                     <span>Peck Order</span>
                     <span class="fa fa-sort"></span>
                 </th>
-                <!--<th jhiSortBy="notes">
-                        <span>Notes</span>
-                        <span class="fa fa-sort"></span>
-                    </th>-->
-                <!--<th jhiSortBy="company.companyName">
-                    <span>Company</span>
-                    <span class="fa fa-sort"></span>
-                </th>
-                <th jhiSortBy="hospital.hospitalName">
-                    <span>Hospital</span>
-                    <span class="fa fa-sort"></span>
-                </th>
-                <th jhiSortBy="doctor.doctorName">
-                    <span>Doctor</span>
-                    <span class="fa fa-sort"></span>
-                </th>-->
-
-
-                <!--<th jhiSortBy="taskGroup.id">
-                        <span>Task Group</span>
-                        <span class="fa fa-sort"></span>
-                    </th>-->
-
-
-
-
-                <!--<th jhiSortBy="owner.empCode">
-                    <span>Owner</span>
-                    <span class="fa fa-sort"></span>
-                </th>
-                <th jhiSortBy="transcript.empCode">
-                    <span>Transcript</span>
-                    <span class="fa fa-sort"></span>
-                </th>
-                <th jhiSortBy="editor.empCode">
-                    <span>Editor</span>
-                    <span class="fa fa-sort"></span>
-                </th>
-                <th jhiSortBy="manager.empCode">
-                    <span>Manager</span>
-                    <span class="fa fa-sort"></span>
-                </th>-->
-
 
                 <th *jhiHasAnyAuthority="'ROLE_MANAGER'"></th>
             </tr>
@@ -157,13 +175,30 @@
                 <td>
                     {{task.id}}
                 </td>
+
+                <td  *jhiHasAnyAuthority="'ROLE_DIRECTOR'">
+                    <div *ngIf="task.company">
+                        {{task.company?.companyName}}
+                    </div>
+                </td>
+                <td>
+                    <div *ngIf="task.hospital">
+                        {{task.hospital?.hospitalName}}
+                    </div>
+                </td>
+                <td>
+                    <div *ngIf="task.doctor">
+                        {{task.doctor?.doctorName}}
+                    </div>
+                </td>
+
                 <td class='fit'>{{task.taskTitle}}<br/><br/>
                     <!-- <span class="btn-group flex-btn-group-container">
                             <button type="submit" [routerLink]="['/', { outlets: { popup: 'ext-sn-file/'+ task.id } }]" replaceUrl="true" queryParamsHandling="merge" class="btn btn-primary btn-sm">
                     <span class="fa fa-eye"></span>
                   </button></span>  -->
                     <span class="btn-group">
-                        <button type="submit" [routerLink]="['/ext-sn-file/', task.id ]" replaceUrl="true" queryParamsHandling="merge" class="btn btn-primary btn-md">
+                        <button type="submit" [routerLink]="['/ext-sn-file/', task.id ]" replaceUrl="true" queryParamsHandling="merge" class="btn btn-primary btn-sm">
                             <span class="fa fa-eye"></span>
                     </button></span>
 
@@ -172,13 +207,35 @@
                     <jhi-downloader [source]="'task'" [id]="task.id" (onCompletion)="uponDownloadCompletion($event)"></jhi-downloader>
                 </td>
 
-                <td>{{task.taskStatus}}</td>
-                <td  class='fit'>
+                <td class="table-{{ fetchColorCode(task.taskStatus) }}">{{task.taskStatus}}</td>
+
+                <td *jhiHasAnyAuthority="'ROLE_MANAGER'">
+                    <div *ngIf="task.owner">
+                        <a [routerLink]="['../user-info', task.transcript?.id ]"></a>{{task.owner?.empCode}}</a>
+                    </div>
+                </td>
+                <td *jhiHasAnyAuthority="'ROLE_MANAGER'">
+                    <div *ngIf="task.transcript">
+                        <a [routerLink]="['../user-info', task.transcript?.id ]">{{task.transcript?.empCode}}</a>
+                    </div>
+                </td>
+                <td *jhiHasAnyAuthority="'ROLE_MANAGER'">
+                    <div *ngIf="task.editor">
+                        <a [routerLink]="['../user-info', task.editor?.id ]">{{task.editor?.empCode}}</a>
+                    </div>
+                </td>
+                <td *jhiHasAnyAuthority="'ROLE_MANAGER'">
+                    <div *ngIf="task.manager">
+                        <a [routerLink]="['../user-info', task.manager?.id ]">{{task.manager?.empCode}}</a>
+                    </div>
+                </td>
+
+                <!-- <td  class='fit'>
                     Company: {{task.company?.companyName}} <br/> Hospital: {{task.hospital?.hospitalName}} <br/> Doctor: {{task.doctor?.doctorName}}
                 </td>
                 <td *jhiHasAnyAuthority="'ROLE_MANAGER'"  class='fit'>
                     Owner: {{task.owner?.empCode}} <br/> Transcript: {{task.transcript?.empCode}} <br/> Editor: {{task.editor?.empCode}} <br/> Manager: {{task.manager?.empCode}}
-                </td>
+                </td> -->
                 <td>{{task.createdTime | date:'medium'}}</td>
                 <!-- <td *jhiHasAnyAuthority="'ROLE_MANAGER'"><div class="btn-group flex-btn-group-container">
                         <button type="submit" [routerLink]="['/', { outlets: { popup: 'ext-history/'+ task.id }, modal: 'true' }]" replaceUrl="true" queryParamsHandling="merge" class="btn btn-primary btn-sm">
@@ -193,47 +250,14 @@
                 </td>
 
                 <td>{{task.peckOrder}}</td>
-                <!--<td>
-                    <div *ngIf="task.company">
-                        <a [routerLink]="['../company', task.company?.id ]">{{task.company?.companyName}}</a>
-                    </div>
-                </td>
-                <td>
-                    <div *ngIf="task.hospital">
-                        <a [routerLink]="['../hospital', task.hospital?.id ]">{{task.hospital?.hospitalName}}</a>
-                    </div>
-                </td>
-                <td>
-                    <div *ngIf="task.doctor">
-                        <a [routerLink]="['../doctor', task.doctor?.id ]">{{task.doctor?.doctorName}}</a>
-                    </div>
-                </td>-->
+                
 
                 <!--<td>
                     <div *ngIf="task.taskGroup">
                         <a [routerLink]="['../task-group', task.taskGroup?.id ]">{{task.taskGroup?.id}}</a>
                     </div>
                 </td>-->
-                <!--<td>
-                    <div *ngIf="task.owner">
-                        <a [routerLink]="['../user-info', task.transcript?.id ]">{{task.owner?.empCode}}</a>
-                    </div>
-                </td>
-                <td>
-                    <div *ngIf="task.transcript">
-                        <a [routerLink]="['../user-info', task.transcript?.id ]">{{task.transcript?.empCode}}</a>
-                    </div>
-                </td>
-                <td>
-                    <div *ngIf="task.editor">
-                        <a [routerLink]="['../user-info', task.editor?.id ]">{{task.editor?.empCode}}</a>
-                    </div>
-                </td>
-                <td>
-                    <div *ngIf="task.manager">
-                        <a [routerLink]="['../user-info', task.manager?.id ]">{{task.manager?.empCode}}</a>
-                    </div>
-                </td>-->
+                
                 <td *jhiHasAnyAuthority="'ROLE_MANAGER'" class="text-right">
                     <div class="btn-group flex-btn-group-container">
                         <button type="submit" [routerLink]="['/task', task.id ]" class="btn btn-info btn-sm">

@@ -14,8 +14,9 @@
             </div>
 
             <div class="alert alert-warning" *ngSwitchCase="false">
-                <span>To </span>
-                <a class="alert-link" (click)="login()">sign in</a><span>, you can try the default accounts:<br/>- Administrator (login="admin" and password="admin") <br/>- User (login="user" and password="user").</span>
+                <span>Click to </span>
+                <a class="alert-link" (click)="login()">sign in</a>
+                <!-- <span>, you can try the default accounts:<br/>- Administrator (login="admin" and password="admin") <br/>- User (login="user" and password="user").</span> -->
                 <br><br><span>Don't have an account yet?</span>
                 <br>
                 <a class="alert-link" routerLink="register">Register now.</a>

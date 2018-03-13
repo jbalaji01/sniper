@@ -68,6 +68,7 @@ export class ExtTaskListTemplateComponent implements OnInit {
     ];
     masterSelectedItem: any;
     childSelectedItem: any;
+    selectedItems: any = new Map<TaskStatus, any>();
     childMenuList: any[]= [];
     selectionFlag = false;
   constructor(
@@ -79,13 +80,29 @@ export class ExtTaskListTemplateComponent implements OnInit {
         private router: Router,
         private eventManager: JhiEventManager
   ) {
+    this.initializeSelectedItems();
+  }
 
+  initializeSelectedItems() {
+    this.masterMenuArr.forEach((heading) => {
+      heading['list'].forEach((listItem) => {
+        // console.log('init selectedItem = ' + listItem);
+        this.selectedItems[listItem] = null;
+      });
+    });
+  }
+
+  // fetch the menu list of the child
+  getChildMenuList(master) {
+    this.masterSelectedItem = master;
+    this.loadChildMenu();
+    return this.childMenuList;
   }
 
   // To load child menu accordingly
   loadChildMenu() {
     let masterHead: MASTER_MENU_HEADER;
-    console.log(this.masterSelectedItem);
+    // console.log(this.masterSelectedItem);
     this.childMenuList = [];
     masterHead = this.findMasterSelectedItemType();
    // console.log('lcm ' + masterHead);
@@ -163,12 +180,13 @@ export class ExtTaskListTemplateComponent implements OnInit {
           }
         });
       // console.log('all status = ' + JSON.stringify(statusArray));
+      if (this.bundleMap) {
      const menuMap = new Map<string, any>();
       menuMap.set(MASTER_MENU_HEADER.SOURCE, this.bundleMap[this.masterSelectedItem]);
       menuMap.set(MASTER_MENU_HEADER.PLAYER, this.bundleMap[BUNDLE_FIELD.USER]);
       menuMap.set(MASTER_MENU_HEADER.STATUS, statusArray);
       this.childMenuList = menuMap.get(masterHead);
-
+      }
 // if(masterHead===MASTER_MENU_HEADER.SOURCE) {
 //   this.childMenuList.concat(this.bundleMap[this.masterSelectedItem]);
 // }
@@ -194,6 +212,31 @@ export class ExtTaskListTemplateComponent implements OnInit {
     }
     return child;
     }
+
+    /**
+     * save all the params into selected tasks
+     */
+    saveSelectedParam() {
+      // console.log('ssp = ' + JSON.stringify(this.selectedItems['COMPANY']));
+      this.masterMenuArr.forEach((heading) => {
+        heading['list'].forEach((listItem) => {
+          if (!isDefined(this.selectedItems[listItem]) || isNull(this.selectedItems[listItem]) ||
+            this.selectedItems[listItem] === '') {
+            return;
+          }
+          console.log('key = ' + listItem + ' value = ' + JSON.stringify(this.selectedItems[listItem]));
+          this.masterSelectedItem = listItem;
+          this.childSelectedItem = this.selectedItems[listItem];
+          this.onChildMenuSelection();
+      });
+    });
+      // this.selectedItems.keys().forEach((masterKey) => {
+      //   console.log('key = ' + masterKey + ' value = ' + this.selectedItems[masterKey]);
+      //   this.masterSelectedItem = masterKey;
+      //   this.childSelectedItem = this.selectedItems[masterKey];
+      // });
+    }
+
     onChildMenuSelection() {
     // console.log(this.childSelectedItem);
     let selectionType: MASTER_MENU_HEADER = null;
@@ -424,7 +467,7 @@ export class ExtTaskListTemplateComponent implements OnInit {
       (data) => {
         this.loggedInUserInfo = data;
         // console.log('logged in userInfo = ' + JSON.stringify(this.loggedInUserInfo));
-        console.log('logged in userInfo = ' + this.loggedInUserInfo.empCode);
+        // console.log('logged in userInfo = ' + this.loggedInUserInfo.empCode);
         // this.onChangeDate();
       },
       (err) => this.jhiAlertService.error(err.detail, null, null),
@@ -468,7 +511,7 @@ export class ExtTaskListTemplateComponent implements OnInit {
   // isDoneDisabled flag is set in task
   isDoneDisabled(task: Task): boolean {
 
-    console.log('isMgr=' + this.principal.hasAnyAuthorityDirect(['ROLE_MANAGER']) + ' log=' + this.loggedInUserInfo.empCode);
+    // console.log('isMgr=' + this.principal.hasAnyAuthorityDirect(['ROLE_MANAGER']) + ' log=' + this.loggedInUserInfo.empCode);
 
     // manager gets privilage to operate the button at all state
     if (this.principal.hasAnyAuthorityDirect(['ROLE_MANAGER'])) {
@@ -660,6 +703,10 @@ uponDoneMenuClick() {
     };
 
     return urlParamObj;
+  }
+
+  fetchColorCode(status: TaskStatus) {
+    return this.extTaskService.fetchColorCode(status);
   }
 
   uponReload(status: boolean) {

@@ -10,6 +10,7 @@ import { JhiEventManager } from 'ng-jhipster';
 
 // import { Task } from '../../task/task.model';
 import { TaskGroup } from '../../task-group/task-group.model';
+import { TaskStatus } from '../../task/task.model';
 import { TaskGroupService } from '../../task-group/task-group.service';
 import { ExtTaskService } from '../ext-task.service';
 // import { ExtTaskListTemplateComponent } from '../ext-task-list-template/ext-task-list-template.component';
@@ -132,6 +133,10 @@ export class ExtTaskGroupDetailComponent implements OnInit, OnDestroy {
           'extTaskGroupDetailModification',
           (response) => this.loadAll()
       );
+  }
+
+  fetchColorCode(status: TaskStatus) {
+    return this.extTaskService.fetchColorCode(status);
   }
 
   reload(urlParamObj: any) {
