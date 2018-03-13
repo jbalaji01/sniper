@@ -18,8 +18,8 @@ public class ExtServletConfig {
 	  public ServletRegistrationBean dispatcherRegistration(DispatcherServlet dispatcherServlet) {
 	    final ServletRegistrationBean registration = new ServletRegistrationBean(dispatcherServlet);
 	    final String location = ExtUploaderService.ROOT_TEMP_DIR;
-	    final long maxFileSize = -1;
-	    final long maxRequestSize = -1;
+	    final long maxFileSize = 256 * 1024 * 1024;
+	    final long maxRequestSize = maxFileSize;
 	    final MultipartConfigElement multipartConfig  = new MultipartConfigElement(location, maxFileSize, maxRequestSize, 0);
 	    registration.setMultipartConfig(multipartConfig);
 	    

@@ -43,7 +43,8 @@
                     <h5 class="card-title">tasks for the Taskgroup</h5>
                        <div *ngFor="let statusCount of statusCountList">
                        <span>{{statusCount.status}}</span> ({{statusCount.ord}} / {{totalTasks}})<br/>
-                    <ngb-progressbar type="{{statusCount.status == 'CREATED' ? 'danger' : statusCount.status == 'COMPLETED' ? 'success' : 'info'}}"
+                    <!-- <ngb-progressbar type="{{statusCount.status == 'CREATED' ? 'danger' : statusCount.status == 'COMPLETED' ? 'success' : 'info'}}" -->
+                        <ngb-progressbar type="{{ fetchColorCode(statusCount.status) }}"
                 [max]="totalTasks" [value]="statusCount.ord" [striped]="true" [animated]="true">
                 <span>{{statusCount.ord * 100 / totalTasks | number:'1.0-0'}}%</span>
             </ngb-progressbar>

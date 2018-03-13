@@ -10,7 +10,7 @@ import { createRequestOption } from '../../shared';
 import {SnFile} from '../sn-file/sn-file.model';
 
 import { TaskGroup } from '../task-group/task-group.model';
-import { Task } from '../task/task.model';
+import { Task, TaskStatus } from '../task/task.model';
 import { TaskHistory } from '../task-history/task-history.model';
 import {TaskGroupService} from '../task-group/task-group.service';
 import {TaskService} from '../task/task.service';
@@ -19,6 +19,8 @@ import {TaskService} from '../task/task.service';
 export class ExtTaskService {
 
   private resourceUrl =  SERVER_API_URL + 'api/ext/';
+
+  statusColorCodeMap: any = null;
 
   constructor(private http: HttpClient,
               private taskGroupService: TaskGroupService,
@@ -185,5 +187,31 @@ export class ExtTaskService {
     const num = en[value];
 
     return en[num];
+  }
+
+  // find contextual color code of statuses
+  fetchColorCode(status) {
+    if (!this.statusColorCodeMap || this.statusColorCodeMap.size <= 0) {
+      // console.log('inside map assign');
+      this.statusColorCodeMap = new Map<string, string>();
+      this.statusColorCodeMap.set(TaskStatus[TaskStatus.CREATED] as string, 'danger');
+      this.statusColorCodeMap.set(TaskStatus[TaskStatus.ASSIGNED] as string, 'info');
+      this.statusColorCodeMap.set(TaskStatus[TaskStatus.DOWNLOADED] as string, 'warning');
+      this.statusColorCodeMap.set(TaskStatus[TaskStatus.UPLOADED] as string, 'primary');
+      this.statusColorCodeMap.set(TaskStatus[TaskStatus.SETTING] as string, 'info');
+      this.statusColorCodeMap.set(TaskStatus[TaskStatus.IN_PROGRESS] as string, 'warning');
+      this.statusColorCodeMap.set(TaskStatus[TaskStatus.COMPLETED] as string, 'success');
+      this.statusColorCodeMap.set(TaskStatus[TaskStatus.ON_HOLD] as string, 'secondary');
+      this.statusColorCodeMap.set(TaskStatus[TaskStatus.QUERY] as string, 'active');
+      this.statusColorCodeMap.set(TaskStatus[TaskStatus.MERGED] as string, 'secondary');
+      this.statusColorCodeMap.set(TaskStatus[TaskStatus.DELETED] as string, 'secondary');
+      this.statusColorCodeMap.set(TaskStatus[TaskStatus.TRANSFERRED] as string, 'info');
+    }
+
+    // console.log('cc map = ' + this.statusColorCodeMap.size + ' ' + JSON.stringify(this.statusColorCodeMap));
+    // console.log('cc ' + this.statusColorCodeMap.has(status as string) + ' ' + status +
+    //         // ' type = ' + (typeof status) +
+    //         ' = ' + this.statusColorCodeMap.get(status as string));
+    return this.statusColorCodeMap.get(status as string);
   }
 }
