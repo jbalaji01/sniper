@@ -235,6 +235,10 @@ export class ExtTaskListTemplateComponent implements OnInit {
       //   this.masterSelectedItem = masterKey;
       //   this.childSelectedItem = this.selectedItems[masterKey];
       // });
+
+      const historyObe: TaskHistory = this.composeHistoryObe(TaskStatus.SETTING, 'updated '
+                   + this.masterSelectedItem + ' with ' + this.displayName(this.childSelectedItem));
+      this.updateTasks(this.selectedTasks, historyObe, this.masterSelectedItem);
     }
 
     onChildMenuSelection() {
@@ -244,9 +248,11 @@ export class ExtTaskListTemplateComponent implements OnInit {
     const functionName = 'set_' + selectionType.toLowerCase() + '_from_menu';
     console.log('calling ' + functionName);
     this[functionName]();
-    const historyObe: TaskHistory = this.composeHistoryObe(TaskStatus.SETTING, 'updated '
-                   + this.masterSelectedItem + ' with ' + this.displayName(this.childSelectedItem));
-    this.updateTasks(this.selectedTasks, historyObe, this.masterSelectedItem);
+
+    // following two lines are moved to saveSelectedParam fn
+    // const historyObe: TaskHistory = this.composeHistoryObe(TaskStatus.SETTING, 'updated '
+    //                + this.masterSelectedItem + ' with ' + this.displayName(this.childSelectedItem));
+    // this.updateTasks(this.selectedTasks, historyObe, this.masterSelectedItem);
     }
   set_source_from_menu() {
     // console.log('in source ' + 'assigning ' + this.masterSelectedItem + ' with '

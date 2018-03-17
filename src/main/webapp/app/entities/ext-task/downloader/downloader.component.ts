@@ -20,6 +20,7 @@ export class DownloaderComponent implements OnInit {
 
   // downloadLink: string;
   safeUrl: SafeUrl;
+  public pending = false;
 
   constructor(
     private extTaskService: ExtTaskService,
@@ -52,6 +53,8 @@ export class DownloaderComponent implements OnInit {
     }
 
     afterDownload(event) {
+      this.pending = true;
+
       this.extTaskService.downloadFiles(this.source, this.id, this.selectedTasks)
       .subscribe(
         (data) => {
@@ -59,10 +62,12 @@ export class DownloaderComponent implements OnInit {
           console.log(data);
           this.saveToLocal(data);
           this.uponCompletion(true);
+          this.pending = false;
         },
         (err) => {
           this.jhiAlertService.error('error in download! ' + err.message, null, null);
           console.log(JSON.stringify(err));
+          this.pending = false;
         },
         () => this.jhiAlertService.success('downloaded files', null, null)
       );

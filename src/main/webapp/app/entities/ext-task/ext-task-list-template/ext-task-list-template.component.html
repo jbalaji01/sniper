@@ -52,7 +52,7 @@
 </select>
 </span> -->
 
-<span *jhiHasAnyAuthority="'ROLE_MANAGER'">
+<!-- <span *jhiHasAnyAuthority="'ROLE_MANAGER'">
     
        <span *ngFor="let heading of masterMenuArr">
             <span *ngFor="let master of heading['list']" >{{master}}
@@ -66,7 +66,36 @@
 
     <button (click)="saveSelectedParam()">Save param</button>
     <button (click)="initializeSelectedItems()">Reset</button>
-</span>
+</span> -->
+
+<div class="table-responsive" *jhiHasAnyAuthority="'ROLE_MANAGER'">
+    <table class="table">
+        <thead>
+            <tr>
+        <ng-container *ngFor="let heading of masterMenuArr">
+         <th *ngFor="let master of heading['list']" >{{master}}</th>
+         </ng-container>
+         <th><button (click)="saveSelectedParam()" class="btn btn-info btn-sm">Save param</button></th>
+         </tr>
+         </thead>
+         <tbody>
+                <tr>
+                        <ng-container *ngFor="let heading of masterMenuArr">
+                         <td *ngFor="let master of heading['list']" >
+ <select [(ngModel)]="selectedItems[master]">
+     <option [ngValue]=""></option>
+     <option *ngFor="let child of getChildMenuList(master)" [ngValue]="child">{{displayName(child)}}</option>
+ </select>
+        </td>
+        </ng-container>
+        <td><button (click)="initializeSelectedItems()" class="btn btn-danger btn-sm">Reset</button></td>
+        </tr>
+</tbody>
+</table>
+</div>
+
+ 
+
 
 <div *ngIf="(!tasks) || tasks.length == 0">
     <b>No tasks in this list</b>

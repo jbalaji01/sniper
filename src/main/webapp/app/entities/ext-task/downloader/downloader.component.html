@@ -3,8 +3,9 @@
   <label>
       <!-- href="{{downloadLink}}"
       [href]="safeUrl" target="_blank" -->
-    <a class="btn btn-primary btn-sm" (click)="afterDownload($event)" download="files.zip">
-      <i class="fa fa-download fa-sm"></i> {{ getBanner() }}
+    <a class="btn btn-primary btn-sm" (click)="afterDownload($event)" download="'files.zip'">
+      <i class="fa fa-download fa-sm"  *ngIf="!pending"></i> 
+      <i class="fa fa-refresh fa-spin fa-sm" *ngIf="pending"></i> {{ getBanner() }}
     </a>
   </label>
 </span>
