@@ -1,10 +1,14 @@
 package com.neemshade.sniper.web.rest;
 
+import java.io.ByteArrayInputStream;
+import java.io.OutputStream;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import javax.servlet.http.HttpServletResponse;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -264,6 +268,47 @@ public class ExtTaskResource {
 
 	@GetMapping(value="download-files/{source}/{id}/{selectedIds}", produces="application/zip")
 	@ResponseBody
+	public void downloadFiles(
+			@PathVariable String source, @PathVariable(value = "id") Long id,
+			@PathVariable(value = "selectedIds") String selectedIds, HttpServletResponse response) throws Exception {
+
+	    byte[] bytes = extDownloaderService.downloadFiles(source, id, selectedIds);
+	    
+//	    headers.add("Content-Type", "application/octet-stream");
+	    response.setHeader("Content-Type", "application/zip");
+	    response.setHeader("Content-Disposition", "attachment; filename=\"files.zip\"");
+	    
+	    OutputStream os = response.getOutputStream();
+	    
+	    try
+	    {
+	        ByteArrayInputStream byteIs = new ByteArrayInputStream(bytes);
+	        
+	        
+	        byte[] buf=new byte[8192];
+	        int bytesread = 0, bytesBuffered = 0;
+	        while( (bytesread = byteIs.read( buf )) > -1 ) {
+	            os.write( buf, 0, bytesread );
+	            bytesBuffered += bytesread;
+	            if (bytesBuffered > 1024 * 1024) { //flush after 1MB
+	                bytesBuffered = 0;
+	                os.flush();
+	            }
+	        }
+	    }
+	    finally {
+	        if (os != null) {
+	            os.flush();
+	        }
+	    }
+	    
+	    os.close();
+	    
+//	    return new ResponseEntity<>(bytes, headers, HttpStatus.OK);
+	   }
+	
+	/*@GetMapping(value="download-files/{source}/{id}/{selectedIds}", produces="application/zip")
+	@ResponseBody
 	public ResponseEntity<byte[]> downloadFiles(
 			@PathVariable String source, @PathVariable(value = "id") Long id,
 			@PathVariable(value = "selectedIds") String selectedIds) throws Exception {
@@ -274,7 +319,7 @@ public class ExtTaskResource {
 	    headers.add("Content-Type", "application/zip");
 	    headers.add("Content-Disposition", "attachment; filename=\"files.zip\"");
 	    return new ResponseEntity<>(bytes, headers, HttpStatus.OK);
-	   }
+	   }*/
 	
 	
 	@PutMapping("/update-snfiles")
