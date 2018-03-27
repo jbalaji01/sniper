@@ -265,7 +265,7 @@
                 <td *jhiHasAnyAuthority="'ROLE_MANAGER'"  class='fit'>
                     Owner: {{task.owner?.empCode}} <br/> Transcript: {{task.transcript?.empCode}} <br/> Editor: {{task.editor?.empCode}} <br/> Manager: {{task.manager?.empCode}}
                 </td> -->
-                <td>{{task.createdTime | date:'medium'}}</td>
+                <td class='fit'>{{task.createdTime | date:'medium'}}</td>
                 <!-- <td *jhiHasAnyAuthority="'ROLE_MANAGER'"><div class="btn-group flex-btn-group-container">
                         <button type="submit" [routerLink]="['/', { outlets: { popup: 'ext-history/'+ task.id }, modal: 'true' }]" replaceUrl="true" queryParamsHandling="merge" class="btn btn-primary btn-sm">
                 <span class="fa fa-eye"></span>

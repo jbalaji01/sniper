@@ -139,7 +139,7 @@ public class ExtTaskService {
     public UserInfo fetchLoggedInUserInfo() throws Exception {
     	try {
     		Optional<String> userLogin = SecurityUtils.getCurrentUserLogin();
-    		log.info("ets login=" + userLogin.get());
+//    		log.info("ets login=" + userLogin.get());
     		Optional<User> user = userRepository.findOneByLogin(userLogin.get());
     		Optional<UserInfo> userInfo = userInfoRepository.findOneByUserId(user.get().getId());
 
