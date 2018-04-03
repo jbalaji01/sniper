@@ -322,6 +322,49 @@ public class ExtTaskResource {
 	   }*/
 	
 	
+	/**
+	 * go thru taskgroups and create spread sheet out of the line count data
+	 * @param source
+	 * @param id
+	 * @param selectedIds
+	 * @param response
+	 * @throws Exception
+	 */
+	@GetMapping(value="export-xlsx/{source}/{id}/{selectedIds}", produces="application/zip")
+	@ResponseBody
+	public void exportXlsx(
+			@PathVariable String source, @PathVariable(value = "id") Long id,
+			@PathVariable(value = "selectedIds") String selectedIds, HttpServletResponse response) throws Exception {
+
+		if(selectedIds == null || "".equals(selectedIds) || "0".equals(selectedIds))
+			selectedIds = "" + id;
+		
+//	    byte[] bytes = extDownloaderService.downloadFiles(source, id, selectedIds);
+		
+	    
+//	    headers.add("Content-Type", "application/octet-stream");
+	    response.setHeader("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+	    response.setHeader("Content-Disposition", "attachment; filename=\"data.xlsx\"");
+	    
+	    OutputStream os = response.getOutputStream();
+	    
+	    try
+	    {
+	    	extDownloaderService.exportXlsx(os, selectedIds);
+	    }
+	    finally {
+	        if (os != null) {
+	            os.flush();
+	        }
+	    }
+	    
+	    os.close();
+	    
+//	    return new ResponseEntity<>(bytes, headers, HttpStatus.OK);
+	   }
+	
+	
+	
 	@PutMapping("/update-snfiles")
 	@Secured({AuthoritiesConstants.MANAGER})
     @Timed

@@ -22,6 +22,8 @@
 
     <jhi-downloader [source]="'taskGroup'" [id]="taskGroup.id" (onCompletion)="uponDownloadCompletion($event)"></jhi-downloader>
 
+    <jhi-downloader [source]="'exportXlsx'" [id]="taskGroup.id" (onCompletion)="uponDownloadCompletion($event)"></jhi-downloader>
+    
     <jhi-alert></jhi-alert>
 
     <button type="submit" (click)="previousState()" class="btn btn-info">
