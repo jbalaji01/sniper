@@ -126,7 +126,9 @@ export class ExtTaskService {
       });
     }
 
-    const url = this.resourceUrl + 'download-files/' + source + '/' + id + '/' +
+    const url = this.resourceUrl +
+            (source === 'exportXlsx' ? 'export-xlsx/' : 'download-files/') +
+            source + '/' + id + '/' +
            (selectedIds == null || selectedIds === '' ? '0' : selectedIds);
 
     // console.log(url);

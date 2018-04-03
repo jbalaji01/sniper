@@ -39,6 +39,7 @@ export class DownloaderComponent implements OnInit {
 
       const banner = this.source === 'taskGroup' ? 'Download files of this taskGroup' :
           this.source === 'selectedTasks' ? ('Download ' + (this.selectedTasks == null ? 0 : this.selectedTasks.length) + ' task(s)') :
+          this.source === 'exportXlsx' ? 'Export xlsx of this taskGroup' :
           '';
           // console.log('in download banner ' + this.source + ' ' + banner);
       return banner;
@@ -60,7 +61,13 @@ export class DownloaderComponent implements OnInit {
         (data) => {
           this.jhiAlertService.success('success! downloaded files. ');
           console.log(data);
-          this.saveToLocal(data);
+
+          if (this.source === 'exportXlsx') {
+              this.saveXlsxToLocal(data);
+          } else {
+              this.saveZipToLocal(data);
+          }
+
           this.uponCompletion(true);
           this.pending = false;
         },
@@ -73,14 +80,37 @@ export class DownloaderComponent implements OnInit {
       );
     }
 
-  saveToLocal(response) {
-    console.log('inside saveToLocal');
+  saveZipToLocal(response) {
+    console.log('inside saveZipToLocal');
     const ieEDGE = navigator.userAgent.match(/Edge/g);
     const ie = navigator.userAgent.match(/.NET/g); // IE 11+
     const oldIE = navigator.userAgent.match(/MSIE/g);
 
     const blob = new Blob([response], { type: 'application/octet-stream'});
     const fileName = 'files.zip';
+
+    if (ie || oldIE || ieEDGE) {
+      console.log('got to ie');
+      window.navigator.msSaveBlob(blob, fileName);
+    } else {
+      const reader = new FileReader();
+      reader.onloadend = function() {
+        console.log('onloadend');
+        window.location.href = reader.result;
+      };
+      console.log('readAsDataURL');
+      reader.readAsDataURL(blob);
+    }
+  }
+
+  saveXlsxToLocal(response) {
+    console.log('inside saveXlsxToLocal');
+    const ieEDGE = navigator.userAgent.match(/Edge/g);
+    const ie = navigator.userAgent.match(/.NET/g); // IE 11+
+    const oldIE = navigator.userAgent.match(/MSIE/g);
+
+    const blob = new Blob([response], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'});
+    const fileName = 'data.xlsx';
 
     if (ie || oldIE || ieEDGE) {
       console.log('got to ie');
