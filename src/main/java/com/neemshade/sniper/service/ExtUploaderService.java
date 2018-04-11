@@ -155,6 +155,7 @@ public class ExtUploaderService {
 			snFile.getTasks().add(task);
 			snFile.setPeckOrder(lastPeckOrder);
 			extTaskService.adjustLineCount(task, snFile);
+			updateChosenType(task, snFile);
 			
 			lastPeckOrder += 10;
 			snFileService.save(snFile);
@@ -285,6 +286,26 @@ public class ExtUploaderService {
 	}
 	
 	
+
+	/**
+	 * update chosenType of snFile based on doctor and hospital of task
+	 * @param task
+	 * @param snFile
+	 */
+	private void updateChosenType(Task task, SnFile snFile) {
+		if(task == null || snFile == null) {
+			return;
+		}
+		
+		if(task.getDoctor() != null && task.getDoctor().getChosenFactor() != null) {
+			snFile.setChosenFactor(task.getDoctor().getChosenFactor());
+		} else {
+			if(task.getHospital() != null && task.getHospital().getChosenFactor() != null) {
+				snFile.setChosenFactor(task.getHospital().getChosenFactor());
+			}
+		}
+		
+	}
 
 	private int findMaxTaskPeckOrder(TaskGroup taskGroup) {
 		Optional<Task> taskOptional = taskRepository.findFirstByTaskGroupIdOrderByPeckOrderDesc(taskGroup.getId());

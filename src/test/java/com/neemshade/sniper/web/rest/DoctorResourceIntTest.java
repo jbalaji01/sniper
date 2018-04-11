@@ -29,6 +29,7 @@ import static org.hamcrest.Matchers.hasItem;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
+import com.neemshade.sniper.domain.enumeration.ChosenFactor;
 /**
  * Test class for the DoctorResource REST controller.
  *
@@ -46,6 +47,9 @@ public class DoctorResourceIntTest {
 
     private static final Integer DEFAULT_TEMPLATE_COUNT = 1;
     private static final Integer UPDATED_TEMPLATE_COUNT = 2;
+
+    private static final ChosenFactor DEFAULT_CHOSEN_FACTOR = ChosenFactor.NONE;
+    private static final ChosenFactor UPDATED_CHOSEN_FACTOR = ChosenFactor.TIME_FRAME;
 
     private static final String DEFAULT_NOTES = "AAAAAAAAAA";
     private static final String UPDATED_NOTES = "BBBBBBBBBB";
@@ -91,6 +95,7 @@ public class DoctorResourceIntTest {
             .doctorName(DEFAULT_DOCTOR_NAME)
             .city(DEFAULT_CITY)
             .templateCount(DEFAULT_TEMPLATE_COUNT)
+            .chosenFactor(DEFAULT_CHOSEN_FACTOR)
             .notes(DEFAULT_NOTES);
         return doctor;
     }
@@ -118,6 +123,7 @@ public class DoctorResourceIntTest {
         assertThat(testDoctor.getDoctorName()).isEqualTo(DEFAULT_DOCTOR_NAME);
         assertThat(testDoctor.getCity()).isEqualTo(DEFAULT_CITY);
         assertThat(testDoctor.getTemplateCount()).isEqualTo(DEFAULT_TEMPLATE_COUNT);
+        assertThat(testDoctor.getChosenFactor()).isEqualTo(DEFAULT_CHOSEN_FACTOR);
         assertThat(testDoctor.getNotes()).isEqualTo(DEFAULT_NOTES);
     }
 
@@ -154,6 +160,7 @@ public class DoctorResourceIntTest {
             .andExpect(jsonPath("$.[*].doctorName").value(hasItem(DEFAULT_DOCTOR_NAME.toString())))
             .andExpect(jsonPath("$.[*].city").value(hasItem(DEFAULT_CITY.toString())))
             .andExpect(jsonPath("$.[*].templateCount").value(hasItem(DEFAULT_TEMPLATE_COUNT)))
+            .andExpect(jsonPath("$.[*].chosenFactor").value(hasItem(DEFAULT_CHOSEN_FACTOR.toString())))
             .andExpect(jsonPath("$.[*].notes").value(hasItem(DEFAULT_NOTES.toString())));
     }
 
@@ -171,6 +178,7 @@ public class DoctorResourceIntTest {
             .andExpect(jsonPath("$.doctorName").value(DEFAULT_DOCTOR_NAME.toString()))
             .andExpect(jsonPath("$.city").value(DEFAULT_CITY.toString()))
             .andExpect(jsonPath("$.templateCount").value(DEFAULT_TEMPLATE_COUNT))
+            .andExpect(jsonPath("$.chosenFactor").value(DEFAULT_CHOSEN_FACTOR.toString()))
             .andExpect(jsonPath("$.notes").value(DEFAULT_NOTES.toString()));
     }
 
@@ -197,6 +205,7 @@ public class DoctorResourceIntTest {
             .doctorName(UPDATED_DOCTOR_NAME)
             .city(UPDATED_CITY)
             .templateCount(UPDATED_TEMPLATE_COUNT)
+            .chosenFactor(UPDATED_CHOSEN_FACTOR)
             .notes(UPDATED_NOTES);
 
         restDoctorMockMvc.perform(put("/api/doctors")
@@ -211,6 +220,7 @@ public class DoctorResourceIntTest {
         assertThat(testDoctor.getDoctorName()).isEqualTo(UPDATED_DOCTOR_NAME);
         assertThat(testDoctor.getCity()).isEqualTo(UPDATED_CITY);
         assertThat(testDoctor.getTemplateCount()).isEqualTo(UPDATED_TEMPLATE_COUNT);
+        assertThat(testDoctor.getChosenFactor()).isEqualTo(UPDATED_CHOSEN_FACTOR);
         assertThat(testDoctor.getNotes()).isEqualTo(UPDATED_NOTES);
     }
 

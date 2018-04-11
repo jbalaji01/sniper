@@ -11,6 +11,8 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.Objects;
 
+import com.neemshade.sniper.domain.enumeration.ChosenFactor;
+
 /**
  * A Doctor.
  */
@@ -33,6 +35,10 @@ public class Doctor implements Serializable {
 
     @Column(name = "template_count")
     private Integer templateCount;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "chosen_factor")
+    private ChosenFactor chosenFactor;
 
     @Column(name = "notes")
     private String notes;
@@ -95,6 +101,19 @@ public class Doctor implements Serializable {
 
     public void setTemplateCount(Integer templateCount) {
         this.templateCount = templateCount;
+    }
+
+    public ChosenFactor getChosenFactor() {
+        return chosenFactor;
+    }
+
+    public Doctor chosenFactor(ChosenFactor chosenFactor) {
+        this.chosenFactor = chosenFactor;
+        return this;
+    }
+
+    public void setChosenFactor(ChosenFactor chosenFactor) {
+        this.chosenFactor = chosenFactor;
     }
 
     public String getNotes() {
@@ -188,6 +207,7 @@ public class Doctor implements Serializable {
             ", doctorName='" + getDoctorName() + "'" +
             ", city='" + getCity() + "'" +
             ", templateCount=" + getTemplateCount() +
+            ", chosenFactor='" + getChosenFactor() + "'" +
             ", notes='" + getNotes() + "'" +
             "}";
     }
