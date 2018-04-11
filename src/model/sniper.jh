@@ -20,13 +20,15 @@ entity Hospital {
 	hospitalName String,
     city String,
     templateCount Integer,
+    chosenFactor ChosenFactor,
     notes String
 }
 
 entity Doctor {
 	doctorName String,
     city String,
-    templateCount Integer
+    templateCount Integer,
+    chosenFactor ChosenFactor,
     notes String
 }
 

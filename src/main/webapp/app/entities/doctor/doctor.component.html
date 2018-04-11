@@ -20,6 +20,7 @@
             <th><span>Doctor Name</span></th>
             <th><span>City</span></th>
             <th><span>Template Count</span></th>
+            <th><span>Chosen Factor</span></th>
             <th><span>Notes</span></th>
             <th><span>Hospital</span></th>
             <th></th>
@@ -31,6 +32,7 @@
                 <td>{{doctor.doctorName}}</td>
                 <td>{{doctor.city}}</td>
                 <td>{{doctor.templateCount}}</td>
+                <td>{{doctor.chosenFactor}}</td>
                 <td>{{doctor.notes}}</td>
                 <td>
                     <span *ngFor="let hospital of doctor.hospitals; let last = last">

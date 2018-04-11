@@ -30,6 +30,11 @@
             "fieldType": "Integer"
         },
         {
+            "fieldName": "chosenFactor",
+            "fieldType": "ChosenFactor",
+            "fieldValues": "NONE,TIME_FRAME,WS_LINE_COUNT,WOS_LINE_COUNT"
+        },
+        {
             "fieldName": "notes",
             "fieldType": "String"
         }
