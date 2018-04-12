@@ -43,7 +43,8 @@
           </thead>
           <tbody>
           <tr *ngFor="let taskGroup of taskGroups ;trackBy: trackId">
-              <td><a [routerLink]="['../task-group', taskGroup.id ]">{{taskGroup.id}}</a></td>
+              <!-- <td><a [routerLink]="['../task-group', taskGroup.id ]">{{taskGroup.id}}</a></td> -->
+              <td>{{taskGroup.id}}</td>
               <td>{{taskGroup.groupName}}</td>
               <td>{{taskGroup.createdTime | date:'medium'}}</td>
               <td class="text-right">

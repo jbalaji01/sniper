@@ -52,7 +52,7 @@
                 </tr></table>
     </div>
 
-    <div *ngIf="totalTasks > 0">
+    <!-- <div *ngIf="totalTasks > 0">
         <br>
         <div class="col-sm-6">
             <div class="card card-info mb-3 text-left">
@@ -61,7 +61,6 @@
                     <div *ngFor="let statusCount of statusCountList">
                         <span>{{statusCount.status}}</span> ({{statusCount.ord}} / {{totalTasks}})
                         <br/>
-                        <!-- <ngb-progressbar type="{{statusCount.status == 'CREATED' ? 'danger' : statusCount.status == 'COMPLETED' ? 'success' : 'info'}}" -->
                         <ngb-progressbar type="{{ fetchColorCode(statusCount.status) }}" [max]="totalTasks" [value]="statusCount.ord" [striped]="true"
                             [animated]="true">
                             <span>{{statusCount.ord * 100 / totalTasks | number:'1.0-0'}}%</span>
@@ -72,7 +71,7 @@
             </div>
     
         </div>
-    </div>
+    </div> -->
 
 <jhi-ext-task-list-template [source]="'taskGroup'" [taskGroupId]="taskGroupId" (onReload)="reload($event)"></jhi-ext-task-list-template>
 
