@@ -39,6 +39,7 @@ export class DownloaderComponent implements OnInit {
 
       const banner = this.source === 'taskGroup' ? 'Download files of this taskGroup' :
           this.source === 'selectedTasks' ? ('Download ' + (this.selectedTasks == null ? 0 : this.selectedTasks.length) + ' task(s)') :
+          this.source === 'editorOnly' ? 'Download files of editors only' :
           this.source === 'exportXlsx' ? 'Export xlsx of this taskGroup' :
           '';
           // console.log('in download banner ' + this.source + ' ' + banner);

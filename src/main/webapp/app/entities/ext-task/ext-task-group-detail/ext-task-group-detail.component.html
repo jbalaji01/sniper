@@ -19,8 +19,11 @@
     </dl>
 
     <jhi-uploader [source]="'taskGroup'" [id]="taskGroup.id" (onCompletion)="uponUploadCompletion($event)"></jhi-uploader>
+<br/>
 
     <jhi-downloader [source]="'taskGroup'" [id]="taskGroup.id" (onCompletion)="uponDownloadCompletion($event)"></jhi-downloader>
+
+    <jhi-downloader [source]="'editorOnly'" [id]="taskGroup.id" (onCompletion)="uponDownloadCompletion($event)"></jhi-downloader>
 
     <jhi-downloader [source]="'exportXlsx'" [id]="taskGroup.id" (onCompletion)="uponDownloadCompletion($event)"></jhi-downloader>
     

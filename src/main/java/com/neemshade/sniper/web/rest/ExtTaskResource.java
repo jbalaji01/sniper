@@ -269,10 +269,11 @@ public class ExtTaskResource {
 	@GetMapping(value="download-files/{source}/{id}/{selectedIds}", produces="application/zip")
 	@ResponseBody
 	public void downloadFiles(
-			@PathVariable String source, @PathVariable(value = "id") Long id,
+			@PathVariable String source, @PathVariable(value = "id") Long id, 
 			@PathVariable(value = "selectedIds") String selectedIds, HttpServletResponse response) throws Exception {
 
-	    byte[] bytes = extDownloaderService.downloadFiles(source, id, selectedIds);
+		boolean isEditorOnly = "editorOnly".equals(source);
+	    byte[] bytes = extDownloaderService.downloadFiles(source, id, isEditorOnly, selectedIds);
 	    
 //	    headers.add("Content-Type", "application/octet-stream");
 	    response.setHeader("Content-Type", "application/zip");
