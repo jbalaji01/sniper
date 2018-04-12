@@ -23,6 +23,7 @@ public abstract class SnFileManager {
 		
 		supportedFormats.put("doc", SnDocManager.class);
 		supportedFormats.put("docx", SnDocxManager.class);
+		supportedFormats.put("rtf", SnDocRtfManager.class);
 		
 		supportedFormats.put("wav", SnWavManager.class);
 		supportedFormats.put("mp3", SnMp3Manager.class);
