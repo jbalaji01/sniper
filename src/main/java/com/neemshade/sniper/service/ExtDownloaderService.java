@@ -59,25 +59,26 @@ public class ExtDownloaderService {
 	 * @param selectedIds 
 	 * @throws Exception
 	 */
-	public byte[] downloadFiles(String source, Long id, String selectedIds) throws Exception {
+	public byte[] downloadFiles(String source, Long id, boolean isEditorOnly, String selectedIds) throws Exception {
 		if(source == null)
 		{
 			throw new Exception("Invalid source param");
 		}
 		
-		if(source.equalsIgnoreCase("taskGroup") && id != null && id > 0)
+		if((source.equalsIgnoreCase("taskGroup") || source.equalsIgnoreCase("editorOnly")) && id != null && id > 0)
 		{
-			return downloadFilesOfTaskGroup(id);
+			return downloadFilesOfTaskGroup(id, isEditorOnly);
 		}
 		
 		if(source.equalsIgnoreCase("task") && id != null && id > 0)
 		{
-			return downloadFilesOfTask(id);
+			Task task = taskService.findOne(id);
+			return downloadFilesOfTask(task, isEditorOnly);
 		}
 		
 		if(source.equalsIgnoreCase("selectedTasks") && selectedIds != null)
 		{
-			return downloadFilesOfSelectedTasks(selectedIds);
+			return downloadFilesOfSelectedTasks(selectedIds, isEditorOnly);
 		}
 		
 		throw new Exception("Invalid data " + source + " " + id + " " + selectedIds);
@@ -89,7 +90,7 @@ public class ExtDownloaderService {
 	 * @param selectedIds
 	 * @return
 	 */
-	private byte[] downloadFilesOfSelectedTasks(String selectedIds) throws Exception {
+	private byte[] downloadFilesOfSelectedTasks(String selectedIds, boolean isEditorOnly) throws Exception {
 		if(selectedIds == null) return null;
 		
 		String[] selectedIdArr = selectedIds.split(",");
@@ -99,7 +100,8 @@ public class ExtDownloaderService {
 	    
 	    for (String selectedId : selectedIdArr) {
 	    	Long taskId = Long.parseLong(selectedId);
-			downloadFilesOfTask(taskId, zos);
+	    	Task task = taskService.findOne(taskId);
+			downloadFilesOfTask(task, zos, isEditorOnly);
 		}
 	    
 	    zos.closeEntry();
@@ -113,22 +115,22 @@ public class ExtDownloaderService {
 	 * @return
 	 * @throws Exception 
 	 */
-	private byte[] downloadFilesOfTaskGroup(Long taskGroupId) throws Exception {
+	private byte[] downloadFilesOfTaskGroup(Long taskGroupId, boolean isEditorOnly) throws Exception {
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
 	    ZipOutputStream zos = new ZipOutputStream(baos);
 	    
-	    downloadFilesOfTaskGroup(taskGroupId, zos);
+	    downloadFilesOfTaskGroup(taskGroupId, zos, isEditorOnly);
 	    
 	    zos.closeEntry();
 	    zos.close();
 	    return baos.toByteArray();
 	}
 
-	private void downloadFilesOfTaskGroup(Long taskGroupId, ZipOutputStream zos) throws Exception {
+	private void downloadFilesOfTaskGroup(Long taskGroupId, ZipOutputStream zos, boolean isEditorOnly) throws Exception {
 		List<Task> tasks = taskService.findTasksOfTaskGroup(taskGroupId);
 		
 		for (Task task : tasks) {
-			downloadFilesOfTask(task.getId(), zos);
+			downloadFilesOfTask(task, zos, isEditorOnly);
 		}
 	}
 
@@ -138,11 +140,11 @@ public class ExtDownloaderService {
 	 * @return
 	 * @throws Exception 
 	 */
-	private byte[] downloadFilesOfTask(Long taskId) throws Exception {
+	private byte[] downloadFilesOfTask(Task task, boolean isEditorOnly) throws Exception {
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
 	    ZipOutputStream zos = new ZipOutputStream(baos);
 	    
-	    downloadFilesOfTask(taskId, zos);
+	    downloadFilesOfTask(task, zos, isEditorOnly);
 	    
 	    zos.closeEntry();
 	    zos.close();
@@ -155,15 +157,19 @@ public class ExtDownloaderService {
 	 * @param zos
 	 * @throws Exception 
 	 */
-	private void downloadFilesOfTask(Long taskId, ZipOutputStream zos) throws Exception {
+	private void downloadFilesOfTask(Task task, ZipOutputStream zos, boolean isEditorOnly) throws Exception {
 		
-		String path = "task_" + taskId + "/";
+		if(task == null) return;
+		
+		String path = "task_" + task.getId() + "/";
 		zos.putNextEntry(new ZipEntry(path));
 		
 		// fetch all the files of this task and write them into zos
-		List<SnFile> snFiles = snFileService.findSnFilesOfTask(taskId);
+		List<SnFile> snFiles = snFileService.findSnFilesOfTask(task.getId());
 		
 		for (SnFile snFile : snFiles) {
+			
+			if(!allowedSnFile(task, snFile, isEditorOnly)) continue;
 			
 			String filename = snFile.getFileName() + "." + snFile.getFileExt();
 			
@@ -181,6 +187,30 @@ public class ExtDownloaderService {
 	}
 
 
+	/**
+	 * check if snFile can be included in the download
+	 * @param task
+	 * @param snFile
+	 * @param isEditorOnly
+	 * @return
+	 */
+	private boolean allowedSnFile(Task task, SnFile snFile, boolean isEditorOnly) {
+		if(task == null || snFile == null) return false;
+		
+		if(isEditorOnly) 
+		{
+			try {
+				if(snFile.isIsInput()) return false;
+				
+				return task.getEditor().getId() == snFile.getUploader().getId();
+			} catch(Exception ex) {
+				return false;
+			}
+		}
+		
+		return true;
+			
+	}
 
 	/**
 	 * collect all tasks and snFiles of the given taskGroups
@@ -461,17 +491,23 @@ public class ExtDownloaderService {
 			switch(snFile.getChosenFactor()) {
 			case TIME_FRAME :
 					aggratedSnFile.setFinalTimeFrame(
-							aggratedSnFile.getFinalTimeFrame() + snFile.getFinalTimeFrame());
+							aggratedSnFile.getFinalTimeFrame() + 
+							(snFile.getFinalTimeFrame() == null ? 0 : snFile.getFinalTimeFrame())
+							);
 					break;
 					
 			case WS_LINE_COUNT :
 					aggratedSnFile.setWsFinalLineCount(
-							aggratedSnFile.getWsFinalLineCount() + snFile.getWsFinalLineCount());
+							aggratedSnFile.getWsFinalLineCount() + 
+							(snFile.getWsFinalLineCount() == null ? 0 : snFile.getWsFinalLineCount())
+							);
 					break;
 					
 			case WOS_LINE_COUNT :
 					aggratedSnFile.setWosFinalLineCount(
-							aggratedSnFile.getWosFinalLineCount() + snFile.getWosFinalLineCount());
+							aggratedSnFile.getWosFinalLineCount() + 
+							(snFile.getWosFinalLineCount() == null ? 0 : snFile.getWosFinalLineCount())
+							);
 					break;
 			}
 		}
