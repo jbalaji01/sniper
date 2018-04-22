@@ -483,7 +483,8 @@ export class ExtTaskListTemplateComponent implements OnInit {
 
   refresh() {
     console.log('refresh function is called');
-    this.uponReload(true);
+    // this.uponReload(true);
+    window.location.reload();
     // const urlParamObj = this.composeUrlParam();
     // this.loadTasks(urlParamObj);
   }
