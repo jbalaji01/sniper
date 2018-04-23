@@ -74,6 +74,9 @@ public class ExtTaskService {
 	@Autowired
 	private PatientRepository patientRepository;
 	
+	@Autowired
+	private ExtUploaderService extUploaderService;
+	
 	@PersistenceContext
 	private EntityManager em;
 	
@@ -236,7 +239,7 @@ public class ExtTaskService {
 			createTaskHistory(newTask, historyObe);
 		}
 
-		return "{ \"msg\" : \"Cloned " + tasks.size() + " tasks.   New Task id = \" + newTask.getId() + \" \" }";
+		return "{ \"msg\" : \"Cloned " + tasks.size() + " tasks.  \" }";
 	}
 	
 	/**
@@ -311,11 +314,28 @@ public class ExtTaskService {
 	 * copy files from sourceTask into destTask
 	 * @param sourceTask
 	 * @param destTask
+	 * @throws Exception 
 	 */
-	private void xeroxFiles(Task sourceTask, Task destTask) {
+	private void xeroxFiles(Task sourceTask, Task destTask) throws Exception {
+		List<SnFile> sourceSnFiles = snFileService.findSnFilesOfTask(sourceTask.getId());
+		List<SnFile> destSnFiles = new ArrayList<SnFile>();
+		
+		for (SnFile sourceSnFile : sourceSnFiles) {
+			SnFile destSnFile = extUploaderService.createSnFile(
+					sourceSnFile.getSnFileBlob().getFileContent(), sourceSnFile.isIsInput());
+			extUploaderService.initializeFromSnFile(sourceSnFile, destSnFile);
+			
+			destSnFiles.add(destSnFile);
+		}
+		
+		extUploaderService.storeSnFiles(destTask, destSnFiles);
+		
+	}
+	
+	/*private void xeroxFiles(Task sourceTask, Task destTask) {
 		List<SnFile> snFiles = snFileService.findSnFilesOfTask(sourceTask.getId());
 		destTask.getSnFiles().addAll(snFiles);
-	}
+	}*/
 	
 
 	/**

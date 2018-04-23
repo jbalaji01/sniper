@@ -146,7 +146,7 @@ public class ExtUploaderService {
 	 * @param snFileList
 	 * @throws Exception 
 	 */
-	private void storeSnFiles(Task task, List<SnFile> snFileList) throws Exception {
+	public void storeSnFiles(Task task, List<SnFile> snFileList) throws Exception {
 		
 		Integer lastPeckOrder = findMaxSnFilePeckOrder(task) + 10;
 		
@@ -381,6 +381,19 @@ public class ExtUploaderService {
 //		log.debug("ofn=" + mpFile.getOriginalFilename());
 //		log.debug("tmpdir = " + System.getProperty("java.io.tmpdir"));
 		
+		SnFile snFile = createSnFile(byteContent, isInput);
+		initializeSnFile(snFile, mpFile);
+		
+		return snFile;
+	}
+
+	/**
+	 * create required snFile and blob
+	 * @param byteContent
+	 * @param isInput
+	 * @return
+	 */
+	public SnFile createSnFile(byte[] byteContent, java.lang.Boolean isInput) {
 		SnFileBlob snFileBlob = new SnFileBlob();
 		snFileBlob.setFileContent(byteContent);
 		SnFileBlob newSnFileBlob = snFileBlobRepository.save(snFileBlob);
@@ -388,8 +401,6 @@ public class ExtUploaderService {
 		SnFile snFile = new SnFile();
 		snFile.setSnFileBlob(newSnFileBlob);
 		snFile.setIsInput(isInput);
-		initializeSnFile(snFile, mpFile);
-		
 		return snFile;
 	}
 
@@ -452,5 +463,31 @@ public class ExtUploaderService {
 	  		snFile.setWosFinalLineCount(fmr.getWosLineCount());
 	  	}
 		
+	}
+	
+	public void initializeFromSnFile(SnFile sourceSnFile, SnFile destSnFile) {
+		destSnFile.setFileName(sourceSnFile.getFileName());
+		destSnFile.setFileExt(sourceSnFile.getFileExt());
+		destSnFile.setUploadedTime(Instant.now());
+		destSnFile.setChosenFactor(sourceSnFile.getChosenFactor());
+
+		destSnFile.setIsAudio(sourceSnFile.isIsAudio());
+		
+	  	if(destSnFile.isIsAudio())
+	  	{
+	  		destSnFile.setActualTimeFrame(sourceSnFile.getActualTimeFrame());
+	  		destSnFile.setAdjustedTimeFrame(sourceSnFile.getAdjustedTimeFrame());
+	  		destSnFile.setFinalTimeFrame(sourceSnFile.getFinalTimeFrame());
+	  	}
+	  	else
+	  	{
+	  		destSnFile.setWsActualLineCount(sourceSnFile.getWsActualLineCount());
+	  		destSnFile.setWsAdjustedLineCount(sourceSnFile.getWsAdjustedLineCount());
+	  		destSnFile.setWsFinalLineCount(sourceSnFile.getWsFinalLineCount());
+	  		
+	  		destSnFile.setWosActualLineCount(sourceSnFile.getWosActualLineCount());
+	  		destSnFile.setWosAdjustedLineCount(sourceSnFile.getWosAdjustedLineCount());
+	  		destSnFile.setWosFinalLineCount(sourceSnFile.getWosFinalLineCount());
+	  	}
 	}
 }
