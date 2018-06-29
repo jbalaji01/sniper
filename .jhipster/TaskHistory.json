@@ -1,0 +1,38 @@
+{
+    "fluentMethods": true,
+    "relationships": [
+        {
+            "relationshipType": "many-to-one",
+            "relationshipName": "task",
+            "otherEntityName": "task",
+            "otherEntityField": "id"
+        },
+        {
+            "relationshipType": "many-to-one",
+            "relationshipName": "userInfo",
+            "otherEntityName": "userInfo",
+            "otherEntityField": "empCode"
+        }
+    ],
+    "fields": [
+        {
+            "fieldName": "taskStatus",
+            "fieldType": "TaskStatus",
+            "fieldValues": "CREATED,ASSIGNED,DOWNLOADED,UPLOADED,SETTING,IN_PROGRESS,COMPLETED,ON_HOLD,QUERY,MERGED,DELETED,TRANSFERRED"
+        },
+        {
+            "fieldName": "punchTime",
+            "fieldType": "Instant"
+        },
+        {
+            "fieldName": "notes",
+            "fieldType": "String"
+        }
+    ],
+    "changelogDate": "20180207104711",
+    "entityTableName": "task_history",
+    "dto": "no",
+    "pagination": "no",
+    "service": "no",
+    "jpaMetamodelFiltering": false
+}

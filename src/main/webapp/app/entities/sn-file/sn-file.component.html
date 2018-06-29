@@ -1,0 +1,116 @@
+<div>
+    <h2>
+        <span>Sn Files</span>
+        <button class="btn btn-primary float-right jh-create-entity create-sn-file" [routerLink]="['/', { outlets: { popup: ['sn-file-new'] } }]">
+            <span class="fa fa-plus"></span>
+            <span >
+            Create new Sn File
+            </span>
+        </button>
+    </h2>
+    <jhi-alert></jhi-alert>
+    <div class="row">
+    </div>
+    <br/>
+    <div class="table-responsive" *ngIf="snFiles">
+        <table class="table table-striped">
+            <thead>
+            <tr>
+            <th><span>ID</span></th>
+            <th><span>File Path</span></th>
+            <th><span>File Name</span></th>
+            <th><span>File Ext</span></th>
+            <th><span>Origin</span></th>
+            <th><span>Is Input</span></th>
+            <th><span>Is Audio</span></th>
+            <th><span>Uploaded Time</span></th>
+            <th><span>Actual Time Frame</span></th>
+            <th><span>Adjusted Time Frame</span></th>
+            <th><span>Final Time Frame</span></th>
+            <th><span>Ws Actual Line Count</span></th>
+            <th><span>Ws Adjusted Line Count</span></th>
+            <th><span>Ws Final Line Count</span></th>
+            <th><span>Wos Actual Line Count</span></th>
+            <th><span>Wos Adjusted Line Count</span></th>
+            <th><span>Wos Final Line Count</span></th>
+            <th><span>Chosen Factor</span></th>
+            <th><span>Peck Order</span></th>
+            <th><span>Sn File Blob</span></th>
+            <th><span>Patient</span></th>
+            <th><span>Task</span></th>
+            <th><span>Uploader</span></th>
+            <th></th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr *ngFor="let snFile of snFiles ;trackBy: trackId">
+                <td><a [routerLink]="['../sn-file', snFile.id ]">{{snFile.id}}</a></td>
+                <td>{{snFile.filePath}}</td>
+                <td>{{snFile.fileName}}</td>
+                <td>{{snFile.fileExt}}</td>
+                <td>{{snFile.origin}}</td>
+                <td>{{snFile.isInput}}</td>
+                <td>{{snFile.isAudio}}</td>
+                <td>{{snFile.uploadedTime | date:'medium'}}</td>
+                <td>{{snFile.actualTimeFrame}}</td>
+                <td>{{snFile.adjustedTimeFrame}}</td>
+                <td>{{snFile.finalTimeFrame}}</td>
+                <td>{{snFile.wsActualLineCount}}</td>
+                <td>{{snFile.wsAdjustedLineCount}}</td>
+                <td>{{snFile.wsFinalLineCount}}</td>
+                <td>{{snFile.wosActualLineCount}}</td>
+                <td>{{snFile.wosAdjustedLineCount}}</td>
+                <td>{{snFile.wosFinalLineCount}}</td>
+                <td>{{snFile.chosenFactor}}</td>
+                <td>{{snFile.peckOrder}}</td>
+                <td>
+                    <div *ngIf="snFile.snFileBlob">
+                        <a [routerLink]="['../sn-file-blob', snFile.snFileBlob?.id ]" >{{snFile.snFileBlob?.id}}</a>
+                    </div>
+                </td>
+                <td>
+                    <span *ngFor="let patient of snFile.patients; let last = last">
+                            <a class="form-control-static" [routerLink]="['../patient', patient?.id ]">{{patient.patientName}}</a>{{last ? '' : ', '}}
+                        </span>
+                </td>
+                <td>
+                    <span *ngFor="let task of snFile.tasks; let last = last">
+                            <a class="form-control-static" [routerLink]="['../task', task?.id ]">{{task.id}}</a>{{last ? '' : ', '}}
+                        </span>
+                </td>
+                <td>
+                    <div *ngIf="snFile.uploader">
+                        <a [routerLink]="['../user-info', snFile.uploader?.id ]" >{{snFile.uploader?.empCode}}</a>
+                    </div>
+                </td>
+                <td class="text-right">
+                    <div class="btn-group flex-btn-group-container">
+                        <button type="submit"
+                                [routerLink]="['../sn-file', snFile.id ]"
+                                class="btn btn-info btn-sm">
+                            <span class="fa fa-eye"></span>
+                            <span class="d-none d-md-inline">View</span>
+                        </button>
+                        <button type="submit"
+                                [routerLink]="['/', { outlets: { popup: 'sn-file/'+ snFile.id + '/edit'} }]"
+                                replaceUrl="true"
+                                queryParamsHandling="merge"
+                                class="btn btn-primary btn-sm">
+                            <span class="fa fa-pencil"></span>
+                            <span class="d-none d-md-inline">Edit</span>
+                        </button>
+                        <button type="submit"
+                                [routerLink]="['/', { outlets: { popup: 'sn-file/'+ snFile.id + '/delete'} }]"
+                                replaceUrl="true"
+                                queryParamsHandling="merge"
+                                class="btn btn-danger btn-sm">
+                            <span class="fa fa-remove"></span>
+                            <span class="d-none d-md-inline">Delete</span>
+                        </button>
+                    </div>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>

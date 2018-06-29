@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
+    <!--
+        Added the constraints for entity Task.
+    -->
+    <changeSet id="20180207104710-2" author="jhipster">
+        
+        <addForeignKeyConstraint baseColumnNames="company_id"
+                                 baseTableName="task"
+                                 constraintName="fk_task_company_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="company"/>
+
+        <addForeignKeyConstraint baseColumnNames="task_group_id"
+                                 baseTableName="task"
+                                 constraintName="fk_task_task_group_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="task_group"/>
+
+        <addForeignKeyConstraint baseColumnNames="owner_id"
+                                 baseTableName="task"
+                                 constraintName="fk_task_owner_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="user_info"/>
+
+        <addForeignKeyConstraint baseColumnNames="transcript_id"
+                                 baseTableName="task"
+                                 constraintName="fk_task_transcript_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="user_info"/>
+
+        <addForeignKeyConstraint baseColumnNames="editor_id"
+                                 baseTableName="task"
+                                 constraintName="fk_task_editor_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="user_info"/>
+
+        <addForeignKeyConstraint baseColumnNames="manager_id"
+                                 baseTableName="task"
+                                 constraintName="fk_task_manager_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="user_info"/>
+
+        <addForeignKeyConstraint baseColumnNames="doctor_id"
+                                 baseTableName="task"
+                                 constraintName="fk_task_doctor_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="doctor"/>
+
+        <addForeignKeyConstraint baseColumnNames="hospital_id"
+                                 baseTableName="task"
+                                 constraintName="fk_task_hospital_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="hospital"/>
+
+    </changeSet>
+</databaseChangeLog>

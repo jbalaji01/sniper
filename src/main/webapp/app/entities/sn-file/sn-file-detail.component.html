@@ -1,0 +1,118 @@
+
+<div *ngIf="snFile">
+    <h2><span>Sn File</span> {{snFile.id}}</h2>
+    <hr>
+    <jhi-alert-error></jhi-alert-error>
+    <dl class="row-md jh-entity-details">
+        <dt><span>File Path</span></dt>
+        <dd>
+            <span>{{snFile.filePath}}</span>
+        </dd>
+        <dt><span>File Name</span></dt>
+        <dd>
+            <span>{{snFile.fileName}}</span>
+        </dd>
+        <dt><span>File Ext</span></dt>
+        <dd>
+            <span>{{snFile.fileExt}}</span>
+        </dd>
+        <dt><span>Origin</span></dt>
+        <dd>
+            <span>{{snFile.origin}}</span>
+        </dd>
+        <dt><span>Is Input</span></dt>
+        <dd>
+            <span>{{snFile.isInput}}</span>
+        </dd>
+        <dt><span>Is Audio</span></dt>
+        <dd>
+            <span>{{snFile.isAudio}}</span>
+        </dd>
+        <dt><span>Uploaded Time</span></dt>
+        <dd>
+            <span>{{snFile.uploadedTime | date:'medium'}}</span>
+        </dd>
+        <dt><span>Actual Time Frame</span></dt>
+        <dd>
+            <span>{{snFile.actualTimeFrame}}</span>
+        </dd>
+        <dt><span>Adjusted Time Frame</span></dt>
+        <dd>
+            <span>{{snFile.adjustedTimeFrame}}</span>
+        </dd>
+        <dt><span>Final Time Frame</span></dt>
+        <dd>
+            <span>{{snFile.finalTimeFrame}}</span>
+        </dd>
+        <dt><span>Ws Actual Line Count</span></dt>
+        <dd>
+            <span>{{snFile.wsActualLineCount}}</span>
+        </dd>
+        <dt><span>Ws Adjusted Line Count</span></dt>
+        <dd>
+            <span>{{snFile.wsAdjustedLineCount}}</span>
+        </dd>
+        <dt><span>Ws Final Line Count</span></dt>
+        <dd>
+            <span>{{snFile.wsFinalLineCount}}</span>
+        </dd>
+        <dt><span>Wos Actual Line Count</span></dt>
+        <dd>
+            <span>{{snFile.wosActualLineCount}}</span>
+        </dd>
+        <dt><span>Wos Adjusted Line Count</span></dt>
+        <dd>
+            <span>{{snFile.wosAdjustedLineCount}}</span>
+        </dd>
+        <dt><span>Wos Final Line Count</span></dt>
+        <dd>
+            <span>{{snFile.wosFinalLineCount}}</span>
+        </dd>
+        <dt><span>Chosen Factor</span></dt>
+        <dd>
+            <span>{{snFile.chosenFactor}}</span>
+        </dd>
+        <dt><span>Peck Order</span></dt>
+        <dd>
+            <span>{{snFile.peckOrder}}</span>
+        </dd>
+        <dt><span>Sn File Blob</span></dt>
+        <dd>
+            <div *ngIf="snFile.snFileBlob">
+                <a [routerLink]="['/sn-file-blob', snFile.snFileBlob?.id]">{{snFile.snFileBlob?.id}}</a>
+            </div>
+        </dd>
+        <dt><span>Patient</span></dt>
+        <dd>
+            <span *ngFor="let patient of snFile.patients; let last = last">
+                <a [routerLink]="['/patient', patient?.id ]">{{patient.patientName}}</a>{{last ? '' : ', '}}
+            </span>
+        </dd>
+        <dt><span>Task</span></dt>
+        <dd>
+            <span *ngFor="let task of snFile.tasks; let last = last">
+                <a [routerLink]="['/task', task?.id ]">{{task.id}}</a>{{last ? '' : ', '}}
+            </span>
+        </dd>
+        <dt><span>Uploader</span></dt>
+        <dd>
+            <div *ngIf="snFile.uploader">
+                <a [routerLink]="['/user-info', snFile.uploader?.id]">{{snFile.uploader?.empCode}}</a>
+            </div>
+        </dd>
+    </dl>
+
+    <button type="submit"
+            (click)="previousState()"
+            class="btn btn-info">
+        <span class="fa fa-arrow-left"></span>&nbsp;<span> Back</span>
+    </button>
+
+    <button type="button"
+            [routerLink]="['/', { outlets: { popup: 'sn-file/'+ snFile.id + '/edit'} }]"
+            replaceUrl="true"
+            queryParamsHandling="merge"
+            class="btn btn-primary">
+        <span class="fa fa-pencil"></span>&nbsp;<span> Edit</span>
+    </button>
+</div>

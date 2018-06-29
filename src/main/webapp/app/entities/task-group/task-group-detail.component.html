@@ -1,0 +1,30 @@
+
+<div *ngIf="taskGroup">
+    <h2><span>Task Group</span> {{taskGroup.id}}</h2>
+    <hr>
+    <jhi-alert-error></jhi-alert-error>
+    <dl class="row-md jh-entity-details">
+        <dt><span>Group Name</span></dt>
+        <dd>
+            <span>{{taskGroup.groupName}}</span>
+        </dd>
+        <dt><span>Created Time</span></dt>
+        <dd>
+            <span>{{taskGroup.createdTime | date:'medium'}}</span>
+        </dd>
+    </dl>
+
+    <button type="submit"
+            (click)="previousState()"
+            class="btn btn-info">
+        <span class="fa fa-arrow-left"></span>&nbsp;<span> Back</span>
+    </button>
+
+    <button type="button"
+            [routerLink]="['/', { outlets: { popup: 'task-group/'+ taskGroup.id + '/edit'} }]"
+            replaceUrl="true"
+            queryParamsHandling="merge"
+            class="btn btn-primary">
+        <span class="fa fa-pencil"></span>&nbsp;<span> Edit</span>
+    </button>
+</div>

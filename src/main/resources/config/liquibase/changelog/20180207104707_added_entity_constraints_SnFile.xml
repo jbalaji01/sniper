@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
+    <!--
+        Added the constraints for entity SnFile.
+    -->
+    <changeSet id="20180207104707-2" author="jhipster">
+        
+        <addForeignKeyConstraint baseColumnNames="sn_file_blob_id"
+                                 baseTableName="sn_file"
+                                 constraintName="fk_sn_file_sn_file_blob_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="sn_file_blob"/>
+
+        <addForeignKeyConstraint baseColumnNames="sn_files_id"
+                                 baseTableName="sn_file_patient"
+                                 constraintName="fk_sn_file_patient_sn_files_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="sn_file"/>
+        <addForeignKeyConstraint baseColumnNames="patients_id"
+                                 baseTableName="sn_file_patient"
+                                 constraintName="fk_sn_file_patient_patients_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="patient"/>
+        
+        <addForeignKeyConstraint baseColumnNames="sn_files_id"
+                                 baseTableName="sn_file_task"
+                                 constraintName="fk_sn_file_task_sn_files_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="sn_file"/>
+        <addForeignKeyConstraint baseColumnNames="tasks_id"
+                                 baseTableName="sn_file_task"
+                                 constraintName="fk_sn_file_task_tasks_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="task"/>
+        
+        <addForeignKeyConstraint baseColumnNames="uploader_id"
+                                 baseTableName="sn_file"
+                                 constraintName="fk_sn_file_uploader_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="user_info"/>
+
+    </changeSet>
+</databaseChangeLog>
