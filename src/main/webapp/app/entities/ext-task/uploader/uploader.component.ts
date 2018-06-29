@@ -1,6 +1,7 @@
 import { Component, OnInit, EventEmitter, Input, Output } from '@angular/core';
 import { HttpResponse, HttpEventType } from '@angular/common/http';
 import { JhiAlertService } from 'ng-jhipster';
+import { ITEMS_PER_PAGE, Principal } from '../../../shared';
 
 import { ExtTaskService } from '../ext-task.service';
 import { HttpHeaderResponse } from '@angular/common/http/src/response';
@@ -21,7 +22,8 @@ export class UploaderComponent implements OnInit {
   progress: { percentage: number, isUploaded: boolean } = { percentage: 0, isUploaded: false };
 
   constructor(private extTaskService: ExtTaskService,
-    private jhiAlertService: JhiAlertService) { }
+    private jhiAlertService: JhiAlertService,
+    private principal: Principal) { }
 
   ngOnInit() {
   }
@@ -31,6 +33,14 @@ export class UploaderComponent implements OnInit {
     return this.source === 'taskGroup' ?
         this.id === 0 ? 'Create new tasks' : 'Add more tasks'
         : '';
+  }
+
+  getAcceptableFileExt() {
+    if (!this.principal.hasAnyAuthorityDirect(['ROLE_TRANSCRIPT'])) {
+      return '';
+    }
+
+    return 'accept=".doc, .docx, .rtf"';
   }
 
   selectFile(event) {
