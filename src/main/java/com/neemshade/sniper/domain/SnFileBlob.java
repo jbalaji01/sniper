@@ -1,12 +1,11 @@
 package com.neemshade.sniper.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import org.hibernate.annotations.Cache;
-import org.hibernate.annotations.CacheConcurrencyStrategy;
 
 import javax.persistence.*;
 
 import java.io.Serializable;
+import java.sql.Blob;
 import java.util.Objects;
 
 /**
@@ -14,7 +13,6 @@ import java.util.Objects;
  */
 @Entity
 @Table(name = "sn_file_blob")
-@Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
 public class SnFileBlob implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -25,7 +23,7 @@ public class SnFileBlob implements Serializable {
 
     @Lob
     @Column(name = "file_content")
-    private byte[] fileContent;
+    private Blob fileContent;
 
     @Column(name = "file_content_content_type")
     private String fileContentContentType;
@@ -43,16 +41,16 @@ public class SnFileBlob implements Serializable {
         this.id = id;
     }
 
-    public byte[] getFileContent() {
+    public Blob getFileContent() {
         return fileContent;
     }
 
-    public SnFileBlob fileContent(byte[] fileContent) {
+    public SnFileBlob fileContent(Blob fileContent) {
         this.fileContent = fileContent;
         return this;
     }
 
-    public void setFileContent(byte[] fileContent) {
+    public void setFileContent(Blob fileContent) {
         this.fileContent = fileContent;
     }
 

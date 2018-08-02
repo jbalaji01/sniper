@@ -1,7 +1,7 @@
 import { Component, OnInit, EventEmitter, Input, Output } from '@angular/core';
 import { HttpResponse, HttpEventType } from '@angular/common/http';
 import { JhiAlertService } from 'ng-jhipster';
-import { ITEMS_PER_PAGE, Principal } from '../../../shared';
+import { Principal } from '../../../shared';
 
 import { ExtTaskService } from '../ext-task.service';
 import { HttpHeaderResponse } from '@angular/common/http/src/response';
@@ -40,7 +40,7 @@ export class UploaderComponent implements OnInit {
       return '';
     }
 
-    return 'accept=".doc, .docx, .rtf"';
+    return '.doc, .docx, .rtf';
   }
 
   selectFile(event) {

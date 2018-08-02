@@ -1,0 +1,3231 @@
+diff --git a/src/main/java/com/neemshade/sniper/config/CacheConfiguration.java b/src/main/java/com/neemshade/sniper/config/CacheConfiguration.java
+index c11c415..158a26b 100644
+--- a/src/main/java/com/neemshade/sniper/config/CacheConfiguration.java
++++ b/src/main/java/com/neemshade/sniper/config/CacheConfiguration.java
+@@ -63,7 +63,6 @@ public class CacheConfiguration {
+             cm.createCache(com.neemshade.sniper.domain.SnFile.class.getName(), jcacheConfiguration);
+             cm.createCache(com.neemshade.sniper.domain.SnFile.class.getName() + ".patients", jcacheConfiguration);
+             cm.createCache(com.neemshade.sniper.domain.SnFile.class.getName() + ".tasks", jcacheConfiguration);
+-            cm.createCache(com.neemshade.sniper.domain.SnFileBlob.class.getName(), jcacheConfiguration);
+             cm.createCache(com.neemshade.sniper.domain.TaskGroup.class.getName(), jcacheConfiguration);
+             cm.createCache(com.neemshade.sniper.domain.TaskGroup.class.getName() + ".tasks", jcacheConfiguration);
+             cm.createCache(com.neemshade.sniper.domain.Task.class.getName(), jcacheConfiguration);
+diff --git a/src/main/java/com/neemshade/sniper/domain/SnFile.java b/src/main/java/com/neemshade/sniper/domain/SnFile.java
+index b5ff9d3..4abe411 100644
+--- a/src/main/java/com/neemshade/sniper/domain/SnFile.java
++++ b/src/main/java/com/neemshade/sniper/domain/SnFile.java
+@@ -82,7 +82,7 @@ public class SnFile implements Serializable {
+     @Column(name = "peck_order")
+     private Integer peckOrder;
+ 
+-    @OneToOne
++    @OneToOne(fetch = FetchType.LAZY)
+     @JoinColumn(unique = true)
+     private SnFileBlob snFileBlob;
+ 
+diff --git a/src/main/java/com/neemshade/sniper/domain/SnFileBlob.java b/src/main/java/com/neemshade/sniper/domain/SnFileBlob.java
+index e9ef0dd..75b1ba2 100644
+--- a/src/main/java/com/neemshade/sniper/domain/SnFileBlob.java
++++ b/src/main/java/com/neemshade/sniper/domain/SnFileBlob.java
+@@ -1,12 +1,11 @@
+ package com.neemshade.sniper.domain;
+ 
+ import com.fasterxml.jackson.annotation.JsonIgnore;
+-import org.hibernate.annotations.Cache;
+-import org.hibernate.annotations.CacheConcurrencyStrategy;
+ 
+ import javax.persistence.*;
+ 
+ import java.io.Serializable;
++import java.sql.Blob;
+ import java.util.Objects;
+ 
+ /**
+@@ -14,7 +13,6 @@ import java.util.Objects;
+  */
+ @Entity
+ @Table(name = "sn_file_blob")
+-@Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
+ public class SnFileBlob implements Serializable {
+ 
+     private static final long serialVersionUID = 1L;
+@@ -25,7 +23,7 @@ public class SnFileBlob implements Serializable {
+ 
+     @Lob
+     @Column(name = "file_content")
+-    private byte[] fileContent;
++    private Blob fileContent;
+ 
+     @Column(name = "file_content_content_type")
+     private String fileContentContentType;
+@@ -43,16 +41,16 @@ public class SnFileBlob implements Serializable {
+         this.id = id;
+     }
+ 
+-    public byte[] getFileContent() {
++    public Blob getFileContent() {
+         return fileContent;
+     }
+ 
+-    public SnFileBlob fileContent(byte[] fileContent) {
++    public SnFileBlob fileContent(Blob fileContent) {
+         this.fileContent = fileContent;
+         return this;
+     }
+ 
+-    public void setFileContent(byte[] fileContent) {
++    public void setFileContent(Blob fileContent) {
+         this.fileContent = fileContent;
+     }
+ 
+diff --git a/src/main/java/com/neemshade/sniper/repository/SnFileBlobRepository.java b/src/main/java/com/neemshade/sniper/repository/SnFileBlobRepository.java
+index b69c560..2de2eda 100644
+--- a/src/main/java/com/neemshade/sniper/repository/SnFileBlobRepository.java
++++ b/src/main/java/com/neemshade/sniper/repository/SnFileBlobRepository.java
+@@ -12,5 +12,5 @@ import org.springframework.data.jpa.repository.*;
+ @SuppressWarnings("unused")
+ @Repository
+ public interface SnFileBlobRepository extends JpaRepository<SnFileBlob, Long> {
+-	public SnFileBlob findTopBySnFileId(Long snFileId);
++	SnFileBlob findTopBySnFileId(Long snFileId);
+ }
+diff --git a/src/main/java/com/neemshade/sniper/service/ExtDownloaderService.java b/src/main/java/com/neemshade/sniper/service/ExtDownloaderService.java
+index ed286f7..e5b1b36 100644
+--- a/src/main/java/com/neemshade/sniper/service/ExtDownloaderService.java
++++ b/src/main/java/com/neemshade/sniper/service/ExtDownloaderService.java
+@@ -1,19 +1,19 @@
+ package com.neemshade.sniper.service;
+ 
+-import java.io.ByteArrayOutputStream;
++import java.io.InputStream;
+ import java.io.OutputStream;
++import java.sql.Blob;
+ import java.util.ArrayList;
+ import java.util.HashMap;
+-import java.util.Iterator;
+ import java.util.List;
+ import java.util.Map;
++import java.util.Set;
+ import java.util.zip.ZipEntry;
+ import java.util.zip.ZipOutputStream;
+ 
+-import org.apache.poi.ss.format.CellFormatType;
++import org.apache.commons.io.IOUtils;
+ import org.apache.poi.ss.usermodel.Cell;
+ import org.apache.poi.ss.usermodel.CellStyle;
+-import org.apache.poi.ss.usermodel.Color;
+ import org.apache.poi.ss.usermodel.FillPatternType;
+ import org.apache.poi.ss.usermodel.Font;
+ import org.apache.poi.ss.usermodel.HorizontalAlignment;
+@@ -21,7 +21,6 @@ import org.apache.poi.ss.usermodel.IndexedColors;
+ import org.apache.poi.ss.usermodel.Row;
+ import org.apache.poi.ss.usermodel.Sheet;
+ import org.apache.poi.ss.usermodel.Workbook;
+-import org.apache.poi.xssf.usermodel.XSSFFont;
+ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+ import org.springframework.beans.factory.annotation.Autowired;
+ import org.springframework.stereotype.Service;
+@@ -33,22 +32,15 @@ import com.neemshade.sniper.domain.SnFile;
+ import com.neemshade.sniper.domain.SnFileBlob;
+ import com.neemshade.sniper.domain.Task;
+ import com.neemshade.sniper.domain.enumeration.ChosenFactor;
+-import com.neemshade.sniper.repository.SnFileBlobRepository;
+ import com.neemshade.sniper.service.ExtTaskService.BUNDLE_FIELD;
+ 
+ @Service
+ @Transactional
+ public class ExtDownloaderService {
+-	
++
+ 	@Autowired
+ 	private TaskService taskService;
+-	
+-	@Autowired
+-	private SnFileService snFileService;
+-	
+-	@Autowired
+-	private SnFileBlobRepository snFileBlobRepository;
+-	
++
+ 	private Font boldFont;
+ 	private CellStyle cellStyle;
+ 
+@@ -56,32 +48,22 @@ public class ExtDownloaderService {
+ 	 * invoke appropriate module to download files
+ 	 * @param source - taskGroup or task
+ 	 * @param id - non-zero for existing taskGroup or task
+-	 * @param selectedIds 
++	 * @param selectedIds
+ 	 * @throws Exception
+ 	 */
+-	public byte[] downloadFiles(String source, Long id, boolean isEditorOnly, String selectedIds) throws Exception {
+-		if(source == null)
+-		{
++	public void downloadFiles(String source, Long id, boolean isEditorOnly, String selectedIds, OutputStream outputStream) throws Exception {
++		if(source == null) {
+ 			throw new Exception("Invalid source param");
+-		}
+-		
+-		if((source.equalsIgnoreCase("taskGroup") || source.equalsIgnoreCase("editorOnly")) && id != null && id > 0)
+-		{
+-			return downloadFilesOfTaskGroup(id, isEditorOnly);
+-		}
+-		
+-		if(source.equalsIgnoreCase("task") && id != null && id > 0)
+-		{
++		} else if((source.equalsIgnoreCase("taskGroup") || source.equalsIgnoreCase("editorOnly")) && id != null && id > 0) {
++			downloadFilesOfTaskGroup(id, isEditorOnly, outputStream);
++		} else if(source.equalsIgnoreCase("task") && id != null && id > 0) {
+ 			Task task = taskService.findOne(id);
+-			return downloadFilesOfTask(task, isEditorOnly);
+-		}
+-		
+-		if(source.equalsIgnoreCase("selectedTasks") && selectedIds != null)
+-		{
+-			return downloadFilesOfSelectedTasks(selectedIds, isEditorOnly);
+-		}
+-		
+-		throw new Exception("Invalid data " + source + " " + id + " " + selectedIds);
++			downloadFilesOfTask(task, isEditorOnly, outputStream);
++		} else if(source.equalsIgnoreCase("selectedTasks") && selectedIds != null) {
++			downloadFilesOfSelectedTasks(selectedIds, isEditorOnly, outputStream);
++		} else {
++            throw new Exception("Invalid data " + source + " " + id + " " + selectedIds);
++        }
+ 	}
+ 
+ 	/**
+@@ -90,45 +72,41 @@ public class ExtDownloaderService {
+ 	 * @param selectedIds
+ 	 * @return
+ 	 */
+-	private byte[] downloadFilesOfSelectedTasks(String selectedIds, boolean isEditorOnly) throws Exception {
+-		if(selectedIds == null) return null;
+-		
++	private void downloadFilesOfSelectedTasks(String selectedIds, boolean isEditorOnly, OutputStream outputStream) throws Exception {
++		if(selectedIds == null) return;
++
+ 		String[] selectedIdArr = selectedIds.split(",");
+-		
+-		ByteArrayOutputStream baos = new ByteArrayOutputStream();
+-	    ZipOutputStream zos = new ZipOutputStream(baos);
+-	    
++
++	    ZipOutputStream zos = new ZipOutputStream(outputStream);
++
+ 	    for (String selectedId : selectedIdArr) {
+ 	    	Long taskId = Long.parseLong(selectedId);
+ 	    	Task task = taskService.findOne(taskId);
+ 			downloadFilesOfTask(task, zos, isEditorOnly);
+ 		}
+-	    
++
+ 	    zos.closeEntry();
+ 	    zos.close();
+-	    return baos.toByteArray();
+ 	}
+ 
+ 	/**
+ 	 * browse all tasks of this group and collect the files as zip
+ 	 * @param id
+ 	 * @return
+-	 * @throws Exception 
++	 * @throws Exception
+ 	 */
+-	private byte[] downloadFilesOfTaskGroup(Long taskGroupId, boolean isEditorOnly) throws Exception {
+-		ByteArrayOutputStream baos = new ByteArrayOutputStream();
+-	    ZipOutputStream zos = new ZipOutputStream(baos);
+-	    
++	private void downloadFilesOfTaskGroup(Long taskGroupId, boolean isEditorOnly, OutputStream outputStream) throws Exception {
++	    ZipOutputStream zos = new ZipOutputStream(outputStream);
++
+ 	    downloadFilesOfTaskGroup(taskGroupId, zos, isEditorOnly);
+-	    
++
+ 	    zos.closeEntry();
+ 	    zos.close();
+-	    return baos.toByteArray();
+ 	}
+ 
+ 	private void downloadFilesOfTaskGroup(Long taskGroupId, ZipOutputStream zos, boolean isEditorOnly) throws Exception {
+ 		List<Task> tasks = taskService.findTasksOfTaskGroup(taskGroupId);
+-		
++
+ 		for (Task task : tasks) {
+ 			downloadFilesOfTask(task, zos, isEditorOnly);
+ 		}
+@@ -138,51 +116,52 @@ public class ExtDownloaderService {
+ 	 * collect all the files in zip format
+ 	 * @param taskId
+ 	 * @return
+-	 * @throws Exception 
++	 * @throws Exception
+ 	 */
+-	private byte[] downloadFilesOfTask(Task task, boolean isEditorOnly) throws Exception {
+-		ByteArrayOutputStream baos = new ByteArrayOutputStream();
+-	    ZipOutputStream zos = new ZipOutputStream(baos);
+-	    
++	private void downloadFilesOfTask(Task task, boolean isEditorOnly, OutputStream outputStream) throws Exception {
++	    ZipOutputStream zos = new ZipOutputStream(outputStream);
++
+ 	    downloadFilesOfTask(task, zos, isEditorOnly);
+-	    
++
+ 	    zos.closeEntry();
+ 	    zos.close();
+-	    return baos.toByteArray();
+ 	}
+ 
+ 	/**
+ 	 * this method may be called by both task and taskGroup zip generators
+ 	 * @param taskId
+ 	 * @param zos
+-	 * @throws Exception 
++	 * @throws Exception
+ 	 */
+ 	private void downloadFilesOfTask(Task task, ZipOutputStream zos, boolean isEditorOnly) throws Exception {
+-		
++
+ 		if(task == null) return;
+-		
++
+ 		String path = "task_" + task.getId() + "/";
+ 		zos.putNextEntry(new ZipEntry(path));
+-		
++
+ 		// fetch all the files of this task and write them into zos
+-		List<SnFile> snFiles = snFileService.findSnFilesOfTask(task.getId());
+-		
++		Set<SnFile> snFiles = task.getSnFiles();
++
+ 		for (SnFile snFile : snFiles) {
+-			
++
+ 			if(!allowedSnFile(task, snFile, isEditorOnly)) continue;
+-			
++
+ 			String filename = snFile.getFileName() + "." + snFile.getFileExt();
+-			
++
+ 			// get the blob of this snFile
+-			SnFileBlob snFileBlob = snFileBlobRepository.findTopBySnFileId(snFile.getId());
+-			
+-			if(snFileBlob == null || snFileBlob.getFileContent() == null)
++			SnFileBlob snFileBlob = snFile.getSnFileBlob();
++
++            Blob fileContent = snFileBlob.getFileContent();
++            if(fileContent == null)
+ 				throw new Exception("Unable to read " + filename);
+-			
++
+ 			ZipEntry entry = new ZipEntry(path + filename);
+-			entry.setSize(snFileBlob.getFileContent().length);
++			entry.setSize(fileContent.length());
+ 			zos.putNextEntry(entry);
+-			zos.write(snFileBlob.getFileContent());
++            InputStream binaryStream = fileContent.getBinaryStream();
++            IOUtils.copyLarge(binaryStream, zos);
++            IOUtils.closeQuietly(binaryStream);
+ 		}
+ 	}
+ 
+@@ -196,27 +175,27 @@ public class ExtDownloaderService {
+ 	 */
+ 	private boolean allowedSnFile(Task task, SnFile snFile, boolean isEditorOnly) {
+ 		if(task == null || snFile == null) return false;
+-		
+-		if(isEditorOnly) 
++
++		if(isEditorOnly)
+ 		{
+ 			try {
+ 				if(snFile.isIsInput()) return false;
+-				
++
+ 				return task.getEditor().getId() == snFile.getUploader().getId();
+ 			} catch(Exception ex) {
+ 				return false;
+ 			}
+ 		}
+-		
++
+ 		return true;
+-			
++
+ 	}
+ 
+ 	/**
+ 	 * collect all tasks and snFiles of the given taskGroups
+ 	 * compose spread sheets classifying hospitals and doctors
+-	 * audio length, ws, wos counts are listed and summed 
+-	 * @param os 
++	 * audio length, ws, wos counts are listed and summed
++	 * @param os
+ 	 * @param selectedTaskGroupIds
+ 	 * @throws Exception
+ 	 */
+@@ -224,47 +203,47 @@ public class ExtDownloaderService {
+ 		if(selectedTaskGroupIds == null || "".equals(selectedTaskGroupIds)) {
+ 			return;
+ 		}
+-		
++
+ 		Map<ExtTaskService.BUNDLE_FIELD, Map<Object, List<SnFile>>> snCountMap = new HashMap<ExtTaskService.BUNDLE_FIELD, Map<Object, List<SnFile>>>();
+-		
++
+ 		String[] selectedIdArr = selectedTaskGroupIds.split(",");
+-		
++
+ 		for (String selectedId : selectedIdArr) {
+ 	    	Long taskGroupId = Long.parseLong(selectedId);
+-	    	
++
+ 	    	if(taskGroupId == null || taskGroupId <= 0) continue;
+-	    	
++
+ 	    	List<Task> tasks = taskService.findTasksOfTaskGroup(taskGroupId);
+-	    	
++
+ 	    	if(tasks == null) continue;
+-	    	
++
+ 	    	for (Task task : tasks) {
+-	    		
++
+ 	    		if(task == null) continue;
+-	    		
+-				List<SnFile> snFiles = snFileService.findSnFilesOfTask(task.getId());
+-				
++
++				Set<SnFile> snFiles = task.getSnFiles();
++
+ 				if(snFiles == null) continue;
+-				
++
+ 				for(SnFile snFile : snFiles) {
+ 					if(snFile == null) continue;
+-					
++
+ 					appendData(snCountMap, task, snFile);
+ 				}
+ 			}
+ 		}
+-		
++
+ 		Workbook wb = generateXlsx(selectedTaskGroupIds, snCountMap);
+ 		wb.write(os);
+ 	}
+ 
+-	
++
+ 
+ 	/**
+ 	 * get hospital and doctor from task.  place that in the map
+ 	 * @param snCountMap
+ 	 * @param task
+-	 * @param snFile 
++	 * @param snFile
+ 	 */
+ 	private void appendData(Map<BUNDLE_FIELD, Map<Object, List<SnFile>>> snCountMap, Task task, SnFile snFile) {
+ 		appendData(snCountMap, task.getHospital(), snFile, ExtTaskService.BUNDLE_FIELD.HOSPITAL);
+@@ -274,117 +253,117 @@ public class ExtDownloaderService {
+ 	private void appendData(Map<BUNDLE_FIELD, Map<Object, List<SnFile>>> snCountMap, Object object, SnFile snFile,
+ 			BUNDLE_FIELD field) {
+ 		if(snCountMap == null || snFile == null) return;
+-		
++
+ 		if(!snCountMap.containsKey(field)) {
+ 			snCountMap.put(field, new HashMap<Object, List<SnFile>>());
+ 		}
+-		
++
+ 		Map<Object, List<SnFile>> fieldMap = snCountMap.get(field);
+-		
++
+ 		if(object == null) {
+ 			object = "_Unknown";
+ 		}
+-		
++
+ 		if(!fieldMap.containsKey(object)) {
+ 			fieldMap.put(object, new ArrayList<SnFile>());
+ 		}
+-		
++
+ 		fieldMap.get(object).add(snFile);
+ 	}
+ 
+ 	/**
+ 	 * calculate total counts and place them in sheets
+-	 * @param selectedTaskGroupIds 
+-	 * @param os 
++	 * @param selectedTaskGroupIds
++	 * @param os
+ 	 * @param snCountMap
+-	 * @return 
++	 * @return
+ 	 */
+ 	private Workbook generateXlsx(String selectedTaskGroupIds, Map<BUNDLE_FIELD, Map<Object, List<SnFile>>> snCountMap) {
+ 		Workbook wb = new XSSFWorkbook();
+-		
++
+ 		setBoldFont(wb);
+-		
++
+ 		generateInfoSheet(wb, selectedTaskGroupIds);
+ 		generateHospitalsSheet(wb, snCountMap);
+ 		generateDoctorsSheet(wb, snCountMap);
+-		
++
+ //		autoSizeColumns(wb);
+-		
++
+ 		return wb;
+ 	}
+-	
++
+ 	public void autoSizeColumns(Workbook workbook) {
+ 	    int numberOfSheets = workbook.getNumberOfSheets();
+ 	    for (int i = 0; i < numberOfSheets; i++) {
+ 	        Sheet sheet = workbook.getSheetAt(i);
+-	        
++
+ 	            Row row = null;
+ 	            for(int j = 0; j < sheet.getPhysicalNumberOfRows(); j++) {
+ 	            	row = sheet.getRow(j);
+ 	            	if(row != null) break;
+ 	            }
+-	            		
++
+ 	            if(row == null) continue;
+-	            
++
+ 	            for(int k = 0; k < row.getPhysicalNumberOfCells(); k++) {
+ //	    	    	Cell cell = getCell(row, k);
+ //	    	    	if(cell == null) continue;
+-	    	    	
++
+ 	    	    	sheet.autoSizeColumn(k);
+ 	    	    }
+-	            
++
+ //	            Iterator<Cell> cellIterator = row.cellIterator();
+-//	            
++//
+ //	            while (cellIterator.hasNext()) {
+ //	                Cell cell = cellIterator.next();
+ //	                int columnIndex = cell.getColumnIndex();
+ //	                sheet.autoSizeColumn(columnIndex);
+ //	            }
+-	        
++
+ 	    }
+ 	}
+ 
+ 	private void generateInfoSheet(Workbook wb, String selectedTaskGroupIds) {
+-		
++
+ 		Sheet sheet = wb.createSheet("Info");
+-		
++
+ 		int nextRow = 4;
+ 		int nextCol = 2;
+-		
++
+ 		Row r = sheet.getRow(nextRow);
+ 		if (r == null) {
+ 		    r = sheet.createRow(nextRow);
+ 		}
+ 		nextRow++;
+-		
++
+ 		Cell c = getCell(r, nextCol);
+ 		c.setCellValue("taskGroupIds");
+-		
++
+ 		nextCol++;
+-		
++
+ 		c = getCell(r, nextCol);
+ 		c.setCellValue(selectedTaskGroupIds);
+-		
++
+ 		nextCol++;
+ 	}
+ 
+ 	private void generateHospitalsSheet(Workbook wb, Map<BUNDLE_FIELD, Map<Object, List<SnFile>>> snCountMap) {
+-		
++
+ 		Map<Object, List<SnFile>> hospitalMap = snCountMap.get(ExtTaskService.BUNDLE_FIELD.HOSPITAL);
+-		
++
+ 		if(hospitalMap == null) {
+ 			return;
+ 		}
+-		
++
+ 		Sheet sheet = wb.createSheet(ExtTaskService.BUNDLE_FIELD.HOSPITAL.name());
+-		
++
+ 		int nextRow = 4;
+-		
++
+ 		nextRow = addHeader(sheet, nextRow);
+-				
++
+ 		for(Object object : hospitalMap.keySet()) {
+ 			if(object == null) continue;
+-			
++
+ 			String hospitalName = "";
+ 			if(object instanceof String) {
+ 				hospitalName = (String) object;
+@@ -397,15 +376,15 @@ public class ExtDownloaderService {
+ 					hospitalName = "Invalid";
+ 				}
+ 			}
+-			
++
+ 			List<SnFile> snFiles = hospitalMap.get(object);
+-			
++
+ 			SnFile aggratedSnFile = calculateAggratedSnFile(snFiles);
+ 			nextRow = addRow(sheet, nextRow, hospitalName, aggratedSnFile, false );
+-			
++
+ 			nextRow++;
+ 		}
+-		
++
+ 	}
+ 
+ 	/**
+@@ -414,22 +393,22 @@ public class ExtDownloaderService {
+ 	 * @param snCountMap
+ 	 */
+ 	private void generateDoctorsSheet(Workbook wb, Map<BUNDLE_FIELD, Map<Object, List<SnFile>>> snCountMap) {
+-		
++
+ 		Map<Object, List<SnFile>> doctorMap = snCountMap.get(ExtTaskService.BUNDLE_FIELD.DOCTOR);
+-		
++
+ 		if(doctorMap == null) {
+ 			return;
+ 		}
+-		
++
+ 		Sheet sheet = wb.createSheet(ExtTaskService.BUNDLE_FIELD.DOCTOR.name());
+-		
++
+ 		int nextRow = 4;
+-		
++
+ 		nextRow = addHeader(sheet, nextRow);
+-				
++
+ 		for(Object object : doctorMap.keySet()) {
+ 			if(object == null) continue;
+-			
++
+ 			String doctorName = "";
+ 			if(object instanceof String) {
+ 				doctorName = (String) object;
+@@ -442,42 +421,42 @@ public class ExtDownloaderService {
+ 					doctorName = "Invalid";
+ 				}
+ 			}
+-			
++
+ 			List<SnFile> snFiles = doctorMap.get(object);
+-			
++
+ 			SnFile aggratedSnFile = calculateAggratedSnFile(snFiles);
+ 			nextRow = addRow(sheet, nextRow, doctorName, aggratedSnFile, true );
+-			
++
+ 			for(SnFile snFile : snFiles) {
+ 				if(snFile.getChosenFactor() == ChosenFactor.NONE) continue;
+-				
++
+ 				switch(snFile.getChosenFactor()) {
+ 				case TIME_FRAME :
+ 						snFile.setWsFinalLineCount(0);
+ 						snFile.setWosFinalLineCount(0);
+ 						break;
+-						
++
+ 				case WS_LINE_COUNT :
+ 						snFile.setFinalTimeFrame(0);
+ 						snFile.setWosFinalLineCount(0);
+ 						break;
+-						
++
+ 				case WOS_LINE_COUNT :
+ 						snFile.setFinalTimeFrame(0);
+ 						snFile.setWsFinalLineCount(0);
+ 						break;
+ 				}
+-				
+-				
++
++
+ 				nextRow = addRow(sheet, nextRow, snFile.getFileName() + "." + snFile.getFileExt(), snFile, false );
+ 			}
+-			
++
+ 			nextRow++;
+ 		}
+-		
++
+ 	}
+-	
+-	
++
++
+ 	/*
+ 	 * add data from snFiles and generate resultant snFile
+ 	 */
+@@ -486,63 +465,63 @@ public class ExtDownloaderService {
+ 		aggratedSnFile.setFinalTimeFrame(0);
+ 		aggratedSnFile.setWsFinalLineCount(0);
+ 		aggratedSnFile.setWosFinalLineCount(0);
+-		
++
+ 		for (SnFile snFile : snFiles) {
+ 			switch(snFile.getChosenFactor()) {
+ 			case TIME_FRAME :
+ 					aggratedSnFile.setFinalTimeFrame(
+-							aggratedSnFile.getFinalTimeFrame() + 
++							aggratedSnFile.getFinalTimeFrame() +
+ 							(snFile.getFinalTimeFrame() == null ? 0 : snFile.getFinalTimeFrame())
+ 							);
+ 					break;
+-					
++
+ 			case WS_LINE_COUNT :
+ 					aggratedSnFile.setWsFinalLineCount(
+-							aggratedSnFile.getWsFinalLineCount() + 
++							aggratedSnFile.getWsFinalLineCount() +
+ 							(snFile.getWsFinalLineCount() == null ? 0 : snFile.getWsFinalLineCount())
+ 							);
+ 					break;
+-					
++
+ 			case WOS_LINE_COUNT :
+ 					aggratedSnFile.setWosFinalLineCount(
+-							aggratedSnFile.getWosFinalLineCount() + 
++							aggratedSnFile.getWosFinalLineCount() +
+ 							(snFile.getWosFinalLineCount() == null ? 0 : snFile.getWosFinalLineCount())
+ 							);
+ 					break;
+ 			}
+ 		}
+-		
++
+ 		return aggratedSnFile;
+ 	}
+ 
+ 	private int addHeader(Sheet sheet, int nextRow) {
+ 		Row r = getRow(sheet, nextRow);
+ 		nextRow++;
+-		
++
+ 		int nextCol = 2;
+-		
++
+ 		Cell c = getCell(r, nextCol);
+ 		c.setCellValue("Name");
+ 		nextCol++;
+-		
++
+ 		c = getCell(r, nextCol);
+ 		c.setCellValue("Audio time");
+ 		nextCol++;
+-		
++
+ 		c = getCell(r, nextCol);
+ 		c.setCellValue("Ws");
+ 		nextCol++;
+-		
++
+ 		c = getCell(r, nextCol);
+ 		c.setCellValue("Wos");
+ 		nextCol++;
+-		
++
+ 		markRowBold(r);
+-		
++
+ 		return ++nextRow;
+ 	}
+ 
+-	
++
+ 	/**
+ 	 * create a row in the sheet with the given data
+ 	 * @param sheet
+@@ -555,42 +534,42 @@ public class ExtDownloaderService {
+ 	private int addRow(Sheet sheet, int nextRow, String displayName, SnFile snFile, boolean isSpecialRow) {
+ 		Row r = getRow(sheet, nextRow);
+ 		nextRow++;
+-		
+ 
+-		
++
++
+ 		int nextCol = 2;
+-		
++
+ 		Cell c = getCell(r, nextCol);
+ 		c.setCellValue(displayName);
+-		
++
+ 		nextCol++;
+-		
++
+ 		if(snFile.getFinalTimeFrame() != null && snFile.getFinalTimeFrame() > 0) {
+ 			c = getCell(r, nextCol);
+ 			c.setCellValue(snFile.getFinalTimeFrame());
+ 		}
+-		
++
+ 		nextCol++;
+-		
++
+ 		if(snFile.getWsFinalLineCount() != null && snFile.getWsFinalLineCount() > 0) {
+ 			c = getCell(r, nextCol);
+ 			c.setCellValue(snFile.getWsFinalLineCount());
+ 		}
+-		
++
+ 		nextCol++;
+-		
++
+ 		if(snFile.getWosFinalLineCount() != null && snFile.getWosFinalLineCount() > 0) {
+ 			c = getCell(r, nextCol);
+ 			c.setCellValue(snFile.getWosFinalLineCount());
+ 		}
+-		
++
+ 		nextCol++;
+-		
++
+ 		if(isSpecialRow) {
+ 			markRowBold(r);
+ 		}
+-		
+-		
++
++
+ 		return nextRow;
+ 	}
+ 
+@@ -601,17 +580,17 @@ public class ExtDownloaderService {
+ 		}
+ 		return r;
+ 	}
+-	
++
+ 	public Cell getCell(Row r, int nextCol) {
+ 		Cell c = r.getCell(nextCol);
+ 		if(c == null) {
+ 			c = r.createCell(nextCol);
+ 		}
+-		
++
+ 		return c;
+ 	}
+-	
+-	
++
++
+ 	private void setBoldFont(Workbook wb) {
+ 		Font defaultFont= wb.createFont();
+ 	    defaultFont.setFontHeightInPoints((short)10);
+@@ -627,10 +606,10 @@ public class ExtDownloaderService {
+ 	    font.setBold(true);
+ 	    font.setItalic(false);
+ 	    boldFont = font;
+-	    
++
+ 	    cellStyle = wb.createCellStyle();
+ 	}
+-	
++
+ 	public void markRowBold(Row row) {
+ 		CellStyle style = row.getRowStyle();
+ 		if(style == null) {
+@@ -642,11 +621,11 @@ public class ExtDownloaderService {
+ 	    style.setFillPattern(FillPatternType.FINE_DOTS);
+ 	    style.setAlignment(HorizontalAlignment.CENTER);
+ 	    style.setFont(boldFont);
+-	    
++
+ 	    for(int i = 0; i < row.getPhysicalNumberOfCells(); i++) {
+ 	    	Cell cell = getCell(row, i);
+ 	    	if(cell == null) continue;
+-	    	
++
+ 	    	cell.setCellStyle(style);
+ 	    }
+ 	}
+diff --git a/src/main/java/com/neemshade/sniper/service/ExtTaskService.java b/src/main/java/com/neemshade/sniper/service/ExtTaskService.java
+index 931903e..d1e0e94 100644
+--- a/src/main/java/com/neemshade/sniper/service/ExtTaskService.java
++++ b/src/main/java/com/neemshade/sniper/service/ExtTaskService.java
+@@ -1,10 +1,9 @@
+ package com.neemshade.sniper.service;
+ 
++import java.sql.Blob;
+ import java.time.Instant;
+ import java.util.ArrayList;
+ import java.util.HashMap;
+-import java.util.HashSet;
+-import java.util.LinkedHashMap;
+ import java.util.List;
+ import java.util.Map;
+ import java.util.Optional;
+@@ -13,6 +12,7 @@ import java.util.Set;
+ import javax.persistence.EntityManager;
+ import javax.persistence.PersistenceContext;
+ 
++import com.neemshade.sniper.service.dto.SnFileDTO;
+ import org.slf4j.Logger;
+ import org.slf4j.LoggerFactory;
+ import org.springframework.beans.factory.annotation.Autowired;
+@@ -40,67 +40,67 @@ import com.neemshade.sniper.security.SecurityUtils;
+ 
+ @Service
+ @Transactional
+-public class ExtTaskService {	
+-	
++public class ExtTaskService {
++
+ 	private final Logger log = LoggerFactory.getLogger(ExtTaskService.class);
+-	
++
+ 	@Autowired
+     private TaskGroupRepository taskGroupRepository;
+-	
++
+ 	@Autowired
+ 	private TaskService taskService;
+-	
++
+ 	@Autowired
+ 	private SnFileService snFileService;
+-	
++
+ 	@Autowired
+ 	private TaskHistoryRepository taskHistoryRepository;
+-	
++
+ 	@Autowired
+ 	private UserRepository userRepository;
+-	
++
+ 	@Autowired
+ 	private UserInfoRepository userInfoRepository;
+-	
++
+ 	@Autowired
+ 	private CompanyRepository companyRepository;
+-	
++
+ 	@Autowired
+ 	private HospitalRepository hospitalRepository;
+-	
++
+ 	@Autowired
+ 	private DoctorRepository doctorRepository;
+-	
++
+ 	@Autowired
+ 	private PatientRepository patientRepository;
+-	
++
+ 	@Autowired
+ 	private ExtUploaderService extUploaderService;
+-	
++
+ 	@PersistenceContext
+ 	private EntityManager em;
+-	
++
+ 	public enum TASK_UPDATE_PARAM {
+ 	    TASKS ("tasks"),
+ 	    HISTORY_OBE ("historyObe"),
+ 	    FIELD_NAMES ("fieldNames");
+-		
++
+ 		private String field;
+-		
++
+ 		public String getField()
+ 		{
+ 			return field;
+ 		}
+-	    
++
+ 	 // enum constructor - cannot be public or protected
+ 	    private TASK_UPDATE_PARAM(String field)
+ 	    {
+ 	        this.field = field;
+ 	    }
+ 	}
+-	
+-	
+-	
++
++
++
+ 	public  static enum BUNDLE_FIELD {
+ 		USER ("USER"),
+ 	    COMPANY ("COMPANY"),
+@@ -112,32 +112,32 @@ public class ExtTaskService {
+ 	    EDITOR ("EDITOR"),
+ 	    MANAGER ("MANAGER"),
+ 	    DIRECTOR ("DIRECTOR");
+-		
++
+ 		private String field;
+-		
++
+ 		public String getField()
+ 		{
+ 			return field;
+ 		}
+-	    
++
+ 	 // enum constructor - cannot be public or protected
+ 	    private BUNDLE_FIELD(String field)
+ 	    {
+ 	        this.field = field;
+ 	    }
+ 	}
+-	
+-	
+-	
+-	
++
++
++
++
+ 
+     public ExtTaskService() {
+     }
+-    
++
+     /**
+      * find the userInfo of the logged in user
+      * @return
+-     * @throws Exception 
++     * @throws Exception
+      */
+     public UserInfo fetchLoggedInUserInfo() throws Exception {
+     	try {
+@@ -156,10 +156,10 @@ public class ExtTaskService {
+ 
+     // retrieve taskgroup in range given date range
+ 	public Page<TaskGroup> findTaskGroupByDates(Instant fromDate, Instant toDate, Pageable pageable) {
+-		
++
+ 		return taskGroupRepository.findAllByCreatedTimeBetweenOrderByCreatedTimeDesc(fromDate, toDate, pageable);
+ 	}
+-	
++
+ 
+ 	/**
+ 	 * multi handling fn.  gets tasks based on source.  it could be taskgroup's tasks, active tasks or all tasks of user
+@@ -172,8 +172,8 @@ public class ExtTaskService {
+ 	 * @throws Exception
+ 	 */
+ 	public Page<Task> findTasks(
+-			String source, Long taskGroupId, 
+-			Instant fromDate, Instant toDate, Pageable pageable) 
++			String source, Long taskGroupId,
++			Instant fromDate, Instant toDate, Pageable pageable)
+ 					throws Exception {
+ 		if(source == null || "".equals(source))
+ 			throw new Exception("Invalid source " + source);
+@@ -184,32 +184,32 @@ public class ExtTaskService {
+ 				fromDate,
+ 				toDate,
+ 				pageable);
+-		
++
+ 		if(source.equals("activeTasks"))
+ 			return taskService.findActiveTasksOfUser(
+ 				fromDate,
+ 				toDate,
+ 				pageable);
+-		
++
+ 		if(source.equals("allTasks"))
+ 			return taskService.findAllTasksOfUser(
+ 				fromDate,
+ 				toDate,
+ 				pageable);
+-		
++
+ 		throw new Exception("Invalid source " + source);
+ 	}
+-	
+-	
++
++
+ 	public Map<BUNDLE_FIELD, Object> fetchBundle() {
+ 		Map<BUNDLE_FIELD, Object> map = new HashMap<BUNDLE_FIELD, Object>();
+-		
++
+ 		map.put(BUNDLE_FIELD.COMPANY, companyRepository.findAllByOrderByCompanyName());
+ 		map.put(BUNDLE_FIELD.HOSPITAL, hospitalRepository.findAllByOrderByHospitalName());
+ 		map.put(BUNDLE_FIELD.DOCTOR, doctorRepository.findAllByOrderByDoctorName());
+ //		map.put(BUNDLE_FIELD.PATIENT, patientRepository.findAllByOrderByPatientName());
+ 		map.put(BUNDLE_FIELD.USER, userInfoRepository.findAllByOrderByEmpCode());
+-		
++
+ 		return map;
+ 	}
+ 
+@@ -217,69 +217,69 @@ public class ExtTaskService {
+ 	 * duplicate all the tasks.  If 3 tasks are given, there will be 3 more copies of these given tasks
+ 	 * @param tasks
+ 	 * @return
+-	 * @throws Exception 
++	 * @throws Exception
+ 	 */
+ 	public String cloneTasks(List<Task> tasks) throws Exception {
+-		
++
+ 		if(tasks == null || tasks.size() <= 0)
+         {
+         	throw new Exception("Error! empty tasks");
+         }
+-		
++
+ 		TaskHistory historyObe = new TaskHistory();
+ 		historyObe.setTaskStatus(TaskStatus.CREATED);
+-		
++
+ 		for (Task givenTask : tasks) {
+ 			Task newTask = createTask(givenTask.getTaskGroup(), givenTask.getPeckOrder() + 5, null);
+ 			xerox(givenTask, newTask);
+ 			xeroxFiles(givenTask, newTask);
+ 			taskService.save(newTask);
+-			
++
+ 			historyObe.setNotes("Cloned from Task " + givenTask.getId());
+ 			createTaskHistory(newTask, historyObe);
+ 		}
+ 
+ 		return "{ \"msg\" : \"Cloned " + tasks.size() + " tasks.  \" }";
+ 	}
+-	
++
+ 	/**
+ 	 * merge tasks into one task.  For eg, if 3 tasks are given, one new task is created
+ 	 * the new task will have data from the first task out of the given list
+ 	 * all 3 given tasks will be marked inActive with the status Merged
+ 	 * @param tasks
+ 	 * @return
+-	 * @throws Exception 
++	 * @throws Exception
+ 	 */
+ 	public String mergeTasks(List<Task> tasks) throws Exception {
+ 		if(tasks == null || tasks.size() <= 1)
+         {
+         	throw new Exception("Error! too few tasks");
+         }
+-		
++
+ 		Task firstTask = tasks.get(0);
+ 		Task newTask = createTask(firstTask.getTaskGroup(), firstTask.getPeckOrder() + 5, null);
+ 		xerox(firstTask, newTask);
+-		
++
+ 		TaskHistory historyObe = new TaskHistory();
+ 		historyObe.setTaskStatus(TaskStatus.MERGED);
+ 		historyObe.setNotes("Merged into Task " + newTask.getId());
+-		
++
+ 		String taskIds = "";
+-		
++
+ 		for (Task givenTask : tasks) {
+-			
++
+ 			xeroxFiles(givenTask, newTask);
+-			
++
+ 			givenTask.setIsActive(false);
+ 			givenTask.setTaskStatus(TaskStatus.MERGED);
+ 			taskService.save(givenTask);
+ 			createTaskHistory(givenTask, historyObe);
+-			
++
+ 			taskIds += ("".equals(taskIds) ? "" : ", ") + givenTask.getId();
+ 		}
+-		
++
+ 		taskService.save(newTask);
+-		
++
+ 		historyObe.setTaskStatus(TaskStatus.CREATED);
+ 		historyObe.setNotes("Merged from Tasks " + taskIds);
+ 		createTaskHistory(newTask, historyObe);
+@@ -287,7 +287,7 @@ public class ExtTaskService {
+ 		return "{ \"msg\" : \"Merged " + tasks.size() + " tasks.  New Task id = " + newTask.getId() + "  \" }";
+ 	}
+ 
+-	
++
+ 
+ 	/**
+ 	 * copy data from source to dest
+@@ -300,7 +300,7 @@ public class ExtTaskService {
+ 		destTask.setHasPMSignedOff(sourceTask.isHasPMSignedOff());
+ 		destTask.setIsActive(sourceTask.isIsActive());
+ 		destTask.setNotes(sourceTask.getNotes());
+-		
++
+ 		destTask.setCompany(sourceTask.getCompany());
+ 		destTask.setOwner(sourceTask.getOwner());
+ 		destTask.setTranscript(sourceTask.getTranscript());
+@@ -309,34 +309,34 @@ public class ExtTaskService {
+ 		destTask.setDoctor(sourceTask.getDoctor());
+ 		destTask.setHospital(sourceTask.getHospital());
+ 	}
+-	
++
+ 	/**
+ 	 * copy files from sourceTask into destTask
+ 	 * @param sourceTask
+ 	 * @param destTask
+-	 * @throws Exception 
++	 * @throws Exception
+ 	 */
+ 	private void xeroxFiles(Task sourceTask, Task destTask) throws Exception {
+-		List<SnFile> sourceSnFiles = snFileService.findSnFilesOfTask(sourceTask.getId());
++		Set<SnFile> sourceSnFiles = sourceTask.getSnFiles();
+ 		List<SnFile> destSnFiles = new ArrayList<SnFile>();
+-		
++
+ 		for (SnFile sourceSnFile : sourceSnFiles) {
+-			SnFile destSnFile = extUploaderService.createSnFile(
+-					sourceSnFile.getSnFileBlob().getFileContent(), sourceSnFile.isIsInput());
++            Blob blob = sourceSnFile.getSnFileBlob().getFileContent();
++            SnFile destSnFile = extUploaderService.createSnFile(blob.getBinaryStream(), blob.length(), sourceSnFile.isIsInput());
+ 			extUploaderService.initializeFromSnFile(sourceSnFile, destSnFile);
+-			
++
+ 			destSnFiles.add(destSnFile);
+ 		}
+-		
++
+ 		extUploaderService.storeSnFiles(destTask, destSnFiles);
+-		
++
+ 	}
+-	
++
+ 	/*private void xeroxFiles(Task sourceTask, Task destTask) {
+ 		List<SnFile> snFiles = snFileService.findSnFilesOfTask(sourceTask.getId());
+ 		destTask.getSnFiles().addAll(snFiles);
+ 	}*/
+-	
++
+ 
+ 	/**
+ 	 * create a new task.  The title is given by the filename
+@@ -344,11 +344,11 @@ public class ExtTaskService {
+ 	 * @param peckOrder
+ 	 * @param snFile
+ 	 * @return
+-	 * @throws Exception 
++	 * @throws Exception
+ 	 */
+ 	public Task createTask(TaskGroup taskGroup, Integer peckOrder, SnFile snFile) throws Exception {
+ 		Task task = new Task();
+-		
++
+ 		task.setTaskGroup(taskGroup);
+ 		task.setTaskTitle(snFile == null ? "" : snFile.getFileName() + "." + snFile.getFileExt());
+ 		task.setTaskStatus(TaskStatus.CREATED);
+@@ -359,45 +359,45 @@ public class ExtTaskService {
+ 		task.setPeckOrder(peckOrder);
+ 		task.setNotes("created task");
+ 		Task newTask = taskService.save(task);
+-		
++
+ 		createTaskHistory(newTask, TaskStatus.CREATED, newTask.getNotes());
+-		
++
+ 		return newTask;
+ 	}
+-	
++
+ 	/**
+ 	   * update given list of tasks,  Given map contains the following
+ 	   * tasks - list of tasks to be updated
+ 	   * historyObe - history records of are created based on status and notes from historyObe
+ 	   * fieldNames - comma separated fields of task that are updated.  Only for display purpose, the fieldNames are not modified
+-	 * @throws Exception 
++	 * @throws Exception
+ 	   */
+ 	public String updateTasks(List<Object> result) throws Exception {
+ //		if(paramObj == null)
+ //		{
+ //			throw new Exception("Invalid tasks list.  param is empty");
+ //		}
+-		
++
+ //		JsonFactory factory = new JsonFactory();
+ //	    ObjectMapper mapper = new ObjectMapper();
+ //	    TypeFactory typeFactory = mapper.getTypeFactory();
+ //	    MapType mapType = typeFactory.constructMapType(HashMap.class, String.class, Object.class);
+ 
+ //	    Map<String, Object> result = mapper.convertValue(paramObj, mapType);
+-	    
++
+ //	    org.springframework.boot.json.JsonParser springParser = JsonParserFactory.getJsonParser();
+ //	    Map<String, Object> result = springParser.parseMap(response.get);
+-		
++
+ //		List<Task> tasks = (List<Task>) result.get("tasks");
+ //		TaskHistory historyObe = null;
+ //		String fieldNames = null;
+ //		historyObe = (TaskHistory) result.get("historyObe");
+ //		fieldNames = (String) result.get("fieldNames");
+-		
++
+ 		List<Task> tasks = (List<Task>) result.get(0);
+ 		TaskHistory historyObe = (TaskHistory) result.get(1);
+ 		String fieldNames = (String) result.get(2);
+-		
++
+ //		LinkedHashMap lhmTasks = (LinkedHashMap) result.get(0);
+ //		Set keys = lhmTasks.keySet();
+ //		for (Object object : keys) {
+@@ -406,22 +406,22 @@ public class ExtTaskService {
+ //		List<Task> tasks = lhmTasks.get(keys.);
+ //		TaskHistory historyObe = (TaskHistory) result.get(1);
+ //		String fieldNames = (String) result.get(2);
+-//		
++//
+ 		if(historyObe == null)
+ 		{
+ 			historyObe = new TaskHistory();
+ 			historyObe.setNotes("Unknown operation");
+ 			historyObe.setTaskStatus(TaskStatus.SETTING);
+ 		}
+-				
++
+ 		for(Task task : tasks) {
+ 			taskService.save(task);
+ 			createTaskHistory(task, historyObe);
+ 		}
+-//		
++//
+ 		return "Updated " + tasks.size() + " tasks with " + fieldNames + " properties";
+ 	}
+-	
++
+ 	/**
+ 	 * if doctor or hospital info available, update ws and wos line count in the snFile
+ 	 * @param task
+@@ -429,7 +429,7 @@ public class ExtTaskService {
+ 	 */
+ 	public void adjustLineCount(Task task, SnFile snFile) {
+ 		Integer templateCount = null;
+-		
++
+ 		if(task != null && task.getDoctor() != null && task.getDoctor().getTemplateCount() != null) {
+ 			templateCount = task.getDoctor().getTemplateCount();
+ 		}
+@@ -438,39 +438,40 @@ public class ExtTaskService {
+ 				templateCount = task.getHospital().getTemplateCount();
+ 			}
+ 		}
+-		
++
+ 		if(templateCount == null || templateCount == 0)
+ 			return; // nothing to update
+-		
++
+ 		if(snFile.getWsActualLineCount() > templateCount) {
+ 			snFile.setWsAdjustedLineCount(snFile.getWsActualLineCount() - templateCount);
+ 			snFile.setWsFinalLineCount(snFile.getWsAdjustedLineCount());
+ 		}
+-		
++
+ 		if(snFile.getWosActualLineCount() > templateCount) {
+ 			snFile.setWosAdjustedLineCount(snFile.getWosActualLineCount() - templateCount);
+ 			snFile.setWosFinalLineCount(snFile.getWosAdjustedLineCount());
+ 		}
+ 	}
+-	
++
+ 	/**
+ 	 * most likely the pm would have changed the final count.  update all the given snFiles
+ 	 * @param snFiles
+ 	 * @return
+ 	 */
+-	public String updateSnFiles(Set<SnFile> snFiles) {
+-		
+-		
+-		for(SnFile snFile : snFiles) {
+-			
++	public String updateSnFiles(Set<SnFileDTO> snFiles) {
++
++
++		for(SnFileDTO snFileDto : snFiles) {
++
++            SnFile snFile = snFileService.fromDto(snFileDto);
+ //			SnFile updatedSnFile = snFileService.save(snFile);
+ 			SnFile updatedSnFile = snFileService.merge(snFile);
+ 		}
+-//		
++//
+ 		return "{ \"msg\" : \"Updated " + snFiles.size() + " files \" }";
+ 	}
+ 
+-	
++
+ 	public String updateTasks(List<Task> tasks, TaskHistory historyObe, String fieldNames) throws Exception {
+ 		if(historyObe == null)
+ 		{
+@@ -478,21 +479,21 @@ public class ExtTaskService {
+ 			historyObe.setNotes("Unknown operation");
+ 			historyObe.setTaskStatus(TaskStatus.SETTING);
+ 		}
+-				
++
+ 		for(Task task : tasks) {
+ 			Task updatedTask = taskService.save(task);
+ 			createTaskHistory(updatedTask, historyObe);
+ 		}
+-//		
++//
+ 		return "{ \"msg\" : \"Updated " + tasks.size() + " tasks with " + fieldNames + " properties\" }";
+ 	}
+-	
++
+ 	/**
+ 	 * key method to create history record
+ 	 * @param task
+ 	 * @param taskStatus
+ 	 * @param notes
+-	 * @throws Exception 
++	 * @throws Exception
+ 	 */
+ 	public void createTaskHistory(Task task, com.neemshade.sniper.domain.enumeration.TaskStatus taskStatus, String notes) throws Exception
+ 	{
+@@ -502,7 +503,7 @@ public class ExtTaskService {
+ 		taskHistory.setPunchTime(Instant.now());
+ 		taskHistory.setNotes(notes);
+ 		taskHistory.setUserInfo(fetchLoggedInUserInfo());
+-		
++
+ 		taskHistoryRepository.save(taskHistory);
+ 	}
+ 
+@@ -522,7 +523,7 @@ public class ExtTaskService {
+ 		return taskHistoryRepository.findByTaskIdOrderByPunchTimeDesc(taskId);
+ 	}
+ 
+-	
+ 
+-		
++
++
+ }
+diff --git a/src/main/java/com/neemshade/sniper/service/ExtUploaderService.java b/src/main/java/com/neemshade/sniper/service/ExtUploaderService.java
+index 929c014..2f80301 100644
+--- a/src/main/java/com/neemshade/sniper/service/ExtUploaderService.java
++++ b/src/main/java/com/neemshade/sniper/service/ExtUploaderService.java
+@@ -1,6 +1,8 @@
+ package com.neemshade.sniper.service;
+ 
+ import java.io.File;
++import java.io.InputStream;
++import java.sql.Blob;
+ import java.time.Instant;
+ import java.time.ZoneId;
+ import java.time.format.DateTimeFormatter;
+@@ -16,6 +18,10 @@ import java.util.Map;
+ import java.util.Map.Entry;
+ import java.util.Optional;
+ 
++import javax.persistence.EntityManager;
++import javax.persistence.PersistenceContext;
++
++import org.hibernate.Session;
+ import org.slf4j.Logger;
+ import org.slf4j.LoggerFactory;
+ import org.springframework.beans.factory.annotation.Autowired;
+@@ -46,34 +52,37 @@ public class ExtUploaderService {
+ 
+ 	@Autowired
+     private TaskGroupService taskGroupService;
+-	
++
+ 	@Autowired
+ 	private TaskService taskService;
+-	
++
+ 	@Autowired
+ 	private SnFileService snFileService;
+-	
++
+ 	@Autowired
+ 	private SnFileRepository snFileRepository;
+-	
++
+ 	@Autowired
+ 	private SnFileBlobRepository snFileBlobRepository;
+-	
++
+ 	@Autowired
+ 	private TaskRepository taskRepository;
+-	
++
+ 	@Autowired
+ 	private UserRepository userRepository;
+-	
++
+ 	@Autowired
+ 	private UserInfoRepository userInfoRepository;
+-	
++
+ 	@Autowired
+ 	private ExtTaskService extTaskService;
+ 
+-	public static final String ROOT_TEMP_DIR = System.getProperty("java.io.tmpdir") + 
++    @PersistenceContext
++    private EntityManager em;
++
++	public static final String ROOT_TEMP_DIR = System.getProperty("java.io.tmpdir") +
+ 			File.separator + "sniper" + File.separator;
+-	
++
+ 	public ExtUploaderService()
+ 	{
+ //		ROOT_TEMP_DIR = System.getProperty("java.io.tmpdir") + File.separator +
+@@ -88,41 +97,41 @@ public class ExtUploaderService {
+ 	 * @throws Exception
+ 	 */
+ 	public synchronized void handleFileUpload(String source, Long id, List<MultipartFile> mpFileList) throws Exception {
+-		
++
+ 		if(source == null)
+ 		{
+ 			throw new Exception("Invalid source param");
+ 		}
+-		
++
+ 		if(source.equalsIgnoreCase("taskGroup"))
+ 		{
+ 			uploadFilesOfTaskGroup(id, mpFileList);
+ 			return;
+ 		}
+-		
++
+ 		if(source.equalsIgnoreCase("task") && id != null && id > 0)
+ 		{
+ 			uploadFilesOfTask(id, mpFileList);
+ 			return;
+ 		}
+-		
++
+ 		throw new Exception("Invalid data " + source + " " + id);
+ 	}
+ 
+ 	// upload files of task.
+ 	@Transactional
+-	private void uploadFilesOfTask(Long taskId, List<MultipartFile> mpFileList) throws Exception {
++    void uploadFilesOfTask(Long taskId, List<MultipartFile> mpFileList) throws Exception {
+ 		Boolean isInput = false;  // note that any file from Task will be output only
+-		
++
+ 		List<SnFile> snFileList = convertToSnFiles(mpFileList, isInput);
+-		
++
+ 		Task task = fetchTask(taskId);
+-		
++
+ 		if(task == null)
+ 		{
+ 			throw new Exception("Invalid task null for " + taskId);
+ 		}
+-		
++
+ 		storeSnFiles(task, snFileList);
+ 	}
+ 
+@@ -135,37 +144,37 @@ public class ExtUploaderService {
+ 		Task task = taskService.findOne(taskId);
+ 		return task;
+ 	}
+-	
+-	
+ 
+-	
++
++
++
+ 
+ 	/**
+ 	 * store snFileList of given task
+ 	 * @param task
+ 	 * @param snFileList
+-	 * @throws Exception 
++	 * @throws Exception
+ 	 */
+ 	public void storeSnFiles(Task task, List<SnFile> snFileList) throws Exception {
+-		
++
+ 		Integer lastPeckOrder = findMaxSnFilePeckOrder(task) + 10;
+-		
++
+ 		for(SnFile snFile: snFileList)
+ 		{
+ 			snFile.getTasks().add(task);
+ 			snFile.setPeckOrder(lastPeckOrder);
+ 			extTaskService.adjustLineCount(task, snFile);
+ 			updateChosenType(task, snFile);
+-			
++
+ 			lastPeckOrder += 10;
+ 			snFileService.save(snFile);
+-			
++
+ 			extTaskService.createTaskHistory(task, TaskStatus.UPLOADED, "uploaded " + snFile.getFileName() + "." + snFile.getFileExt());
+ 		}
+-		
+-		
++
++
+ 	}
+-	
++
+ 	private int findMaxSnFilePeckOrder(Task task) {
+ 		Optional<SnFile> snFileOptional = snFileRepository.findFirstByTasksIdOrderByPeckOrderDesc(task.getId());
+ 		return snFileOptional != null && snFileOptional.isPresent() ? snFileOptional.get().getPeckOrder() : 0;
+@@ -174,29 +183,29 @@ public class ExtUploaderService {
+ 	/**
+ 	 * go thru each task and store corresponding snFiles
+ 	 * @param taskMap
+-	 * @throws Exception 
++	 * @throws Exception
+ 	 */
+ 	private void storeSnFiles(LinkedHashMap<Task, List<SnFile>> taskMap) throws Exception {
+-		for(Entry<Task, List<SnFile>> entry: taskMap.entrySet()){    
+-	        Task task = entry.getKey();  
+-	        List<SnFile> snFileList = entry.getValue();  
+-	        
++		for(Entry<Task, List<SnFile>> entry: taskMap.entrySet()){
++	        Task task = entry.getKey();
++	        List<SnFile> snFileList = entry.getValue();
++
+ 	        if(task == null || snFileList == null) continue;
+-	        
++
+ 	        storeSnFiles(task, snFileList);
+ 		}
+ 	}
+ 
+ 	// taskgroup's files are uploaded
+ 	@Transactional
+-	private void uploadFilesOfTaskGroup(Long taskGroupId, List<MultipartFile> mpFileList) throws Exception {
+-		
++    void uploadFilesOfTaskGroup(Long taskGroupId, List<MultipartFile> mpFileList) throws Exception {
++
+ //		log.debug("eus num of files = " + mpFileList.size());
+-		
++
+ 		Boolean isInput = true;  // note that any file from TaskGroup will be input only
+-		
++
+ 		List<SnFile> snFileList = convertToSnFiles(mpFileList, isInput);
+-		
++
+ 		Collections.sort(snFileList, new Comparator<SnFile>() {
+ 
+ 			@Override
+@@ -204,42 +213,42 @@ public class ExtUploaderService {
+ 				return f1.isIsAudio() == f2.isIsAudio() ? 0 :
+ 					f1.isIsAudio() ? -1 : 1;
+ 			}
+-			
++
+ 		});
+-		
++
+ 		TaskGroup taskGroup = fetchTaskGroup(taskGroupId);
+-		
++
+ 		LinkedHashMap<Task, List<SnFile>> taskMap = clubFilesIntoTasks(taskGroup, snFileList);
+-		
++
+ 		storeSnFiles(taskMap);
+ 	}
+-	
++
+ 
+ 	/**
+ 	 * tries to retrieve taskGroup for taskGroupId
+ 	 * If not available, creates taskGroup
+ 	 * @param taskGroupId
+ 	 * @return
+-	 * @throws Exception 
++	 * @throws Exception
+ 	 */
+ 	private TaskGroup fetchTaskGroup(Long taskGroupId) throws Exception {
+ 		TaskGroup taskGroup = taskGroupService.findOne(taskGroupId);
+ 		if(taskGroup != null) return taskGroup;
+-		
++
+ 		taskGroup = createTaskGroup();
+-		
++
+ 		if(taskGroup == null)
+ 		{
+ 			throw new Exception("Unable to retrieve or create taskGroup.  taskGroupId= " + taskGroupId);
+ 		}
+-		
++
+ 		return taskGroup;
+ 	}
+ 
+ 	private TaskGroup createTaskGroup() {
+ 		TaskGroup taskGroup = new TaskGroup();
+ 		taskGroup.setCreatedTime(Instant.now());
+-		
++
+ //		String groupName = DateTimeFormatter.ofPattern("dd MMM yy HH:mm:ss").format(taskGroup.getCreatedTime());
+ 		DateTimeFormatter formatter =
+ 			    DateTimeFormatter.ofLocalizedDateTime( FormatStyle.MEDIUM )
+@@ -247,7 +256,7 @@ public class ExtUploaderService {
+ 			                     .withZone( ZoneId.systemDefault() );
+ 		String groupName = formatter.format(taskGroup.getCreatedTime());
+ 		taskGroup.setGroupName(groupName);
+-		
++
+ 		return taskGroupService.save(taskGroup);
+ 	}
+ 
+@@ -256,19 +265,19 @@ public class ExtUploaderService {
+ 	 * @param taskGroup
+ 	 * @param snFileList
+ 	 * @return
+-	 * @throws Exception 
++	 * @throws Exception
+ 	 */
+ 	private LinkedHashMap<Task, List<SnFile>> clubFilesIntoTasks(TaskGroup taskGroup, List<SnFile> snFileList) throws Exception
+ 	{
+ 		LinkedHashMap<Task, List<SnFile>> taskMap = new LinkedHashMap<Task, List<SnFile>>();
+ 		Map<String, Task> fileNameMap = new HashMap<String, Task>();
+-		
++
+ 		Integer lastPeckOrder = findMaxTaskPeckOrder(taskGroup) + 10;
+-		
++
+ 		for(SnFile snFile: snFileList)
+ 		{
+ 			Task matchingTask = fetchMatchingTask(fileNameMap, snFile);
+-			
++
+ 			// if no match, then create task and set the maps
+ 			if(matchingTask == null)
+ 			{
+@@ -278,14 +287,14 @@ public class ExtUploaderService {
+ 				fileNameMap.put(snFile.getFileName(), task);
+ 				matchingTask = task;
+ 			}
+-			
++
+ 			taskMap.get(matchingTask).add(snFile);
+ 		}
+-		
++
+ 		return taskMap;
+ 	}
+-	
+-	
++
++
+ 
+ 	/**
+ 	 * update chosenType of snFile based on doctor and hospital of task
+@@ -296,7 +305,7 @@ public class ExtUploaderService {
+ 		if(task == null || snFile == null) {
+ 			return;
+ 		}
+-		
++
+ 		if(task.getDoctor() != null && task.getDoctor().getChosenFactor() != null) {
+ 			snFile.setChosenFactor(task.getDoctor().getChosenFactor());
+ 		} else {
+@@ -304,7 +313,7 @@ public class ExtUploaderService {
+ 				snFile.setChosenFactor(task.getHospital().getChosenFactor());
+ 			}
+ 		}
+-		
++
+ 	}
+ 
+ 	private int findMaxTaskPeckOrder(TaskGroup taskGroup) {
+@@ -327,7 +336,7 @@ public class ExtUploaderService {
+ 			String searchFileName = snFile.getFileName().substring(0, pos);
+ 			return fileNameMap.get(searchFileName);
+ 		}
+-		
++
+ 		return null;
+ 	}
+ 
+@@ -337,32 +346,32 @@ public class ExtUploaderService {
+ 	 * @param mpFileList - mpfiles from the client module
+ 	 * @param isInput - input audio, vr files or doc output files
+ 	 * @return
+-	 * @throws Exception 
++	 * @throws Exception
+ 	 */
+ 	private List<SnFile> convertToSnFiles(List<MultipartFile> mpFileList, java.lang.Boolean isInput) throws Exception {
+-		
++
+ 		List<SnFile> snFileList = new ArrayList<SnFile>();
+-		
++
+ 		// user who is uploading this file
+-		UserInfo userInfo = extTaskService.fetchLoggedInUserInfo();	
+-		
++		UserInfo userInfo = extTaskService.fetchLoggedInUserInfo();
++
+ 		for(MultipartFile mpFile : mpFileList)
+ 		{
+ 			SnFile snFile = convertToSnFile(mpFile, isInput);
+ 			snFile.setUploader(userInfo);
+-			
++
+ 			snFileList.add(snFile);
+ 		}
+-		
++
+ 		// create root dir, if not exists
+ 		// delete files in root dir
+ 		File directory = new File(ROOT_TEMP_DIR);
+ 		FileSystemUtils.deleteRecursively(directory);
+-		
++
+ 		if (!directory.exists()) {
+ 			directory.mkdirs();
+ 		}
+-		
++
+ 		return snFileList;
+ 	}
+ 
+@@ -371,33 +380,35 @@ public class ExtUploaderService {
+ 	 * convert single multipart file into SnFile
+ 	 * has a side effect of storing snFileBlob in db
+ 	 * @param mpFile
+-	 * @param isInput2
+-	 * @return 
+-	 * @throws Exception 
++	 * @param isInput
++	 * @return
++	 * @throws Exception
+ 	 */
+ 	private SnFile convertToSnFile(MultipartFile mpFile, java.lang.Boolean isInput) throws Exception {
+-		
+-		byte[] byteContent = mpFile.getBytes();
++
+ //		log.debug("ofn=" + mpFile.getOriginalFilename());
+ //		log.debug("tmpdir = " + System.getProperty("java.io.tmpdir"));
+-		
+-		SnFile snFile = createSnFile(byteContent, isInput);
++
++		SnFile snFile = createSnFile(mpFile.getInputStream(), mpFile.getSize(), isInput);
+ 		initializeSnFile(snFile, mpFile);
+-		
++
+ 		return snFile;
+ 	}
+ 
+ 	/**
+ 	 * create required snFile and blob
+-	 * @param byteContent
+-	 * @param isInput
+-	 * @return
++	 * @param content
++	 * @param contentSize
++     * @param isInput
++     * @return
+ 	 */
+-	public SnFile createSnFile(byte[] byteContent, java.lang.Boolean isInput) {
++	public SnFile createSnFile(InputStream content, long contentSize, Boolean isInput) {
+ 		SnFileBlob snFileBlob = new SnFileBlob();
+-		snFileBlob.setFileContent(byteContent);
++
++        Blob blob = ((Session) em.getDelegate()).getLobHelper().createBlob(content, contentSize);
++        snFileBlob.setFileContent(blob);
+ 		SnFileBlob newSnFileBlob = snFileBlobRepository.save(snFileBlob);
+-		
++
+ 		SnFile snFile = new SnFile();
+ 		snFile.setSnFileBlob(newSnFileBlob);
+ 		snFile.setIsInput(isInput);
+@@ -407,8 +418,8 @@ public class ExtUploaderService {
+ 	/**
+ 	 * set all initial param
+ 	 * @param snFile
+-	 * @param mpFile 
+-	 * @throws Exception 
++	 * @param mpFile
++	 * @throws Exception
+ 	 */
+ 	private void initializeSnFile(SnFile snFile, MultipartFile mpFile) throws Exception {
+ 		String fullFilename = mpFile.getOriginalFilename();
+@@ -416,36 +427,36 @@ public class ExtUploaderService {
+ 		{
+ 			throw new Exception("empty filename");
+ 		}
+-		
++
+ 		int pos = fullFilename.indexOf(".");
+ 		String extension = pos < 0 ? "" : fullFilename.substring(pos + 1);
+ 		String filename = pos < 0 ? fullFilename : fullFilename.substring(0,  pos);
+-		
++
+ 		snFile.setFileName(filename);
+ 		snFile.setFileExt(extension);
+ 		snFile.setUploadedTime(Instant.now());
+ 		snFile.setChosenFactor(ChosenFactor.NONE);
+-		
++
+ 		fillMetrics(snFile, mpFile);
+ 	}
+ 
+ 	private void fillMetrics(SnFile snFile, MultipartFile mpFile) throws Exception {
+ 		FileMetrics fileMetrics = new FileMetrics();
+-		
++
+ 		if(!fileMetrics.isSupported(snFile.getFileExt()))
+ 		{
+ 			throw new Exception("Invalid format " + snFile.getFileName() + "." + snFile.getFileExt());
+ 		}
+-		
++
+ 		File file = new File(ROOT_TEMP_DIR + mpFile.getOriginalFilename());
+ 		mpFile.transferTo(file);
+-		
++
+ 		FileMetricsResult fmr = fileMetrics.calculateMetrics(file, snFile.getFileExt());
+ //		file.delete();
+-		
+-		
++
++
+ 		snFile.setIsAudio(fmr.getIsAudio());
+-		
++
+ 	  	if(snFile.isIsAudio())
+ 	  	{
+ 	  		snFile.setActualTimeFrame(fmr.getAudioDuration());
+@@ -457,14 +468,14 @@ public class ExtUploaderService {
+ 	  		snFile.setWsActualLineCount(fmr.getWsLineCount());
+ 	  		snFile.setWsAdjustedLineCount(fmr.getWsLineCount());
+ 	  		snFile.setWsFinalLineCount(fmr.getWsLineCount());
+-	  		
++
+ 	  		snFile.setWosActualLineCount(fmr.getWosLineCount());
+ 	  		snFile.setWosAdjustedLineCount(fmr.getWosLineCount());
+ 	  		snFile.setWosFinalLineCount(fmr.getWosLineCount());
+ 	  	}
+-		
++
+ 	}
+-	
++
+ 	public void initializeFromSnFile(SnFile sourceSnFile, SnFile destSnFile) {
+ 		destSnFile.setFileName(sourceSnFile.getFileName());
+ 		destSnFile.setFileExt(sourceSnFile.getFileExt());
+@@ -472,7 +483,7 @@ public class ExtUploaderService {
+ 		destSnFile.setChosenFactor(sourceSnFile.getChosenFactor());
+ 
+ 		destSnFile.setIsAudio(sourceSnFile.isIsAudio());
+-		
++
+ 	  	if(destSnFile.isIsAudio())
+ 	  	{
+ 	  		destSnFile.setActualTimeFrame(sourceSnFile.getActualTimeFrame());
+@@ -484,7 +495,7 @@ public class ExtUploaderService {
+ 	  		destSnFile.setWsActualLineCount(sourceSnFile.getWsActualLineCount());
+ 	  		destSnFile.setWsAdjustedLineCount(sourceSnFile.getWsAdjustedLineCount());
+ 	  		destSnFile.setWsFinalLineCount(sourceSnFile.getWsFinalLineCount());
+-	  		
++
+ 	  		destSnFile.setWosActualLineCount(sourceSnFile.getWosActualLineCount());
+ 	  		destSnFile.setWosAdjustedLineCount(sourceSnFile.getWosAdjustedLineCount());
+ 	  		destSnFile.setWosFinalLineCount(sourceSnFile.getWosFinalLineCount());
+diff --git a/src/main/java/com/neemshade/sniper/service/SnFileBlobService.java b/src/main/java/com/neemshade/sniper/service/SnFileBlobService.java
+new file mode 100644
+index 0000000..e4aece7
+--- /dev/null
++++ b/src/main/java/com/neemshade/sniper/service/SnFileBlobService.java
+@@ -0,0 +1,74 @@
++package com.neemshade.sniper.service;
++
++import java.io.InputStream;
++import java.sql.Blob;
++
++import javax.persistence.EntityManager;
++import javax.persistence.PersistenceContext;
++
++import com.neemshade.sniper.domain.SnFileBlob;
++import com.neemshade.sniper.repository.SnFileBlobRepository;
++import com.neemshade.sniper.service.dto.SnFileBlobDTO;
++import org.apache.commons.io.IOUtils;
++import org.hibernate.Session;
++
++import org.springframework.beans.factory.annotation.Autowired;
++import org.springframework.stereotype.Service;
++import org.springframework.transaction.annotation.Transactional;
++
++@Service
++@Transactional
++public class SnFileBlobService {
++    @PersistenceContext
++    private EntityManager em;
++
++    private final SnFileBlobRepository snFileBlobRepository;
++
++    @Autowired
++    public SnFileBlobService(SnFileBlobRepository snFileBlobRepository) {
++        this.snFileBlobRepository = snFileBlobRepository;
++    }
++
++    public SnFileBlobDTO save(SnFileBlobDTO snFileBlobDto) {
++        SnFileBlob snFileBlob = fromDto(snFileBlobDto);
++
++        SnFileBlob savedFileBlob = snFileBlobRepository.save(snFileBlob);
++        snFileBlobDto.setId(savedFileBlob.getId());
++        return snFileBlobDto;
++    }
++
++    @Transactional(readOnly = true)
++    public SnFileBlobDTO findOne(Long id) {
++        SnFileBlob snFileBlob = snFileBlobRepository.findOne(id);
++        if (snFileBlob == null) {
++            return null;
++        }
++        return toDto(snFileBlob);
++    }
++
++    public SnFileBlob fromDto(SnFileBlobDTO snFileBlobDto) {
++        SnFileBlob snFileBlob = new SnFileBlob();
++        snFileBlob.setId(snFileBlobDto.getId());
++        snFileBlob.setFileContentContentType(snFileBlobDto.getFileContentContentType());
++        snFileBlob.setFileContent(createBlob(snFileBlobDto.getFileContent()));
++        return snFileBlob;
++    }
++
++    public SnFileBlobDTO toDto(SnFileBlob snFileBlob) {
++        SnFileBlobDTO snFileBlobDTO = new SnFileBlobDTO();
++        snFileBlobDTO.setId(snFileBlob.getId());
++        snFileBlobDTO.setFileContentContentType(snFileBlob.getFileContentContentType());
++        try {
++            InputStream binaryStream = snFileBlob.getFileContent().getBinaryStream();
++            snFileBlobDTO.setFileContent(IOUtils.toByteArray(binaryStream));
++            IOUtils.closeQuietly(binaryStream);
++        } catch (Exception e) {
++            throw new RuntimeException("Could not read file content", e);
++        }
++        return snFileBlobDTO;
++    }
++
++    private Blob createBlob(byte[] content) {
++        return ((Session) em.getDelegate()).getLobHelper().createBlob(content);
++    }
++}
+diff --git a/src/main/java/com/neemshade/sniper/service/SnFileService.java b/src/main/java/com/neemshade/sniper/service/SnFileService.java
+index 55c4dd0..baf8e25 100644
+--- a/src/main/java/com/neemshade/sniper/service/SnFileService.java
++++ b/src/main/java/com/neemshade/sniper/service/SnFileService.java
+@@ -3,6 +3,7 @@ package com.neemshade.sniper.service;
+ import com.neemshade.sniper.domain.SnFile;
+ import com.neemshade.sniper.domain.Task;
+ import com.neemshade.sniper.repository.SnFileRepository;
++import com.neemshade.sniper.service.dto.SnFileDTO;
+ import org.slf4j.Logger;
+ import org.slf4j.LoggerFactory;
+ import org.springframework.beans.factory.annotation.Autowired;
+@@ -11,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
+ 
+ import java.util.List;
+ import java.util.Set;
++import java.util.stream.Collectors;
+ 
+ import javax.persistence.EntityManager;
+ import javax.persistence.PersistenceContext;
+@@ -26,9 +28,12 @@ public class SnFileService {
+ 
+ 	@Autowired
+ 	private TaskService taskService;
+-    
++
++	@Autowired
++    private SnFileBlobService snFileBlobService;
++
+     private final SnFileRepository snFileRepository;
+-    
++
+     @PersistenceContext
+     private EntityManager em;
+ 
+@@ -46,7 +51,7 @@ public class SnFileService {
+         log.debug("Request to save SnFile : {}", snFile);
+         return snFileRepository.save(snFile);
+     }
+-    
++
+     /**
+      * merge a snFile.
+      *
+@@ -55,7 +60,7 @@ public class SnFileService {
+      */
+     public SnFile merge(SnFile snFile) {
+         log.debug("Request to merge SnFile : {}", snFile);
+-		
++
+ 		Set<Task> tasks = taskService.findBySnFilesId(snFile.getId());
+ 		if(snFile.getTasks() != null) {
+ 			snFile.getTasks().clear();
+@@ -68,7 +73,7 @@ public class SnFileService {
+ 			else
+ 				snFile.setTasks(tasks);
+ 		}
+-		
++
+         return em.merge(snFile);
+     }
+ 
+@@ -105,7 +110,65 @@ public class SnFileService {
+         snFileRepository.delete(id);
+     }
+ 
+-	public List<SnFile> findSnFilesOfTask(Long taskId) {
+-		return snFileRepository.findByTasksIdOrderByIsInputDescPeckOrderAsc(taskId);
++	public List<SnFileDTO> findSnFilesOfTask(Long taskId) {
++        return snFileRepository.findByTasksIdOrderByIsInputDescPeckOrderAsc(taskId).stream()
++            .map(this::toDto)
++            .collect(Collectors.toList());
+ 	}
++
++    public SnFileDTO toDto(SnFile snFile) {
++        SnFileDTO snFileDTO = new SnFileDTO();
++        snFileDTO.setId(snFile.getId());
++        snFileDTO.setFilePath(snFile.getFilePath());
++        snFileDTO.setFileName(snFile.getFileName());
++        snFileDTO.setFileExt(snFile.getFileExt());
++        snFileDTO.setOrigin(snFile.getOrigin());
++        snFileDTO.setInput(snFile.isIsInput());
++        snFileDTO.setAudio(snFile.isIsAudio());
++        snFileDTO.setUploadedTime(snFile.getUploadedTime());
++        snFileDTO.setActualTimeFrame(snFile.getActualTimeFrame());
++        snFileDTO.setAdjustedTimeFrame(snFile.getAdjustedTimeFrame());
++        snFileDTO.setFinalTimeFrame(snFile.getFinalTimeFrame());
++        snFileDTO.setWsActualLineCount(snFile.getWsActualLineCount());
++        snFileDTO.setWsAdjustedLineCount(snFile.getWsAdjustedLineCount());
++        snFileDTO.setWsFinalLineCount(snFile.getWsFinalLineCount());
++        snFileDTO.setWosActualLineCount(snFile.getWosActualLineCount());
++        snFileDTO.setWosAdjustedLineCount(snFile.getWosAdjustedLineCount());
++        snFileDTO.setWsFinalLineCount(snFile.getWsFinalLineCount());
++        snFileDTO.setChosenFactor(snFile.getChosenFactor());
++        snFileDTO.setPeckOrder(snFile.getPeckOrder());
++        snFileDTO.setPatients(snFile.getPatients());
++        snFileDTO.setTasks(snFile.getTasks());
++        snFileDTO.setUploader(snFile.getUploader());
++        snFileDTO.setSnFileBlob(snFileBlobService.toDto(snFile.getSnFileBlob()));
++        return snFileDTO;
++    }
++
++    public SnFile fromDto(SnFileDTO snFileDto) {
++        SnFile snFile = new SnFile();
++        snFile.setId(snFileDto.getId());
++        snFile.setFilePath(snFileDto.getFilePath());
++        snFile.setFileName(snFileDto.getFileName());
++        snFile.setFileExt(snFileDto.getFileExt());
++        snFile.setOrigin(snFileDto.getOrigin());
++        snFile.setIsInput(snFileDto.getInput());
++        snFile.setIsAudio(snFileDto.getAudio());
++        snFile.setUploadedTime(snFileDto.getUploadedTime());
++        snFile.setActualTimeFrame(snFileDto.getActualTimeFrame());
++        snFile.setAdjustedTimeFrame(snFileDto.getAdjustedTimeFrame());
++        snFile.setFinalTimeFrame(snFileDto.getFinalTimeFrame());
++        snFile.setWsActualLineCount(snFileDto.getWsActualLineCount());
++        snFile.setWsAdjustedLineCount(snFileDto.getWsAdjustedLineCount());
++        snFile.setWsFinalLineCount(snFileDto.getWsFinalLineCount());
++        snFile.setWosActualLineCount(snFileDto.getWosActualLineCount());
++        snFile.setWosAdjustedLineCount(snFileDto.getWosAdjustedLineCount());
++        snFile.setWsFinalLineCount(snFileDto.getWsFinalLineCount());
++        snFile.setChosenFactor(snFileDto.getChosenFactor());
++        snFile.setPeckOrder(snFileDto.getPeckOrder());
++        snFile.setPatients(snFileDto.getPatients());
++        snFile.setTasks(snFileDto.getTasks());
++        snFile.setUploader(snFileDto.getUploader());
++        snFile.setSnFileBlob(snFileBlobService.fromDto(snFileDto.getSnFileBlob()));
++        return snFile;
++    }
+ }
+diff --git a/src/main/java/com/neemshade/sniper/service/TaskService.java b/src/main/java/com/neemshade/sniper/service/TaskService.java
+index 2fa8e7a..524d146 100644
+--- a/src/main/java/com/neemshade/sniper/service/TaskService.java
++++ b/src/main/java/com/neemshade/sniper/service/TaskService.java
+@@ -4,7 +4,6 @@ import com.neemshade.sniper.domain.Task;
+ import com.neemshade.sniper.repository.TaskRepository;
+ 
+ import java.time.Instant;
+-import java.time.ZoneId;
+ import java.util.List;
+ import java.util.Set;
+ 
+@@ -12,8 +11,6 @@ import org.slf4j.Logger;
+ import org.slf4j.LoggerFactory;
+ import org.springframework.data.domain.Page;
+ import org.springframework.data.domain.Pageable;
+-import org.springframework.data.jpa.repository.Query;
+-import org.springframework.data.repository.query.Param;
+ import org.springframework.stereotype.Service;
+ import org.springframework.transaction.annotation.Transactional;
+ 
+@@ -79,15 +76,15 @@ public class TaskService {
+     }
+ 
+ 	public Page<Task> findTasksOfTaskGroup(Long taskGroupId, Instant fromDate, Instant toDate, Pageable pageable) {
+-		
++
+ 		return taskRepository.findByTaskGroup_IdAndCreatedTimeBetween(taskGroupId, fromDate, toDate, pageable);
+ 	}
+-	
++
+ 	public Page<Task> findActiveTasksOfUser(Instant fromDate, Instant toDate, Pageable pageable) {
+ 		return taskRepository.findActiveTasksOfUser(fromDate, toDate, pageable);
+ 	}
+ 
+-	
++
+ 	public Page<Task> findAllTasksOfUser(Instant fromDate, Instant toDate, Pageable pageable) {
+ 		return taskRepository.findAllTasksOfUser(fromDate, toDate, pageable);
+ 	}
+@@ -95,7 +92,7 @@ public class TaskService {
+ 	public List<Task> findTasksOfTaskGroup(Long taskGroupId) {
+ 		return taskRepository.findByTaskGroupIdOrderByPeckOrder(taskGroupId);
+ 	}
+-	
++
+ 	public List<?> findStatusCount(Long taskGroupId) {
+ 		return taskRepository.findStatusCount(taskGroupId);
+ 	}
+diff --git a/src/main/java/com/neemshade/sniper/service/dto/SnFileBlobDTO.java b/src/main/java/com/neemshade/sniper/service/dto/SnFileBlobDTO.java
+new file mode 100644
+index 0000000..e98d9a1
+--- /dev/null
++++ b/src/main/java/com/neemshade/sniper/service/dto/SnFileBlobDTO.java
+@@ -0,0 +1,40 @@
++package com.neemshade.sniper.service.dto;
++
++public class SnFileBlobDTO {
++
++    private Long id;
++    private byte[] fileContent;
++    private String fileContentContentType;
++
++    public Long getId() {
++        return id;
++    }
++
++    public void setId(Long id) {
++        this.id = id;
++    }
++
++    public byte[] getFileContent() {
++        return fileContent;
++    }
++
++    public void setFileContent(byte[] fileContent) {
++        this.fileContent = fileContent;
++    }
++
++    public String getFileContentContentType() {
++        return fileContentContentType;
++    }
++
++    public void setFileContentContentType(String fileContentContentType) {
++        this.fileContentContentType = fileContentContentType;
++    }
++
++    @Override
++    public String toString() {
++        return "SnFileBlobDTO{" +
++            "id=" + id +
++            ", fileContentContentType='" + fileContentContentType + '\'' +
++            '}';
++    }
++}
+diff --git a/src/main/java/com/neemshade/sniper/service/dto/SnFileDTO.java b/src/main/java/com/neemshade/sniper/service/dto/SnFileDTO.java
+new file mode 100644
+index 0000000..399fd54
+--- /dev/null
++++ b/src/main/java/com/neemshade/sniper/service/dto/SnFileDTO.java
+@@ -0,0 +1,249 @@
++package com.neemshade.sniper.service.dto;
++
++import java.time.Instant;
++import java.util.HashSet;
++import java.util.Set;
++
++import com.neemshade.sniper.domain.Patient;
++import com.neemshade.sniper.domain.Task;
++import com.neemshade.sniper.domain.UserInfo;
++import com.neemshade.sniper.domain.enumeration.ChosenFactor;
++
++public class SnFileDTO {
++    private Long id;
++    private String filePath;
++    private String fileName;
++    private String fileExt;
++    private String origin;
++    private Boolean isInput;
++    private Boolean isAudio;
++    private Instant uploadedTime;
++    private Integer actualTimeFrame;
++    private Integer adjustedTimeFrame;
++    private Integer finalTimeFrame;
++    private Integer wsActualLineCount;
++    private Integer wsAdjustedLineCount;
++    private Integer wsFinalLineCount;
++    private Integer wosActualLineCount;
++    private Integer wosAdjustedLineCount;
++    private Integer wosFinalLineCount;
++    private ChosenFactor chosenFactor;
++    private Integer peckOrder;
++    private SnFileBlobDTO snFileBlob;
++    private Set<Patient> patients = new HashSet<>();
++    private Set<Task> tasks = new HashSet<>();
++    private UserInfo uploader;
++
++    public Long getId() {
++        return id;
++    }
++
++    public void setId(Long id) {
++        this.id = id;
++    }
++
++    public String getFilePath() {
++        return filePath;
++    }
++
++    public void setFilePath(String filePath) {
++        this.filePath = filePath;
++    }
++
++    public String getFileName() {
++        return fileName;
++    }
++
++    public void setFileName(String fileName) {
++        this.fileName = fileName;
++    }
++
++    public String getFileExt() {
++        return fileExt;
++    }
++
++    public void setFileExt(String fileExt) {
++        this.fileExt = fileExt;
++    }
++
++    public String getOrigin() {
++        return origin;
++    }
++
++    public void setOrigin(String origin) {
++        this.origin = origin;
++    }
++
++    public Boolean getInput() {
++        return isInput;
++    }
++
++    public void setInput(Boolean input) {
++        isInput = input;
++    }
++
++    public Boolean getAudio() {
++        return isAudio;
++    }
++
++    public void setAudio(Boolean audio) {
++        isAudio = audio;
++    }
++
++    public Instant getUploadedTime() {
++        return uploadedTime;
++    }
++
++    public void setUploadedTime(Instant uploadedTime) {
++        this.uploadedTime = uploadedTime;
++    }
++
++    public Integer getActualTimeFrame() {
++        return actualTimeFrame;
++    }
++
++    public void setActualTimeFrame(Integer actualTimeFrame) {
++        this.actualTimeFrame = actualTimeFrame;
++    }
++
++    public Integer getAdjustedTimeFrame() {
++        return adjustedTimeFrame;
++    }
++
++    public void setAdjustedTimeFrame(Integer adjustedTimeFrame) {
++        this.adjustedTimeFrame = adjustedTimeFrame;
++    }
++
++    public Integer getFinalTimeFrame() {
++        return finalTimeFrame;
++    }
++
++    public void setFinalTimeFrame(Integer finalTimeFrame) {
++        this.finalTimeFrame = finalTimeFrame;
++    }
++
++    public Integer getWsActualLineCount() {
++        return wsActualLineCount;
++    }
++
++    public void setWsActualLineCount(Integer wsActualLineCount) {
++        this.wsActualLineCount = wsActualLineCount;
++    }
++
++    public Integer getWsAdjustedLineCount() {
++        return wsAdjustedLineCount;
++    }
++
++    public void setWsAdjustedLineCount(Integer wsAdjustedLineCount) {
++        this.wsAdjustedLineCount = wsAdjustedLineCount;
++    }
++
++    public Integer getWsFinalLineCount() {
++        return wsFinalLineCount;
++    }
++
++    public void setWsFinalLineCount(Integer wsFinalLineCount) {
++        this.wsFinalLineCount = wsFinalLineCount;
++    }
++
++    public Integer getWosActualLineCount() {
++        return wosActualLineCount;
++    }
++
++    public void setWosActualLineCount(Integer wosActualLineCount) {
++        this.wosActualLineCount = wosActualLineCount;
++    }
++
++    public Integer getWosAdjustedLineCount() {
++        return wosAdjustedLineCount;
++    }
++
++    public void setWosAdjustedLineCount(Integer wosAdjustedLineCount) {
++        this.wosAdjustedLineCount = wosAdjustedLineCount;
++    }
++
++    public Integer getWosFinalLineCount() {
++        return wosFinalLineCount;
++    }
++
++    public void setWosFinalLineCount(Integer wosFinalLineCount) {
++        this.wosFinalLineCount = wosFinalLineCount;
++    }
++
++    public ChosenFactor getChosenFactor() {
++        return chosenFactor;
++    }
++
++    public void setChosenFactor(ChosenFactor chosenFactor) {
++        this.chosenFactor = chosenFactor;
++    }
++
++    public Integer getPeckOrder() {
++        return peckOrder;
++    }
++
++    public void setPeckOrder(Integer peckOrder) {
++        this.peckOrder = peckOrder;
++    }
++
++    public SnFileBlobDTO getSnFileBlob() {
++        return snFileBlob;
++    }
++
++    public void setSnFileBlob(SnFileBlobDTO snFileBlob) {
++        this.snFileBlob = snFileBlob;
++    }
++
++    public Set<Patient> getPatients() {
++        return patients;
++    }
++
++    public void setPatients(Set<Patient> patients) {
++        this.patients = patients;
++    }
++
++    public Set<Task> getTasks() {
++        return tasks;
++    }
++
++    public void setTasks(Set<Task> tasks) {
++        this.tasks = tasks;
++    }
++
++    public UserInfo getUploader() {
++        return uploader;
++    }
++
++    public void setUploader(UserInfo uploader) {
++        this.uploader = uploader;
++    }
++
++    @Override
++    public String toString() {
++        return "SnFileDTO{" +
++            "id=" + id +
++            ", filePath='" + filePath + '\'' +
++            ", fileName='" + fileName + '\'' +
++            ", fileExt='" + fileExt + '\'' +
++            ", origin='" + origin + '\'' +
++            ", isInput=" + isInput +
++            ", isAudio=" + isAudio +
++            ", uploadedTime=" + uploadedTime +
++            ", actualTimeFrame=" + actualTimeFrame +
++            ", adjustedTimeFrame=" + adjustedTimeFrame +
++            ", finalTimeFrame=" + finalTimeFrame +
++            ", wsActualLineCount=" + wsActualLineCount +
++            ", wsAdjustedLineCount=" + wsAdjustedLineCount +
++            ", wsFinalLineCount=" + wsFinalLineCount +
++            ", wosActualLineCount=" + wosActualLineCount +
++            ", wosAdjustedLineCount=" + wosAdjustedLineCount +
++            ", wosFinalLineCount=" + wosFinalLineCount +
++            ", chosenFactor=" + chosenFactor +
++            ", peckOrder=" + peckOrder +
++            ", snFileBlob=" + snFileBlob +
++            ", patients=" + patients +
++            ", tasks=" + tasks +
++            ", uploader=" + uploader +
++            '}';
++    }
++}
+diff --git a/src/main/java/com/neemshade/sniper/web/rest/ExtTaskResource.java b/src/main/java/com/neemshade/sniper/web/rest/ExtTaskResource.java
+index 96c0b39..3c653be 100644
+--- a/src/main/java/com/neemshade/sniper/web/rest/ExtTaskResource.java
++++ b/src/main/java/com/neemshade/sniper/web/rest/ExtTaskResource.java
+@@ -10,6 +10,7 @@ import java.util.Set;
+ 
+ import javax.servlet.http.HttpServletResponse;
+ 
++import com.neemshade.sniper.service.dto.SnFileDTO;
+ import org.slf4j.Logger;
+ import org.slf4j.LoggerFactory;
+ import org.springframework.beans.factory.annotation.Autowired;
+@@ -19,8 +20,6 @@ import org.springframework.http.HttpHeaders;
+ import org.springframework.http.HttpStatus;
+ import org.springframework.http.ResponseEntity;
+ import org.springframework.security.access.annotation.Secured;
+-import org.springframework.util.LinkedMultiValueMap;
+-import org.springframework.util.MultiValueMap;
+ import org.springframework.web.bind.annotation.GetMapping;
+ import org.springframework.web.bind.annotation.PathVariable;
+ import org.springframework.web.bind.annotation.PostMapping;
+@@ -34,7 +33,6 @@ import org.springframework.web.bind.annotation.RestController;
+ import org.springframework.web.multipart.MultipartFile;
+ 
+ import com.codahale.metrics.annotation.Timed;
+-import com.neemshade.sniper.domain.SnFile;
+ import com.neemshade.sniper.domain.Task;
+ import com.neemshade.sniper.domain.TaskGroup;
+ import com.neemshade.sniper.domain.TaskHistory;
+@@ -52,32 +50,32 @@ import com.neemshade.sniper.web.rest.util.PaginationUtil;
+ public class ExtTaskResource {
+ 
+ 	private final Logger log = LoggerFactory.getLogger(ExtTaskResource.class);
+-	
++
+ 	@Autowired
+ 	private ExtTaskService extTaskService;
+-	
++
+ 	@Autowired
+ 	private TaskService taskService;
+-	
++
+ 	@Autowired
+ 	private SnFileService snFileService;
+-	
++
+ 	@Autowired
+ 	private ExtUploaderService extUploaderService;
+-	
++
+ 	@Autowired
+ 	private ExtDownloaderService extDownloaderService;
+ 
+     public ExtTaskResource() {
+     }
+-	
++
+     @GetMapping(value="login-user-info")
+ 	public UserInfo getLoginUserInfo() throws Exception {
+ 
+ 		return extTaskService.fetchLoggedInUserInfo();
+ 
+ 	}
+-    
++
+     /**
+      * GET  /task-groups : get all the taskGroups between given dates.
+      *
+@@ -101,7 +99,7 @@ public class ExtTaskResource {
+        return new ResponseEntity<>(page.getContent(), headers, HttpStatus.OK);
+ //       return page.getContent();
+ 	}
+-    
++
+     /*
+ 	@RequestMapping(value="task-groups", method=RequestMethod.GET)
+     @GetMapping(params = {"fromDate", "toDate"})
+@@ -121,8 +119,8 @@ public class ExtTaskResource {
+        return page.getContent();
+ 	}
+ 	*/
+-	
+-    
++
++
+ 	@GetMapping(value="tasks")
+ 	public ResponseEntity<List<Task>> getTasks(
+ 			@RequestParam(value = "source") String source,
+@@ -134,11 +132,11 @@ public class ExtTaskResource {
+ //		log.debug("taskGroupId = " + taskGroupId);
+ //		log.debug("fromDate = " + fromDate);
+ //		log.debug("toDate = " + toDate);
+-		
++
+ 		String url = source != null && "taskGroup".equals(source) ?
+ 				"/ext-task-group-detail/" + taskGroupId :
+ 				"/ext-task-list";
+-		
++
+ 		Page<Task> page = extTaskService.findTasks(
+ 				source,
+ 				taskGroupId,
+@@ -149,7 +147,7 @@ public class ExtTaskResource {
+ 	    return new ResponseEntity<>(page.getContent(), headers, HttpStatus.OK);
+ //		return new ArrayList<Task>();
+ 	}
+-    
++
+ //	@GetMapping(value="tasks-of-task-group", params = {"taskGroupId", "fromDate", "toDate"})
+ 	/*@GetMapping(value="tasks")
+ 	public List<Task> getTasks(
+@@ -162,7 +160,7 @@ public class ExtTaskResource {
+ //		log.debug("taskGroupId = " + taskGroupId);
+ //		log.debug("fromDate = " + fromDate);
+ //		log.debug("toDate = " + toDate);
+-		
++
+ 		Page<Task> page = extTaskService.findTasks(
+ 				source,
+ 				taskGroupId,
+@@ -174,16 +172,16 @@ public class ExtTaskResource {
+ 		//		       return new ResponseEntity<>(page.getContent(), headers, HttpStatus.OK);
+ //		return new ArrayList<Task>();
+ 	}*/
+-	
+-	
++
++
+ 	@GetMapping(value="snfiles-of-task/{taskId}")
+-	public List<SnFile> getSnFilesOfTask(
++	public List<SnFileDTO> getSnFilesOfTask(
+ 			@PathVariable(value = "taskId") Long taskId) {
+ 
+ 		return snFileService.findSnFilesOfTask(taskId);
+ 
+ 	}
+-	
++
+ 	@GetMapping(value="history-of-task/{taskId}")
+ 	public List<TaskHistory> getHistoryOfTask(
+ 			@PathVariable(value = "taskId") Long taskId) {
+@@ -191,7 +189,7 @@ public class ExtTaskResource {
+ 		return extTaskService.findHistoryOfTask(taskId);
+ 
+ 	}
+-	
++
+ 	@GetMapping(value="count-of-status/{taskGroupId}")
+ 	public List<?> countStatus(
+ 			@PathVariable(value = "taskGroupId") Long taskGroupId) {
+@@ -199,10 +197,10 @@ public class ExtTaskResource {
+ 		return taskService.findStatusCount(taskGroupId);
+ 
+ 	}
+-	
++
+ 	/**
+ 	 * fn collects user, company, hospital and doctor info
+-	 * 
++	 *
+ 	 * @return all data is placed in map
+ 	 */
+ 	@GetMapping(value="bundle")
+@@ -210,50 +208,50 @@ public class ExtTaskResource {
+ 		return extTaskService.fetchBundle();
+ 
+ 	}
+-	
+-	
++
++
+ 	@PostMapping("/clone")
+     @Timed
+     public String cloneTasks(@RequestBody List<Task> tasks) throws Exception {
+         log.debug("Post request to clone tasks list : {}");
+-        
++
+         if(tasks == null || tasks.size() <= 0)
+         {
+         	throw new Exception("Error! empty tasks");
+         }
+-        
++
+         return extTaskService.cloneTasks(tasks);
+     }
+-	
++
+ 	@PostMapping("/merge")
+     @Timed
+     public String mergeTasks(@RequestBody List<Task> tasks) throws Exception {
+         log.debug("Post request to merge tasks  : {}");
+-        
++
+         if(tasks == null || tasks.size() <= 1)
+         {
+         	throw new Exception("Error! too few tasks to merge");
+         }
+-        
++
+         return extTaskService.mergeTasks(tasks);
+     }
+-	
+-	
+-	
++
++
++
+ 	  // upload all the files
+ 	  // source can be task or taskGroup
+ 	  // id can be zero or any id
+ 	  // if taskGroup and id is zero, a new taskGroup will be created
+ 	  // if task and id is zero, error is thrown
+-		  
+-	
++
++
+ //	@RequestMapping(value= "/uploadFiles/{source}/{id}", method = {RequestMethod.POST, RequestMethod.GET})
+ 	@PostMapping("/upload-files/{source}/{id}")
+ 	public Boolean handleFileUpload(
+-			@PathVariable String source, 
+-			@PathVariable Long id, 
++			@PathVariable String source,
++			@PathVariable Long id,
+ 			@RequestParam("file[]") List<MultipartFile> mpFileList) throws Exception {
+-		
++
+ 		try {
+ 			extUploaderService.handleFileUpload(source, id, mpFileList);
+ 		}
+@@ -264,50 +262,24 @@ public class ExtTaskResource {
+ 		}
+ 		return true;
+ 	}
+-	
++
+ 
+ 	@GetMapping(value="download-files/{source}/{id}/{selectedIds}", produces="application/zip")
+ 	@ResponseBody
+ 	public void downloadFiles(
+-			@PathVariable String source, @PathVariable(value = "id") Long id, 
++			@PathVariable String source, @PathVariable(value = "id") Long id,
+ 			@PathVariable(value = "selectedIds") String selectedIds, HttpServletResponse response) throws Exception {
+ 
+ 		boolean isEditorOnly = "editorOnly".equals(source);
+-	    byte[] bytes = extDownloaderService.downloadFiles(source, id, isEditorOnly, selectedIds);
+-	    
++	    extDownloaderService.downloadFiles(source, id, isEditorOnly, selectedIds, response.getOutputStream());
++
+ //	    headers.add("Content-Type", "application/octet-stream");
+ 	    response.setHeader("Content-Type", "application/zip");
+ 	    response.setHeader("Content-Disposition", "attachment; filename=\"files.zip\"");
+-	    
+-	    OutputStream os = response.getOutputStream();
+-	    
+-	    try
+-	    {
+-	        ByteArrayInputStream byteIs = new ByteArrayInputStream(bytes);
+-	        
+-	        
+-	        byte[] buf=new byte[8192];
+-	        int bytesread = 0, bytesBuffered = 0;
+-	        while( (bytesread = byteIs.read( buf )) > -1 ) {
+-	            os.write( buf, 0, bytesread );
+-	            bytesBuffered += bytesread;
+-	            if (bytesBuffered > 1024 * 1024) { //flush after 1MB
+-	                bytesBuffered = 0;
+-	                os.flush();
+-	            }
+-	        }
+-	    }
+-	    finally {
+-	        if (os != null) {
+-	            os.flush();
+-	        }
+-	    }
+-	    
+-	    os.close();
+-	    
++
+ //	    return new ResponseEntity<>(bytes, headers, HttpStatus.OK);
+ 	   }
+-	
++
+ 	/*@GetMapping(value="download-files/{source}/{id}/{selectedIds}", produces="application/zip")
+ 	@ResponseBody
+ 	public ResponseEntity<byte[]> downloadFiles(
+@@ -321,8 +293,8 @@ public class ExtTaskResource {
+ 	    headers.add("Content-Disposition", "attachment; filename=\"files.zip\"");
+ 	    return new ResponseEntity<>(bytes, headers, HttpStatus.OK);
+ 	   }*/
+-	
+-	
++
++
+ 	/**
+ 	 * go thru taskgroups and create spread sheet out of the line count data
+ 	 * @param source
+@@ -339,16 +311,16 @@ public class ExtTaskResource {
+ 
+ 		if(selectedIds == null || "".equals(selectedIds) || "0".equals(selectedIds))
+ 			selectedIds = "" + id;
+-		
++
+ //	    byte[] bytes = extDownloaderService.downloadFiles(source, id, selectedIds);
+-		
+-	    
++
++
+ //	    headers.add("Content-Type", "application/octet-stream");
+ 	    response.setHeader("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+ 	    response.setHeader("Content-Disposition", "attachment; filename=\"data.xlsx\"");
+-	    
++
+ 	    OutputStream os = response.getOutputStream();
+-	    
++
+ 	    try
+ 	    {
+ 	    	extDownloaderService.exportXlsx(os, selectedIds);
+@@ -358,48 +330,48 @@ public class ExtTaskResource {
+ 	            os.flush();
+ 	        }
+ 	    }
+-	    
++
+ 	    os.close();
+-	    
++
+ //	    return new ResponseEntity<>(bytes, headers, HttpStatus.OK);
+ 	   }
+-	
+-	
+-	
++
++
++
+ 	@PutMapping("/update-snfiles")
+ 	@Secured({AuthoritiesConstants.MANAGER})
+     @Timed
+-    public String updateSnFiles(@RequestBody Set<SnFile> snFiles) throws Exception {
++    public String updateSnFiles(@RequestBody Set<SnFileDTO> snFiles) throws Exception {
+         log.debug("Put request to update snFile list : {}");
+-        
++
+         if(snFiles == null)
+         {
+         	throw new Exception("Error! null snFiles");
+         }
+-        
++
+         return extTaskService.updateSnFiles(snFiles);
+ //        return extTaskService.updateTasks(paramObj);
+-        
++
+     }
+-	
++
+ 	@PutMapping("/update-tasks")
+     @Timed
+     public String updateTasks(@RequestBody ParamObj paramObj) throws Exception {
+         log.debug("Put request to update Task list : {}");
+-        
++
+         if(paramObj == null)
+         {
+         	throw new Exception("Error! null ParamObj");
+         }
+-        
++
+ //        if(paramObj.getMap() == null)
+ //        {
+ //        	throw new Exception("Error! null ParamObj.map");
+ //        }
+-        
++
+         return extTaskService.updateTasks(paramObj.getTasks(), paramObj.getHistoryObe(), paramObj.getFieldNames());
+ //        return extTaskService.updateTasks(paramObj);
+-        
++
+     }
+ }
+ 
+@@ -409,7 +381,7 @@ class ParamObj
+ 	private List<Task> tasks;
+     private TaskHistory historyObe;
+     private String fieldNames;
+-    
++
+ 	public List<Task> getTasks() {
+ 		return tasks;
+ 	}
+@@ -428,5 +400,5 @@ class ParamObj
+ 	public void setFieldNames(String fieldNames) {
+ 		this.fieldNames = fieldNames;
+ 	}
+-	
+-}
+\ No newline at end of file
++
++}
+diff --git a/src/main/java/com/neemshade/sniper/web/rest/SnFileBlobResource.java b/src/main/java/com/neemshade/sniper/web/rest/SnFileBlobResource.java
+index ce82c91..7f45586 100644
+--- a/src/main/java/com/neemshade/sniper/web/rest/SnFileBlobResource.java
++++ b/src/main/java/com/neemshade/sniper/web/rest/SnFileBlobResource.java
+@@ -4,8 +4,10 @@ import com.codahale.metrics.annotation.Timed;
+ import com.neemshade.sniper.domain.SnFileBlob;
+ 
+ import com.neemshade.sniper.repository.SnFileBlobRepository;
++import com.neemshade.sniper.service.SnFileBlobService;
+ import com.neemshade.sniper.web.rest.errors.BadRequestAlertException;
+ import com.neemshade.sniper.web.rest.util.HeaderUtil;
++import com.neemshade.sniper.service.dto.SnFileBlobDTO;
+ import io.github.jhipster.web.util.ResponseUtil;
+ import org.slf4j.Logger;
+ import org.slf4j.LoggerFactory;
+@@ -18,7 +20,7 @@ import java.net.URISyntaxException;
+ import java.util.List;
+ import java.util.Optional;
+ import java.util.stream.Collectors;
+-import java.util.stream.StreamSupport;
++import java.util.stream.Stream;
+ 
+ /**
+  * REST controller for managing SnFileBlob.
+@@ -32,9 +34,11 @@ public class SnFileBlobResource {
+     private static final String ENTITY_NAME = "snFileBlob";
+ 
+     private final SnFileBlobRepository snFileBlobRepository;
++    private final SnFileBlobService snFileBlobService;
+ 
+-    public SnFileBlobResource(SnFileBlobRepository snFileBlobRepository) {
++    public SnFileBlobResource(SnFileBlobRepository snFileBlobRepository, SnFileBlobService snFileBlobService) {
+         this.snFileBlobRepository = snFileBlobRepository;
++        this.snFileBlobService = snFileBlobService;
+     }
+ 
+     /**
+@@ -46,12 +50,12 @@ public class SnFileBlobResource {
+      */
+     @PostMapping("/sn-file-blobs")
+     @Timed
+-    public ResponseEntity<SnFileBlob> createSnFileBlob(@RequestBody SnFileBlob snFileBlob) throws URISyntaxException {
+-        log.debug("REST request to save SnFileBlob : {}", snFileBlob);
++    public ResponseEntity<SnFileBlobDTO> createSnFileBlob(@RequestBody SnFileBlobDTO snFileBlob) throws URISyntaxException {
++        log.debug("REST request to create SnFileBlob : {}", snFileBlob);
+         if (snFileBlob.getId() != null) {
+             throw new BadRequestAlertException("A new snFileBlob cannot already have an ID", ENTITY_NAME, "idexists");
+         }
+-        SnFileBlob result = snFileBlobRepository.save(snFileBlob);
++        SnFileBlobDTO result = snFileBlobService.save(snFileBlob);
+         return ResponseEntity.created(new URI("/api/sn-file-blobs/" + result.getId()))
+             .headers(HeaderUtil.createEntityCreationAlert(ENTITY_NAME, result.getId().toString()))
+             .body(result);
+@@ -68,12 +72,12 @@ public class SnFileBlobResource {
+      */
+     @PutMapping("/sn-file-blobs")
+     @Timed
+-    public ResponseEntity<SnFileBlob> updateSnFileBlob(@RequestBody SnFileBlob snFileBlob) throws URISyntaxException {
++    public ResponseEntity<SnFileBlobDTO> updateSnFileBlob(@RequestBody SnFileBlobDTO snFileBlob) throws URISyntaxException {
+         log.debug("REST request to update SnFileBlob : {}", snFileBlob);
+         if (snFileBlob.getId() == null) {
+             return createSnFileBlob(snFileBlob);
+         }
+-        SnFileBlob result = snFileBlobRepository.save(snFileBlob);
++        SnFileBlobDTO result = snFileBlobService.save(snFileBlob);
+         return ResponseEntity.ok()
+             .headers(HeaderUtil.createEntityUpdateAlert(ENTITY_NAME, snFileBlob.getId().toString()))
+             .body(result);
+@@ -87,17 +91,18 @@ public class SnFileBlobResource {
+      */
+     @GetMapping("/sn-file-blobs")
+     @Timed
+-    public List<SnFileBlob> getAllSnFileBlobs(@RequestParam(required = false) String filter) {
++    public List<SnFileBlobDTO> getAllSnFileBlobs(@RequestParam(required = false) String filter) {
++        Stream<SnFileBlob> fileBlobStream = snFileBlobRepository.findAll().stream();
+         if ("snfile-is-null".equals(filter)) {
+             log.debug("REST request to get all SnFileBlobs where snFile is null");
+-            return StreamSupport
+-                .stream(snFileBlobRepository.findAll().spliterator(), false)
+-                .filter(snFileBlob -> snFileBlob.getSnFile() == null)
+-                .collect(Collectors.toList());
++            fileBlobStream = snFileBlobRepository.findAll().stream()
++                .filter(snFileBlob -> snFileBlob.getSnFile() == null);
+         }
+         log.debug("REST request to get all SnFileBlobs");
+-        return snFileBlobRepository.findAll();
+-        }
++        return fileBlobStream
++            .map(snFileBlobService::toDto)
++            .collect(Collectors.toList());
++    }
+ 
+     /**
+      * GET  /sn-file-blobs/:id : get the "id" snFileBlob.
+@@ -107,9 +112,9 @@ public class SnFileBlobResource {
+      */
+     @GetMapping("/sn-file-blobs/{id}")
+     @Timed
+-    public ResponseEntity<SnFileBlob> getSnFileBlob(@PathVariable Long id) {
++    public ResponseEntity<SnFileBlobDTO> getSnFileBlob(@PathVariable Long id) {
+         log.debug("REST request to get SnFileBlob : {}", id);
+-        SnFileBlob snFileBlob = snFileBlobRepository.findOne(id);
++        SnFileBlobDTO snFileBlob = snFileBlobService.findOne(id);
+         return ResponseUtil.wrapOrNotFound(Optional.ofNullable(snFileBlob));
+     }
+ 
+diff --git a/src/main/webapp/app/entities/ext-task/uploader/uploader.component.html b/src/main/webapp/app/entities/ext-task/uploader/uploader.component.html
+index 8b156d8..2ffa41e 100644
+--- a/src/main/webapp/app/entities/ext-task/uploader/uploader.component.html
++++ b/src/main/webapp/app/entities/ext-task/uploader/uploader.component.html
+@@ -6,7 +6,7 @@
+ 
+ <span class="upload_button corners">
+   <label>
+-    <input class="upload_button corners" type="file" {{ getAcceptableFileExt() }} (change)="selectFile($event)" multiple #fileInput style="display:none">
++    <input class="upload_button corners" type="file" [attr.accept]="getAcceptableFileExt()" (change)="selectFile($event)" multiple #fileInput style="display:none">
+     <span class="btn btn-primary btn-sm">
+       <i class="fa fa-upload fa-sm"></i> {{ getBanner() }}
+     </span>
+diff --git a/src/main/webapp/app/entities/ext-task/uploader/uploader.component.ts b/src/main/webapp/app/entities/ext-task/uploader/uploader.component.ts
+index 20e904c..8e00972 100644
+--- a/src/main/webapp/app/entities/ext-task/uploader/uploader.component.ts
++++ b/src/main/webapp/app/entities/ext-task/uploader/uploader.component.ts
+@@ -1,7 +1,7 @@
+ import { Component, OnInit, EventEmitter, Input, Output } from '@angular/core';
+ import { HttpResponse, HttpEventType } from '@angular/common/http';
+ import { JhiAlertService } from 'ng-jhipster';
+-import { ITEMS_PER_PAGE, Principal } from '../../../shared';
++import { Principal } from '../../../shared';
+ 
+ import { ExtTaskService } from '../ext-task.service';
+ import { HttpHeaderResponse } from '@angular/common/http/src/response';
+@@ -40,7 +40,7 @@ export class UploaderComponent implements OnInit {
+       return '';
+     }
+ 
+-    return 'accept=".doc, .docx, .rtf"';
++    return '.doc, .docx, .rtf';
+   }
+ 
+   selectFile(event) {
+diff --git a/src/test/java/com/neemshade/sniper/web/rest/SnFileBlobResourceIntTest.java b/src/test/java/com/neemshade/sniper/web/rest/SnFileBlobResourceIntTest.java
+index 69d7f1f..a586548 100644
+--- a/src/test/java/com/neemshade/sniper/web/rest/SnFileBlobResourceIntTest.java
++++ b/src/test/java/com/neemshade/sniper/web/rest/SnFileBlobResourceIntTest.java
+@@ -4,8 +4,12 @@ import com.neemshade.sniper.SniperApp;
+ 
+ import com.neemshade.sniper.domain.SnFileBlob;
+ import com.neemshade.sniper.repository.SnFileBlobRepository;
++import com.neemshade.sniper.service.SnFileBlobService;
++import com.neemshade.sniper.service.dto.SnFileBlobDTO;
+ import com.neemshade.sniper.web.rest.errors.ExceptionTranslator;
+ 
++import org.apache.commons.io.IOUtils;
++import org.hibernate.Session;
+ import org.junit.Before;
+ import org.junit.Test;
+ import org.junit.runner.RunWith;
+@@ -22,6 +26,9 @@ import org.springframework.transaction.annotation.Transactional;
+ import org.springframework.util.Base64Utils;
+ 
+ import javax.persistence.EntityManager;
++
++import java.io.InputStream;
++import java.sql.Blob;
+ import java.util.List;
+ 
+ import static com.neemshade.sniper.web.rest.TestUtil.createFormattingConversionService;
+@@ -47,6 +54,9 @@ public class SnFileBlobResourceIntTest {
+     @Autowired
+     private SnFileBlobRepository snFileBlobRepository;
+ 
++    @Autowired
++    private SnFileBlobService snFileBlobService;
++
+     @Autowired
+     private MappingJackson2HttpMessageConverter jacksonMessageConverter;
+ 
+@@ -62,11 +72,12 @@ public class SnFileBlobResourceIntTest {
+     private MockMvc restSnFileBlobMockMvc;
+ 
+     private SnFileBlob snFileBlob;
++    private SnFileBlobDTO snFileBlobDto;
+ 
+     @Before
+     public void setup() {
+         MockitoAnnotations.initMocks(this);
+-        final SnFileBlobResource snFileBlobResource = new SnFileBlobResource(snFileBlobRepository);
++        final SnFileBlobResource snFileBlobResource = new SnFileBlobResource(snFileBlobRepository, snFileBlobService);
+         this.restSnFileBlobMockMvc = MockMvcBuilders.standaloneSetup(snFileBlobResource)
+             .setCustomArgumentResolvers(pageableArgumentResolver)
+             .setControllerAdvice(exceptionTranslator)
+@@ -81,15 +92,24 @@ public class SnFileBlobResourceIntTest {
+      * if they test an entity which requires the current entity.
+      */
+     public static SnFileBlob createEntity(EntityManager em) {
+-        SnFileBlob snFileBlob = new SnFileBlob()
+-            .fileContent(DEFAULT_FILE_CONTENT)
++        Blob defaultFileContent = ((Session) em.getDelegate()).getLobHelper().createBlob(DEFAULT_FILE_CONTENT);
++        return new SnFileBlob()
++            .fileContent(defaultFileContent)
+             .fileContentContentType(DEFAULT_FILE_CONTENT_CONTENT_TYPE);
+-        return snFileBlob;
++    }
++
++    public static SnFileBlobDTO createEntityDto() {
++        SnFileBlobDTO snFileBlobDTO = new SnFileBlobDTO();
++        snFileBlobDTO.setFileContent(DEFAULT_FILE_CONTENT);
++        snFileBlobDTO.setFileContentContentType(DEFAULT_FILE_CONTENT_CONTENT_TYPE);
++        return snFileBlobDTO;
+     }
+ 
+     @Before
+     public void initTest() {
+         snFileBlob = createEntity(em);
++        snFileBlobDto = createEntityDto();
++        snFileBlobRepository.deleteAll();
+     }
+ 
+     @Test
+@@ -100,14 +120,16 @@ public class SnFileBlobResourceIntTest {
+         // Create the SnFileBlob
+         restSnFileBlobMockMvc.perform(post("/api/sn-file-blobs")
+             .contentType(TestUtil.APPLICATION_JSON_UTF8)
+-            .content(TestUtil.convertObjectToJsonBytes(snFileBlob)))
++            .content(TestUtil.convertObjectToJsonBytes(snFileBlobDto)))
+             .andExpect(status().isCreated());
+ 
+         // Validate the SnFileBlob in the database
+         List<SnFileBlob> snFileBlobList = snFileBlobRepository.findAll();
+         assertThat(snFileBlobList).hasSize(databaseSizeBeforeCreate + 1);
+         SnFileBlob testSnFileBlob = snFileBlobList.get(snFileBlobList.size() - 1);
+-        assertThat(testSnFileBlob.getFileContent()).isEqualTo(DEFAULT_FILE_CONTENT);
++        InputStream binaryStream = testSnFileBlob.getFileContent().getBinaryStream();
++        assertThat(IOUtils.toByteArray(binaryStream)).isEqualTo(DEFAULT_FILE_CONTENT);
++        IOUtils.closeQuietly(binaryStream);
+         assertThat(testSnFileBlob.getFileContentContentType()).isEqualTo(DEFAULT_FILE_CONTENT_CONTENT_TYPE);
+     }
+ 
+@@ -117,12 +139,12 @@ public class SnFileBlobResourceIntTest {
+         int databaseSizeBeforeCreate = snFileBlobRepository.findAll().size();
+ 
+         // Create the SnFileBlob with an existing ID
+-        snFileBlob.setId(1L);
++        snFileBlobDto.setId(1L);
+ 
+         // An entity with an existing ID cannot be created, so this API call must fail
+         restSnFileBlobMockMvc.perform(post("/api/sn-file-blobs")
+             .contentType(TestUtil.APPLICATION_JSON_UTF8)
+-            .content(TestUtil.convertObjectToJsonBytes(snFileBlob)))
++            .content(TestUtil.convertObjectToJsonBytes(snFileBlobDto)))
+             .andExpect(status().isBadRequest());
+ 
+         // Validate the SnFileBlob in the database
+@@ -175,24 +197,22 @@ public class SnFileBlobResourceIntTest {
+         snFileBlobRepository.saveAndFlush(snFileBlob);
+         int databaseSizeBeforeUpdate = snFileBlobRepository.findAll().size();
+ 
+-        // Update the snFileBlob
+-        SnFileBlob updatedSnFileBlob = snFileBlobRepository.findOne(snFileBlob.getId());
+-        // Disconnect from session so that the updates on updatedSnFileBlob are not directly saved in db
+-        em.detach(updatedSnFileBlob);
+-        updatedSnFileBlob
+-            .fileContent(UPDATED_FILE_CONTENT)
+-            .fileContentContentType(UPDATED_FILE_CONTENT_CONTENT_TYPE);
++        SnFileBlobDTO updatedSnFileBlobDto = new SnFileBlobDTO();
++        updatedSnFileBlobDto.setId(snFileBlob.getId());
++        updatedSnFileBlobDto.setFileContent(UPDATED_FILE_CONTENT);
++        updatedSnFileBlobDto.setFileContentContentType(UPDATED_FILE_CONTENT_CONTENT_TYPE);
+ 
+         restSnFileBlobMockMvc.perform(put("/api/sn-file-blobs")
+             .contentType(TestUtil.APPLICATION_JSON_UTF8)
+-            .content(TestUtil.convertObjectToJsonBytes(updatedSnFileBlob)))
++            .content(TestUtil.convertObjectToJsonBytes(updatedSnFileBlobDto)))
+             .andExpect(status().isOk());
+ 
+         // Validate the SnFileBlob in the database
+-        List<SnFileBlob> snFileBlobList = snFileBlobRepository.findAll();
+-        assertThat(snFileBlobList).hasSize(databaseSizeBeforeUpdate);
+-        SnFileBlob testSnFileBlob = snFileBlobList.get(snFileBlobList.size() - 1);
+-        assertThat(testSnFileBlob.getFileContent()).isEqualTo(UPDATED_FILE_CONTENT);
++        assertThat(snFileBlobRepository.count()).isEqualTo(databaseSizeBeforeUpdate);
++        SnFileBlob testSnFileBlob = snFileBlobRepository.findOne(snFileBlob.getId());
++        InputStream binaryStream = testSnFileBlob.getFileContent().getBinaryStream();
++        assertThat(IOUtils.toByteArray(binaryStream)).isEqualTo(UPDATED_FILE_CONTENT);
++        IOUtils.closeQuietly(binaryStream);
+         assertThat(testSnFileBlob.getFileContentContentType()).isEqualTo(UPDATED_FILE_CONTENT_CONTENT_TYPE);
+     }
+ 
+@@ -206,7 +226,7 @@ public class SnFileBlobResourceIntTest {
+         // If the entity doesn't have an ID, it will be created instead of just being updated
+         restSnFileBlobMockMvc.perform(put("/api/sn-file-blobs")
+             .contentType(TestUtil.APPLICATION_JSON_UTF8)
+-            .content(TestUtil.convertObjectToJsonBytes(snFileBlob)))
++            .content(TestUtil.convertObjectToJsonBytes(snFileBlobDto)))
+             .andExpect(status().isCreated());
+ 
+         // Validate the SnFileBlob in the database

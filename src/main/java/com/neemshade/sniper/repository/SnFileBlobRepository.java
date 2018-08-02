@@ -12,5 +12,5 @@ import org.springframework.data.jpa.repository.*;
 @SuppressWarnings("unused")
 @Repository
 public interface SnFileBlobRepository extends JpaRepository<SnFileBlob, Long> {
-	public SnFileBlob findTopBySnFileId(Long snFileId);
+	SnFileBlob findTopBySnFileId(Long snFileId);
 }

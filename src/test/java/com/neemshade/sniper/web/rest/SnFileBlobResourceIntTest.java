@@ -4,8 +4,12 @@ import com.neemshade.sniper.SniperApp;
 
 import com.neemshade.sniper.domain.SnFileBlob;
 import com.neemshade.sniper.repository.SnFileBlobRepository;
+import com.neemshade.sniper.service.SnFileBlobService;
+import com.neemshade.sniper.service.dto.SnFileBlobDTO;
 import com.neemshade.sniper.web.rest.errors.ExceptionTranslator;
 
+import org.apache.commons.io.IOUtils;
+import org.hibernate.Session;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -22,6 +26,9 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Base64Utils;
 
 import javax.persistence.EntityManager;
+
+import java.io.InputStream;
+import java.sql.Blob;
 import java.util.List;
 
 import static com.neemshade.sniper.web.rest.TestUtil.createFormattingConversionService;
@@ -48,6 +55,9 @@ public class SnFileBlobResourceIntTest {
     private SnFileBlobRepository snFileBlobRepository;
 
     @Autowired
+    private SnFileBlobService snFileBlobService;
+
+    @Autowired
     private MappingJackson2HttpMessageConverter jacksonMessageConverter;
 
     @Autowired
@@ -62,11 +72,12 @@ public class SnFileBlobResourceIntTest {
     private MockMvc restSnFileBlobMockMvc;
 
     private SnFileBlob snFileBlob;
+    private SnFileBlobDTO snFileBlobDto;
 
     @Before
     public void setup() {
         MockitoAnnotations.initMocks(this);
-        final SnFileBlobResource snFileBlobResource = new SnFileBlobResource(snFileBlobRepository);
+        final SnFileBlobResource snFileBlobResource = new SnFileBlobResource(snFileBlobRepository, snFileBlobService);
         this.restSnFileBlobMockMvc = MockMvcBuilders.standaloneSetup(snFileBlobResource)
             .setCustomArgumentResolvers(pageableArgumentResolver)
             .setControllerAdvice(exceptionTranslator)
@@ -81,15 +92,24 @@ public class SnFileBlobResourceIntTest {
      * if they test an entity which requires the current entity.
      */
     public static SnFileBlob createEntity(EntityManager em) {
-        SnFileBlob snFileBlob = new SnFileBlob()
-            .fileContent(DEFAULT_FILE_CONTENT)
+        Blob defaultFileContent = ((Session) em.getDelegate()).getLobHelper().createBlob(DEFAULT_FILE_CONTENT);
+        return new SnFileBlob()
+            .fileContent(defaultFileContent)
             .fileContentContentType(DEFAULT_FILE_CONTENT_CONTENT_TYPE);
-        return snFileBlob;
+    }
+
+    public static SnFileBlobDTO createEntityDto() {
+        SnFileBlobDTO snFileBlobDTO = new SnFileBlobDTO();
+        snFileBlobDTO.setFileContent(DEFAULT_FILE_CONTENT);
+        snFileBlobDTO.setFileContentContentType(DEFAULT_FILE_CONTENT_CONTENT_TYPE);
+        return snFileBlobDTO;
     }
 
     @Before
     public void initTest() {
         snFileBlob = createEntity(em);
+        snFileBlobDto = createEntityDto();
+        snFileBlobRepository.deleteAll();
     }
 
     @Test
@@ -100,14 +120,16 @@ public class SnFileBlobResourceIntTest {
         // Create the SnFileBlob
         restSnFileBlobMockMvc.perform(post("/api/sn-file-blobs")
             .contentType(TestUtil.APPLICATION_JSON_UTF8)
-            .content(TestUtil.convertObjectToJsonBytes(snFileBlob)))
+            .content(TestUtil.convertObjectToJsonBytes(snFileBlobDto)))
             .andExpect(status().isCreated());
 
         // Validate the SnFileBlob in the database
         List<SnFileBlob> snFileBlobList = snFileBlobRepository.findAll();
         assertThat(snFileBlobList).hasSize(databaseSizeBeforeCreate + 1);
         SnFileBlob testSnFileBlob = snFileBlobList.get(snFileBlobList.size() - 1);
-        assertThat(testSnFileBlob.getFileContent()).isEqualTo(DEFAULT_FILE_CONTENT);
+        InputStream binaryStream = testSnFileBlob.getFileContent().getBinaryStream();
+        assertThat(IOUtils.toByteArray(binaryStream)).isEqualTo(DEFAULT_FILE_CONTENT);
+        IOUtils.closeQuietly(binaryStream);
         assertThat(testSnFileBlob.getFileContentContentType()).isEqualTo(DEFAULT_FILE_CONTENT_CONTENT_TYPE);
     }
 
@@ -117,12 +139,12 @@ public class SnFileBlobResourceIntTest {
         int databaseSizeBeforeCreate = snFileBlobRepository.findAll().size();
 
         // Create the SnFileBlob with an existing ID
-        snFileBlob.setId(1L);
+        snFileBlobDto.setId(1L);
 
         // An entity with an existing ID cannot be created, so this API call must fail
         restSnFileBlobMockMvc.perform(post("/api/sn-file-blobs")
             .contentType(TestUtil.APPLICATION_JSON_UTF8)
-            .content(TestUtil.convertObjectToJsonBytes(snFileBlob)))
+            .content(TestUtil.convertObjectToJsonBytes(snFileBlobDto)))
             .andExpect(status().isBadRequest());
 
         // Validate the SnFileBlob in the database
@@ -175,24 +197,22 @@ public class SnFileBlobResourceIntTest {
         snFileBlobRepository.saveAndFlush(snFileBlob);
         int databaseSizeBeforeUpdate = snFileBlobRepository.findAll().size();
 
-        // Update the snFileBlob
-        SnFileBlob updatedSnFileBlob = snFileBlobRepository.findOne(snFileBlob.getId());
-        // Disconnect from session so that the updates on updatedSnFileBlob are not directly saved in db
-        em.detach(updatedSnFileBlob);
-        updatedSnFileBlob
-            .fileContent(UPDATED_FILE_CONTENT)
-            .fileContentContentType(UPDATED_FILE_CONTENT_CONTENT_TYPE);
+        SnFileBlobDTO updatedSnFileBlobDto = new SnFileBlobDTO();
+        updatedSnFileBlobDto.setId(snFileBlob.getId());
+        updatedSnFileBlobDto.setFileContent(UPDATED_FILE_CONTENT);
+        updatedSnFileBlobDto.setFileContentContentType(UPDATED_FILE_CONTENT_CONTENT_TYPE);
 
         restSnFileBlobMockMvc.perform(put("/api/sn-file-blobs")
             .contentType(TestUtil.APPLICATION_JSON_UTF8)
-            .content(TestUtil.convertObjectToJsonBytes(updatedSnFileBlob)))
+            .content(TestUtil.convertObjectToJsonBytes(updatedSnFileBlobDto)))
             .andExpect(status().isOk());
 
         // Validate the SnFileBlob in the database
-        List<SnFileBlob> snFileBlobList = snFileBlobRepository.findAll();
-        assertThat(snFileBlobList).hasSize(databaseSizeBeforeUpdate);
-        SnFileBlob testSnFileBlob = snFileBlobList.get(snFileBlobList.size() - 1);
-        assertThat(testSnFileBlob.getFileContent()).isEqualTo(UPDATED_FILE_CONTENT);
+        assertThat(snFileBlobRepository.count()).isEqualTo(databaseSizeBeforeUpdate);
+        SnFileBlob testSnFileBlob = snFileBlobRepository.findOne(snFileBlob.getId());
+        InputStream binaryStream = testSnFileBlob.getFileContent().getBinaryStream();
+        assertThat(IOUtils.toByteArray(binaryStream)).isEqualTo(UPDATED_FILE_CONTENT);
+        IOUtils.closeQuietly(binaryStream);
         assertThat(testSnFileBlob.getFileContentContentType()).isEqualTo(UPDATED_FILE_CONTENT_CONTENT_TYPE);
     }
 
@@ -206,7 +226,7 @@ public class SnFileBlobResourceIntTest {
         // If the entity doesn't have an ID, it will be created instead of just being updated
         restSnFileBlobMockMvc.perform(put("/api/sn-file-blobs")
             .contentType(TestUtil.APPLICATION_JSON_UTF8)
-            .content(TestUtil.convertObjectToJsonBytes(snFileBlob)))
+            .content(TestUtil.convertObjectToJsonBytes(snFileBlobDto)))
             .andExpect(status().isCreated());
 
         // Validate the SnFileBlob in the database

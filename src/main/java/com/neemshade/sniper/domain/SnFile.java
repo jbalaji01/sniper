@@ -82,7 +82,7 @@ public class SnFile implements Serializable {
     @Column(name = "peck_order")
     private Integer peckOrder;
 
-    @OneToOne
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(unique = true)
     private SnFileBlob snFileBlob;
 
