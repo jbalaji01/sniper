@@ -63,7 +63,6 @@ public class CacheConfiguration {
             cm.createCache(com.neemshade.sniper.domain.SnFile.class.getName(), jcacheConfiguration);
             cm.createCache(com.neemshade.sniper.domain.SnFile.class.getName() + ".patients", jcacheConfiguration);
             cm.createCache(com.neemshade.sniper.domain.SnFile.class.getName() + ".tasks", jcacheConfiguration);
-            cm.createCache(com.neemshade.sniper.domain.SnFileBlob.class.getName(), jcacheConfiguration);
             cm.createCache(com.neemshade.sniper.domain.TaskGroup.class.getName(), jcacheConfiguration);
             cm.createCache(com.neemshade.sniper.domain.TaskGroup.class.getName() + ".tasks", jcacheConfiguration);
             cm.createCache(com.neemshade.sniper.domain.Task.class.getName(), jcacheConfiguration);

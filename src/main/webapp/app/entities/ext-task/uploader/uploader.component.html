@@ -6,7 +6,7 @@
 
 <span class="upload_button corners">
   <label>
-    <input class="upload_button corners" type="file" {{ getAcceptableFileExt() }} (change)="selectFile($event)" multiple #fileInput style="display:none">
+    <input class="upload_button corners" type="file" [attr.accept]="getAcceptableFileExt()" (change)="selectFile($event)" multiple #fileInput style="display:none">
     <span class="btn btn-primary btn-sm">
       <i class="fa fa-upload fa-sm"></i> {{ getBanner() }}
     </span>

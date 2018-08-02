@@ -4,8 +4,10 @@ import com.codahale.metrics.annotation.Timed;
 import com.neemshade.sniper.domain.SnFileBlob;
 
 import com.neemshade.sniper.repository.SnFileBlobRepository;
+import com.neemshade.sniper.service.SnFileBlobService;
 import com.neemshade.sniper.web.rest.errors.BadRequestAlertException;
 import com.neemshade.sniper.web.rest.util.HeaderUtil;
+import com.neemshade.sniper.service.dto.SnFileBlobDTO;
 import io.github.jhipster.web.util.ResponseUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,7 +20,7 @@ import java.net.URISyntaxException;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
+import java.util.stream.Stream;
 
 /**
  * REST controller for managing SnFileBlob.
@@ -32,9 +34,11 @@ public class SnFileBlobResource {
     private static final String ENTITY_NAME = "snFileBlob";
 
     private final SnFileBlobRepository snFileBlobRepository;
+    private final SnFileBlobService snFileBlobService;
 
-    public SnFileBlobResource(SnFileBlobRepository snFileBlobRepository) {
+    public SnFileBlobResource(SnFileBlobRepository snFileBlobRepository, SnFileBlobService snFileBlobService) {
         this.snFileBlobRepository = snFileBlobRepository;
+        this.snFileBlobService = snFileBlobService;
     }
 
     /**
@@ -46,12 +50,12 @@ public class SnFileBlobResource {
      */
     @PostMapping("/sn-file-blobs")
     @Timed
-    public ResponseEntity<SnFileBlob> createSnFileBlob(@RequestBody SnFileBlob snFileBlob) throws URISyntaxException {
-        log.debug("REST request to save SnFileBlob : {}", snFileBlob);
+    public ResponseEntity<SnFileBlobDTO> createSnFileBlob(@RequestBody SnFileBlobDTO snFileBlob) throws URISyntaxException {
+        log.debug("REST request to create SnFileBlob : {}", snFileBlob);
         if (snFileBlob.getId() != null) {
             throw new BadRequestAlertException("A new snFileBlob cannot already have an ID", ENTITY_NAME, "idexists");
         }
-        SnFileBlob result = snFileBlobRepository.save(snFileBlob);
+        SnFileBlobDTO result = snFileBlobService.save(snFileBlob);
         return ResponseEntity.created(new URI("/api/sn-file-blobs/" + result.getId()))
             .headers(HeaderUtil.createEntityCreationAlert(ENTITY_NAME, result.getId().toString()))
             .body(result);
@@ -68,12 +72,12 @@ public class SnFileBlobResource {
      */
     @PutMapping("/sn-file-blobs")
     @Timed
-    public ResponseEntity<SnFileBlob> updateSnFileBlob(@RequestBody SnFileBlob snFileBlob) throws URISyntaxException {
+    public ResponseEntity<SnFileBlobDTO> updateSnFileBlob(@RequestBody SnFileBlobDTO snFileBlob) throws URISyntaxException {
         log.debug("REST request to update SnFileBlob : {}", snFileBlob);
         if (snFileBlob.getId() == null) {
             return createSnFileBlob(snFileBlob);
         }
-        SnFileBlob result = snFileBlobRepository.save(snFileBlob);
+        SnFileBlobDTO result = snFileBlobService.save(snFileBlob);
         return ResponseEntity.ok()
             .headers(HeaderUtil.createEntityUpdateAlert(ENTITY_NAME, snFileBlob.getId().toString()))
             .body(result);
@@ -87,17 +91,18 @@ public class SnFileBlobResource {
      */
     @GetMapping("/sn-file-blobs")
     @Timed
-    public List<SnFileBlob> getAllSnFileBlobs(@RequestParam(required = false) String filter) {
+    public List<SnFileBlobDTO> getAllSnFileBlobs(@RequestParam(required = false) String filter) {
+        Stream<SnFileBlob> fileBlobStream = snFileBlobRepository.findAll().stream();
         if ("snfile-is-null".equals(filter)) {
             log.debug("REST request to get all SnFileBlobs where snFile is null");
-            return StreamSupport
-                .stream(snFileBlobRepository.findAll().spliterator(), false)
-                .filter(snFileBlob -> snFileBlob.getSnFile() == null)
-                .collect(Collectors.toList());
+            fileBlobStream = snFileBlobRepository.findAll().stream()
+                .filter(snFileBlob -> snFileBlob.getSnFile() == null);
         }
         log.debug("REST request to get all SnFileBlobs");
-        return snFileBlobRepository.findAll();
-        }
+        return fileBlobStream
+            .map(snFileBlobService::toDto)
+            .collect(Collectors.toList());
+    }
 
     /**
      * GET  /sn-file-blobs/:id : get the "id" snFileBlob.
@@ -107,9 +112,9 @@ public class SnFileBlobResource {
      */
     @GetMapping("/sn-file-blobs/{id}")
     @Timed
-    public ResponseEntity<SnFileBlob> getSnFileBlob(@PathVariable Long id) {
+    public ResponseEntity<SnFileBlobDTO> getSnFileBlob(@PathVariable Long id) {
         log.debug("REST request to get SnFileBlob : {}", id);
-        SnFileBlob snFileBlob = snFileBlobRepository.findOne(id);
+        SnFileBlobDTO snFileBlob = snFileBlobService.findOne(id);
         return ResponseUtil.wrapOrNotFound(Optional.ofNullable(snFileBlob));
     }
 
