@@ -136,6 +136,10 @@
                     <span class="fa fa-sort"></span>
                 </th>
 
+                <th>
+                    <span>Control</span>
+                </th>
+
                 <th jhiSortBy="taskTitle">
                     <span>Title</span>
                     <span class="fa fa-sort"></span>
@@ -221,19 +225,25 @@
                     </div>
                 </td>
 
-                <td class='fit'>{{task.taskTitle}}<br/><br/>
+                <td class='fit'>
+                    <span>
+                        <span class="btn-group">
+                                <button type="submit" [routerLink]="['/ext-sn-file/', task.id ]" replaceUrl="true" queryParamsHandling="merge" class="btn btn-primary btn-sm">
+                                    <span class="fa fa-eye"></span>
+                            </button></span>
+        
+                            <span><jhi-uploader [source]="'task'" [id]="task.id" (onCompletion)="uponUploadCompletion($event)"></jhi-uploader></span>
+        
+                            <span><jhi-downloader [source]="'task'" [id]="task.id" (onCompletion)="uponDownloadCompletion($event)"></jhi-downloader></span>
+                    </span>
+                </td>
+
+                <td class='fit'>{{task.taskTitle}}
                     <!-- <span class="btn-group flex-btn-group-container">
                             <button type="submit" [routerLink]="['/', { outlets: { popup: 'ext-sn-file/'+ task.id } }]" replaceUrl="true" queryParamsHandling="merge" class="btn btn-primary btn-sm">
                     <span class="fa fa-eye"></span>
                   </button></span>  -->
-                    <span class="btn-group">
-                        <button type="submit" [routerLink]="['/ext-sn-file/', task.id ]" replaceUrl="true" queryParamsHandling="merge" class="btn btn-primary btn-sm">
-                            <span class="fa fa-eye"></span>
-                    </button></span>
-
-                    <jhi-uploader [source]="'task'" [id]="task.id" (onCompletion)="uponUploadCompletion($event)"></jhi-uploader>
-
-                    <jhi-downloader [source]="'task'" [id]="task.id" (onCompletion)="uponDownloadCompletion($event)"></jhi-downloader>
+                    
                 </td>
 
                 <td class="table-{{ fetchColorCode(task.taskStatus) }}">{{task.taskStatus}}</td>

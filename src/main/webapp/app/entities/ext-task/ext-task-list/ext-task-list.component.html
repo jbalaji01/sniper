@@ -1,18 +1,22 @@
 
-<h3>Active tasks</h3>
+<h3>{{key}} tasks</h3>
+
+<div *ngIf="isActive">
 <jhi-ext-task-list-template 
   [source]="'activeTasks'"
   [taskGroupId]="0"
   (onReload)="reload(0)"
   #activeTasksTemplate
   ></jhi-ext-task-list-template>
+</div>
+<!-- <hr/> -->
 
-<hr/>
-
-<h3>All tasks</h3>
+<!-- <h3>All tasks</h3> -->
+<div *ngIf="!isActive">
 <jhi-ext-task-list-template 
   [source]="'allTasks'"
   [taskGroupId]="0"
   (onReload)="reload(0)"
   #allTasksTemplate
   ></jhi-ext-task-list-template>
+</div>

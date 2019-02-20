@@ -83,7 +83,7 @@ export const routes: Routes = [
     },
 
     {
-        path: 'ext-task-list',
+        path: 'ext-task-list/:key',
         component: ExtTaskListComponent,
         resolve: {
             'pagingParams': ExtTaskResolvePagingParams
