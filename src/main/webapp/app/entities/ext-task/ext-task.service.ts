@@ -7,7 +7,7 @@ import { SERVER_API_URL } from '../../app.constants';
 // import { JhiDateUtils } from 'ng-jhipster';
 import { createRequestOption } from '../../shared';
 
-import {SnFile} from '../sn-file/sn-file.model';
+import {SnFile, ChosenFactor} from '../sn-file/sn-file.model';
 
 import { TaskGroup } from '../task-group/task-group.model';
 import { Task, TaskStatus } from '../task/task.model';
@@ -181,6 +181,19 @@ export class ExtTaskService {
   // convert any type to corresponding enum value string
   varToEnumStringVal(value: any, enumerator: any): string {
     const en: { [index: string]: any } = enumerator;
+
+    if (!isNaN(parseInt(value, 10))) {
+        return en[value];
+    }
+
+    const num = en[value];
+
+    return en[num];
+  }
+
+  // convert any ChosenFactor type to corresponding enum value string
+  varToEnumStringValCF(value: any): string {
+    const en: { [index: string]: any } = ChosenFactor;
 
     if (!isNaN(parseInt(value, 10))) {
         return en[value];

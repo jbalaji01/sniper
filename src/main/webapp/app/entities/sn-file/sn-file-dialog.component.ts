@@ -9,7 +9,6 @@ import { JhiEventManager, JhiAlertService } from 'ng-jhipster';
 import { SnFile } from './sn-file.model';
 import { SnFilePopupService } from './sn-file-popup.service';
 import { SnFileService } from './sn-file.service';
-import { SnFileBlob, SnFileBlobService } from '../sn-file-blob';
 import { Patient, PatientService } from '../patient';
 import { Task, TaskService } from '../task';
 import { UserInfo, UserInfoService } from '../user-info';
@@ -23,8 +22,6 @@ export class SnFileDialogComponent implements OnInit {
     snFile: SnFile;
     isSaving: boolean;
 
-    snfileblobs: SnFileBlob[];
-
     patients: Patient[];
 
     tasks: Task[];
@@ -35,7 +32,6 @@ export class SnFileDialogComponent implements OnInit {
         public activeModal: NgbActiveModal,
         private jhiAlertService: JhiAlertService,
         private snFileService: SnFileService,
-        private snFileBlobService: SnFileBlobService,
         private patientService: PatientService,
         private taskService: TaskService,
         private userInfoService: UserInfoService,
@@ -45,19 +41,6 @@ export class SnFileDialogComponent implements OnInit {
 
     ngOnInit() {
         this.isSaving = false;
-        this.snFileBlobService
-            .query({filter: 'snfile(filename)-is-null'})
-            .subscribe((res: HttpResponse<SnFileBlob[]>) => {
-                if (!this.snFile.snFileBlob || !this.snFile.snFileBlob.id) {
-                    this.snfileblobs = res.body;
-                } else {
-                    this.snFileBlobService
-                        .find(this.snFile.snFileBlob.id)
-                        .subscribe((subRes: HttpResponse<SnFileBlob>) => {
-                            this.snfileblobs = [subRes.body].concat(res.body);
-                        }, (subRes: HttpErrorResponse) => this.onError(subRes.message));
-                }
-            }, (res: HttpErrorResponse) => this.onError(res.message));
         this.patientService.query()
             .subscribe((res: HttpResponse<Patient[]>) => { this.patients = res.body; }, (res: HttpErrorResponse) => this.onError(res.message));
         this.taskService.query()
@@ -98,10 +81,6 @@ export class SnFileDialogComponent implements OnInit {
 
     private onError(error: any) {
         this.jhiAlertService.error(error.message, null, null);
-    }
-
-    trackSnFileBlobById(index: number, item: SnFileBlob) {
-        return item.id;
     }
 
     trackPatientById(index: number, item: Patient) {

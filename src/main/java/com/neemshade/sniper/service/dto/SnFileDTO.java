@@ -14,6 +14,7 @@ public class SnFileDTO {
     private String filePath;
     private String fileName;
     private String fileExt;
+    private Long fileSize;
     private String origin;
     private Boolean isInput;
     private Boolean isAudio;
@@ -29,7 +30,6 @@ public class SnFileDTO {
     private Integer wosFinalLineCount;
     private ChosenFactor chosenFactor;
     private Integer peckOrder;
-    private SnFileBlobDTO snFileBlob;
     private Set<Patient> patients = new HashSet<>();
     private Set<Task> tasks = new HashSet<>();
     private UserInfo uploader;
@@ -186,14 +186,6 @@ public class SnFileDTO {
         this.peckOrder = peckOrder;
     }
 
-    public SnFileBlobDTO getSnFileBlob() {
-        return snFileBlob;
-    }
-
-    public void setSnFileBlob(SnFileBlobDTO snFileBlob) {
-        this.snFileBlob = snFileBlob;
-    }
-
     public Set<Patient> getPatients() {
         return patients;
     }
@@ -240,10 +232,23 @@ public class SnFileDTO {
             ", wosFinalLineCount=" + wosFinalLineCount +
             ", chosenFactor=" + chosenFactor +
             ", peckOrder=" + peckOrder +
-            ", snFileBlob=" + snFileBlob +
-            ", patients=" + patients +
-            ", tasks=" + tasks +
-            ", uploader=" + uploader +
+//            ", patients=" + patients +
+//            ", tasks=" + tasks +
+//            ", uploader=" + uploader +
             '}';
     }
+
+	/**
+	 * @return the fileSize
+	 */
+	public Long getFileSize() {
+		return fileSize;
+	}
+
+	/**
+	 * @param fileSize the fileSize to set
+	 */
+	public void setFileSize(Long fileSize) {
+		this.fileSize = fileSize;
+	}
 }

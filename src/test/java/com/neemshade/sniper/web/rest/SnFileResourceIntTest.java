@@ -51,6 +51,9 @@ public class SnFileResourceIntTest {
     private static final String DEFAULT_FILE_EXT = "AAAAAAAAAA";
     private static final String UPDATED_FILE_EXT = "BBBBBBBBBB";
 
+    private static final Long DEFAULT_FILE_SIZE = 1L;
+    private static final Long UPDATED_FILE_SIZE = 2L;
+
     private static final String DEFAULT_ORIGIN = "AAAAAAAAAA";
     private static final String UPDATED_ORIGIN = "BBBBBBBBBB";
 
@@ -140,6 +143,7 @@ public class SnFileResourceIntTest {
             .filePath(DEFAULT_FILE_PATH)
             .fileName(DEFAULT_FILE_NAME)
             .fileExt(DEFAULT_FILE_EXT)
+            .fileSize(DEFAULT_FILE_SIZE)
             .origin(DEFAULT_ORIGIN)
             .isInput(DEFAULT_IS_INPUT)
             .isAudio(DEFAULT_IS_AUDIO)
@@ -181,6 +185,7 @@ public class SnFileResourceIntTest {
         assertThat(testSnFile.getFilePath()).isEqualTo(DEFAULT_FILE_PATH);
         assertThat(testSnFile.getFileName()).isEqualTo(DEFAULT_FILE_NAME);
         assertThat(testSnFile.getFileExt()).isEqualTo(DEFAULT_FILE_EXT);
+        assertThat(testSnFile.getFileSize()).isEqualTo(DEFAULT_FILE_SIZE);
         assertThat(testSnFile.getOrigin()).isEqualTo(DEFAULT_ORIGIN);
         assertThat(testSnFile.isIsInput()).isEqualTo(DEFAULT_IS_INPUT);
         assertThat(testSnFile.isIsAudio()).isEqualTo(DEFAULT_IS_AUDIO);
@@ -231,6 +236,7 @@ public class SnFileResourceIntTest {
             .andExpect(jsonPath("$.[*].filePath").value(hasItem(DEFAULT_FILE_PATH.toString())))
             .andExpect(jsonPath("$.[*].fileName").value(hasItem(DEFAULT_FILE_NAME.toString())))
             .andExpect(jsonPath("$.[*].fileExt").value(hasItem(DEFAULT_FILE_EXT.toString())))
+            .andExpect(jsonPath("$.[*].fileSize").value(hasItem(DEFAULT_FILE_SIZE.intValue())))
             .andExpect(jsonPath("$.[*].origin").value(hasItem(DEFAULT_ORIGIN.toString())))
             .andExpect(jsonPath("$.[*].isInput").value(hasItem(DEFAULT_IS_INPUT.booleanValue())))
             .andExpect(jsonPath("$.[*].isAudio").value(hasItem(DEFAULT_IS_AUDIO.booleanValue())))
@@ -262,6 +268,7 @@ public class SnFileResourceIntTest {
             .andExpect(jsonPath("$.filePath").value(DEFAULT_FILE_PATH.toString()))
             .andExpect(jsonPath("$.fileName").value(DEFAULT_FILE_NAME.toString()))
             .andExpect(jsonPath("$.fileExt").value(DEFAULT_FILE_EXT.toString()))
+            .andExpect(jsonPath("$.fileSize").value(DEFAULT_FILE_SIZE.intValue()))
             .andExpect(jsonPath("$.origin").value(DEFAULT_ORIGIN.toString()))
             .andExpect(jsonPath("$.isInput").value(DEFAULT_IS_INPUT.booleanValue()))
             .andExpect(jsonPath("$.isAudio").value(DEFAULT_IS_AUDIO.booleanValue()))
@@ -303,6 +310,7 @@ public class SnFileResourceIntTest {
             .filePath(UPDATED_FILE_PATH)
             .fileName(UPDATED_FILE_NAME)
             .fileExt(UPDATED_FILE_EXT)
+            .fileSize(UPDATED_FILE_SIZE)
             .origin(UPDATED_ORIGIN)
             .isInput(UPDATED_IS_INPUT)
             .isAudio(UPDATED_IS_AUDIO)
@@ -331,6 +339,7 @@ public class SnFileResourceIntTest {
         assertThat(testSnFile.getFilePath()).isEqualTo(UPDATED_FILE_PATH);
         assertThat(testSnFile.getFileName()).isEqualTo(UPDATED_FILE_NAME);
         assertThat(testSnFile.getFileExt()).isEqualTo(UPDATED_FILE_EXT);
+        assertThat(testSnFile.getFileSize()).isEqualTo(UPDATED_FILE_SIZE);
         assertThat(testSnFile.getOrigin()).isEqualTo(UPDATED_ORIGIN);
         assertThat(testSnFile.isIsInput()).isEqualTo(UPDATED_IS_INPUT);
         assertThat(testSnFile.isIsAudio()).isEqualTo(UPDATED_IS_AUDIO);

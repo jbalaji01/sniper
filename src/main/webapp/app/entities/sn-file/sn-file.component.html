@@ -20,6 +20,7 @@
             <th><span>File Path</span></th>
             <th><span>File Name</span></th>
             <th><span>File Ext</span></th>
+            <th><span>File Size</span></th>
             <th><span>Origin</span></th>
             <th><span>Is Input</span></th>
             <th><span>Is Audio</span></th>
@@ -35,7 +36,6 @@
             <th><span>Wos Final Line Count</span></th>
             <th><span>Chosen Factor</span></th>
             <th><span>Peck Order</span></th>
-            <th><span>Sn File Blob</span></th>
             <th><span>Patient</span></th>
             <th><span>Task</span></th>
             <th><span>Uploader</span></th>
@@ -48,6 +48,7 @@
                 <td>{{snFile.filePath}}</td>
                 <td>{{snFile.fileName}}</td>
                 <td>{{snFile.fileExt}}</td>
+                <td>{{snFile.fileSize}}</td>
                 <td>{{snFile.origin}}</td>
                 <td>{{snFile.isInput}}</td>
                 <td>{{snFile.isAudio}}</td>
@@ -63,11 +64,6 @@
                 <td>{{snFile.wosFinalLineCount}}</td>
                 <td>{{snFile.chosenFactor}}</td>
                 <td>{{snFile.peckOrder}}</td>
-                <td>
-                    <div *ngIf="snFile.snFileBlob">
-                        <a [routerLink]="['../sn-file-blob', snFile.snFileBlob?.id ]" >{{snFile.snFileBlob?.id}}</a>
-                    </div>
-                </td>
                 <td>
                     <span *ngFor="let patient of snFile.patients; let last = last">
                             <a class="form-control-static" [routerLink]="['../patient', patient?.id ]">{{patient.patientName}}</a>{{last ? '' : ', '}}

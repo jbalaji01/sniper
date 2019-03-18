@@ -28,6 +28,11 @@
                 [(ngModel)]="snFile.fileExt" />
         </div>
         <div class="form-group">
+            <label class="form-control-label" for="field_fileSize">File Size</label>
+            <input type="number" class="form-control" name="fileSize" id="field_fileSize"
+                [(ngModel)]="snFile.fileSize" />
+        </div>
+        <div class="form-group">
             <label class="form-control-label" for="field_origin">Origin</label>
             <input type="text" class="form-control" name="origin" id="field_origin"
                 [(ngModel)]="snFile.origin" />
@@ -109,13 +114,6 @@
                 [(ngModel)]="snFile.peckOrder" />
         </div>
 
-        <div class="form-group">
-            <label class="form-control-label" for="field_snFileBlob">Sn File Blob</label>
-            <select class="form-control" id="field_snFileBlob" name="snFileBlob" [(ngModel)]="snFile.snFileBlob">
-                <option [ngValue]="null"></option>
-                <option [ngValue]="snFileBlobOption.id === snFile.snFileBlob?.id ? snFile.snFileBlob : snFileBlobOption" *ngFor="let snFileBlobOption of snfileblobs; trackBy: trackSnFileBlobById">{{snFileBlobOption.id}}</option>
-            </select>
-        </div>
         <div class="form-group">
             <label for="field_patient">Patient</label>
             <select class="form-control" id="field_patient" multiple name="patient" [(ngModel)]="snFile.patients">

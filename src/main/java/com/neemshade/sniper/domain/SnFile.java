@@ -36,6 +36,9 @@ public class SnFile implements Serializable {
     @Column(name = "file_ext")
     private String fileExt;
 
+    @Column(name = "file_size")
+    private Long fileSize;
+
     @Column(name = "origin")
     private String origin;
 
@@ -81,10 +84,6 @@ public class SnFile implements Serializable {
 
     @Column(name = "peck_order")
     private Integer peckOrder;
-
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(unique = true)
-    private SnFileBlob snFileBlob;
 
     @ManyToMany
     @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
@@ -149,6 +148,19 @@ public class SnFile implements Serializable {
 
     public void setFileExt(String fileExt) {
         this.fileExt = fileExt;
+    }
+
+    public Long getFileSize() {
+        return fileSize;
+    }
+
+    public SnFile fileSize(Long fileSize) {
+        this.fileSize = fileSize;
+        return this;
+    }
+
+    public void setFileSize(Long fileSize) {
+        this.fileSize = fileSize;
     }
 
     public String getOrigin() {
@@ -346,19 +358,6 @@ public class SnFile implements Serializable {
         this.peckOrder = peckOrder;
     }
 
-    public SnFileBlob getSnFileBlob() {
-        return snFileBlob;
-    }
-
-    public SnFile snFileBlob(SnFileBlob snFileBlob) {
-        this.snFileBlob = snFileBlob;
-        return this;
-    }
-
-    public void setSnFileBlob(SnFileBlob snFileBlob) {
-        this.snFileBlob = snFileBlob;
-    }
-
     public Set<Patient> getPatients() {
         return patients;
     }
@@ -450,6 +449,7 @@ public class SnFile implements Serializable {
             ", filePath='" + getFilePath() + "'" +
             ", fileName='" + getFileName() + "'" +
             ", fileExt='" + getFileExt() + "'" +
+            ", fileSize=" + getFileSize() +
             ", origin='" + getOrigin() + "'" +
             ", isInput='" + isIsInput() + "'" +
             ", isAudio='" + isIsAudio() + "'" +

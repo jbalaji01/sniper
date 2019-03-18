@@ -61,6 +61,18 @@ public class TaskGroupService {
     }
 
     /**
+     * Get one taskGroup based on taskId.
+     *
+     * @param id the id of the task
+     * @return the entity
+     */
+    @Transactional(readOnly = true)
+    public TaskGroup findFirstByTasksId(Long id) {
+        log.debug("Request to get TaskGroup using task id: {}", id);
+        return taskGroupRepository.findFirstByTasksId(id);
+    }
+
+    /**
      * Delete the taskGroup by id.
      *
      * @param id the id of the entity

@@ -4,6 +4,7 @@ import com.neemshade.sniper.domain.SnFile;
 import com.neemshade.sniper.domain.Task;
 import com.neemshade.sniper.repository.SnFileRepository;
 import com.neemshade.sniper.service.dto.SnFileDTO;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,11 +27,8 @@ public class SnFileService {
 
     private final Logger log = LoggerFactory.getLogger(SnFileService.class);
 
-	@Autowired
+    @Autowired
 	private TaskService taskService;
-
-	@Autowired
-    private SnFileBlobService snFileBlobService;
 
     private final SnFileRepository snFileRepository;
 
@@ -50,31 +48,6 @@ public class SnFileService {
     public SnFile save(SnFile snFile) {
         log.debug("Request to save SnFile : {}", snFile);
         return snFileRepository.save(snFile);
-    }
-
-    /**
-     * merge a snFile.
-     *
-     * @param snFile the entity to merge
-     * @return the persisted entity
-     */
-    public SnFile merge(SnFile snFile) {
-        log.debug("Request to merge SnFile : {}", snFile);
-
-		Set<Task> tasks = taskService.findBySnFilesId(snFile.getId());
-		if(snFile.getTasks() != null) {
-			snFile.getTasks().clear();
-		}
-		em.merge(snFile);
-		em.flush();
-		if(tasks != null) {
-			if(snFile.getTasks() != null)
-				snFile.getTasks().addAll(tasks);
-			else
-				snFile.setTasks(tasks);
-		}
-
-        return em.merge(snFile);
     }
 
     /**
@@ -110,7 +83,33 @@ public class SnFileService {
         snFileRepository.delete(id);
     }
 
-	public List<SnFileDTO> findSnFilesOfTask(Long taskId) {
+    /**
+     * merge a snFile.
+     *
+     * @param snFile the entity to merge
+     * @return the persisted entity
+     */
+    public SnFile merge(SnFile snFile) {
+        log.debug("Request to merge SnFile : {}", snFile);
+
+		Set<Task> tasks = taskService.findBySnFilesId(snFile.getId());
+		if(snFile.getTasks() != null) {
+			snFile.getTasks().clear();
+		}
+		em.merge(snFile);
+		em.flush();
+		if(tasks != null) {
+			if(snFile.getTasks() != null)
+				snFile.getTasks().addAll(tasks);
+			else
+				snFile.setTasks(tasks);
+		}
+
+        return em.merge(snFile);
+    }
+
+
+    public List<SnFileDTO> findSnFilesOfTask(Long taskId) {
         return snFileRepository.findByTasksIdOrderByIsInputDescPeckOrderAsc(taskId).stream()
             .map(this::toDto)
             .collect(Collectors.toList());
@@ -122,6 +121,7 @@ public class SnFileService {
         snFileDTO.setFilePath(snFile.getFilePath());
         snFileDTO.setFileName(snFile.getFileName());
         snFileDTO.setFileExt(snFile.getFileExt());
+        snFileDTO.setFileSize(snFile.getFileSize());
         snFileDTO.setOrigin(snFile.getOrigin());
         snFileDTO.setInput(snFile.isIsInput());
         snFileDTO.setAudio(snFile.isIsAudio());
@@ -140,7 +140,7 @@ public class SnFileService {
         snFileDTO.setPatients(snFile.getPatients());
         snFileDTO.setTasks(snFile.getTasks());
         snFileDTO.setUploader(snFile.getUploader());
-        snFileDTO.setSnFileBlob(snFileBlobService.toDto(snFile.getSnFileBlob()));
+        // snFileDTO.setSnFileBlob(snFileBlobService.toDto(snFile.getSnFileBlob()));
         return snFileDTO;
     }
 
@@ -150,6 +150,7 @@ public class SnFileService {
         snFile.setFilePath(snFileDto.getFilePath());
         snFile.setFileName(snFileDto.getFileName());
         snFile.setFileExt(snFileDto.getFileExt());
+        snFile.setFileSize(snFileDto.getFileSize());
         snFile.setOrigin(snFileDto.getOrigin());
         snFile.setIsInput(snFileDto.getInput());
         snFile.setIsAudio(snFileDto.getAudio());
@@ -168,7 +169,7 @@ public class SnFileService {
         snFile.setPatients(snFileDto.getPatients());
         snFile.setTasks(snFileDto.getTasks());
         snFile.setUploader(snFileDto.getUploader());
-        snFile.setSnFileBlob(snFileBlobService.fromDto(snFileDto.getSnFileBlob()));
+        // snFile.setSnFileBlob(snFileBlobService.fromDto(snFileDto.getSnFileBlob()));
         return snFile;
     }
 }

@@ -1,8 +1,11 @@
 package com.neemshade.sniper.service;
 
+import java.io.File;
 import java.io.InputStream;
+import java.io.FileInputStream;
 import java.io.OutputStream;
-import java.sql.Blob;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -29,7 +32,6 @@ import org.springframework.transaction.annotation.Transactional;
 import com.neemshade.sniper.domain.Doctor;
 import com.neemshade.sniper.domain.Hospital;
 import com.neemshade.sniper.domain.SnFile;
-import com.neemshade.sniper.domain.SnFileBlob;
 import com.neemshade.sniper.domain.Task;
 import com.neemshade.sniper.domain.enumeration.ChosenFactor;
 import com.neemshade.sniper.service.ExtTaskService.BUNDLE_FIELD;
@@ -46,65 +48,74 @@ public class ExtDownloaderService {
 
 	/**
 	 * invoke appropriate module to download files
-	 * @param source - taskGroup or task
-	 * @param id - non-zero for existing taskGroup or task
+	 * 
+	 * @param source      - taskGroup or task
+	 * @param id          - non-zero for existing taskGroup or task
 	 * @param selectedIds
 	 * @throws Exception
 	 */
-	public void downloadFiles(String source, Long id, boolean isEditorOnly, String selectedIds, OutputStream outputStream) throws Exception {
-		if(source == null) {
+	public void downloadFiles(String source, Long id, boolean isEditorOnly, String selectedIds,
+			OutputStream outputStream) throws Exception {
+		if (source == null) {
 			throw new Exception("Invalid source param");
-		} else if((source.equalsIgnoreCase("taskGroup") || source.equalsIgnoreCase("editorOnly")) && id != null && id > 0) {
+		} else if ((source.equalsIgnoreCase("taskGroup") || source.equalsIgnoreCase("editorOnly")) && id != null
+				&& id > 0) {
 			downloadFilesOfTaskGroup(id, isEditorOnly, outputStream);
-		} else if(source.equalsIgnoreCase("task") && id != null && id > 0) {
+		} else if (source.equalsIgnoreCase("task") && id != null && id > 0) {
 			Task task = taskService.findOne(id);
 			downloadFilesOfTask(task, isEditorOnly, outputStream);
-		} else if(source.equalsIgnoreCase("selectedTasks") && selectedIds != null) {
+		} else if (source.equalsIgnoreCase("selectedTasks") && selectedIds != null) {
 			downloadFilesOfSelectedTasks(selectedIds, isEditorOnly, outputStream);
 		} else {
-            throw new Exception("Invalid data " + source + " " + id + " " + selectedIds);
-        }
+			throw new Exception("Invalid data " + source + " " + id + " " + selectedIds);
+		}
 	}
 
 	/**
-	 * the ids of selected tasks are given in comma separated string.
-	 * download all those files
+	 * the ids of selected tasks are given in comma separated string. download all
+	 * those files
+	 * 
 	 * @param selectedIds
 	 * @return
 	 */
-	private void downloadFilesOfSelectedTasks(String selectedIds, boolean isEditorOnly, OutputStream outputStream) throws Exception {
-		if(selectedIds == null) return;
+	private void downloadFilesOfSelectedTasks(String selectedIds, boolean isEditorOnly, OutputStream outputStream)
+			throws Exception {
+		if (selectedIds == null)
+			return;
 
 		String[] selectedIdArr = selectedIds.split(",");
 
-	    ZipOutputStream zos = new ZipOutputStream(outputStream);
+		ZipOutputStream zos = new ZipOutputStream(outputStream);
 
-	    for (String selectedId : selectedIdArr) {
-	    	Long taskId = Long.parseLong(selectedId);
-	    	Task task = taskService.findOne(taskId);
+		for (String selectedId : selectedIdArr) {
+			Long taskId = Long.parseLong(selectedId);
+			Task task = taskService.findOne(taskId);
 			downloadFilesOfTask(task, zos, isEditorOnly);
 		}
 
-	    zos.closeEntry();
-	    zos.close();
+		zos.closeEntry();
+		zos.close();
 	}
 
 	/**
 	 * browse all tasks of this group and collect the files as zip
+	 * 
 	 * @param id
 	 * @return
 	 * @throws Exception
 	 */
-	private void downloadFilesOfTaskGroup(Long taskGroupId, boolean isEditorOnly, OutputStream outputStream) throws Exception {
-	    ZipOutputStream zos = new ZipOutputStream(outputStream);
+	private void downloadFilesOfTaskGroup(Long taskGroupId, boolean isEditorOnly, OutputStream outputStream)
+			throws Exception {
+		ZipOutputStream zos = new ZipOutputStream(outputStream);
 
-	    downloadFilesOfTaskGroup(taskGroupId, zos, isEditorOnly);
+		downloadFilesOfTaskGroup(taskGroupId, zos, isEditorOnly);
 
-	    zos.closeEntry();
-	    zos.close();
+		zos.closeEntry();
+		zos.close();
 	}
 
-	private void downloadFilesOfTaskGroup(Long taskGroupId, ZipOutputStream zos, boolean isEditorOnly) throws Exception {
+	private void downloadFilesOfTaskGroup(Long taskGroupId, ZipOutputStream zos, boolean isEditorOnly)
+			throws Exception {
 		List<Task> tasks = taskService.findTasksOfTaskGroup(taskGroupId);
 
 		for (Task task : tasks) {
@@ -114,28 +125,31 @@ public class ExtDownloaderService {
 
 	/**
 	 * collect all the files in zip format
+	 * 
 	 * @param taskId
 	 * @return
 	 * @throws Exception
 	 */
 	private void downloadFilesOfTask(Task task, boolean isEditorOnly, OutputStream outputStream) throws Exception {
-	    ZipOutputStream zos = new ZipOutputStream(outputStream);
+		ZipOutputStream zos = new ZipOutputStream(outputStream);
 
-	    downloadFilesOfTask(task, zos, isEditorOnly);
+		downloadFilesOfTask(task, zos, isEditorOnly);
 
-	    zos.closeEntry();
-	    zos.close();
+		zos.closeEntry();
+		zos.close();
 	}
 
 	/**
 	 * this method may be called by both task and taskGroup zip generators
+	 * 
 	 * @param taskId
 	 * @param zos
 	 * @throws Exception
 	 */
 	private void downloadFilesOfTask(Task task, ZipOutputStream zos, boolean isEditorOnly) throws Exception {
 
-		if(task == null) return;
+		if (task == null)
+			return;
 
 		String path = "task_" + task.getId() + "/";
 		zos.putNextEntry(new ZipEntry(path));
@@ -145,24 +159,44 @@ public class ExtDownloaderService {
 
 		for (SnFile snFile : snFiles) {
 
-			if(!allowedSnFile(task, snFile, isEditorOnly)) continue;
+			if (!allowedSnFile(task, snFile, isEditorOnly))
+				continue;
 
 			String filename = snFile.getFileName() + "." + snFile.getFileExt();
 
-			// get the blob of this snFile
-			SnFileBlob snFileBlob = snFile.getSnFileBlob();
-
-            Blob fileContent = snFileBlob.getFileContent();
-            if(fileContent == null)
-				throw new Exception("Unable to read " + filename);
+			InputStream is = getStreamFromDir(snFile);
 
 			ZipEntry entry = new ZipEntry(path + filename);
-			entry.setSize(fileContent.length());
+			entry.setSize(snFile.getFileSize());
 			zos.putNextEntry(entry);
-            InputStream binaryStream = fileContent.getBinaryStream();
-            IOUtils.copyLarge(binaryStream, zos);
-            IOUtils.closeQuietly(binaryStream);
+			IOUtils.copyLarge(is, zos);
+			IOUtils.closeQuietly(is);
+
+			// get the blob of this snFile
+			// SnFileBlob snFileBlob = snFile.getSnFileBlob();
+
+			// Blob fileContent = snFileBlob.getFileContent();
+			// if(fileContent == null)
+			// throw new Exception("Unable to read " + filename);
+
+			// ZipEntry entry = new ZipEntry(path + filename);
+			// entry.setSize(fileContent.length());
+			// zos.putNextEntry(entry);
+			// InputStream binaryStream = fileContent.getBinaryStream();
+			// IOUtils.copyLarge(binaryStream, zos);
+			// IOUtils.closeQuietly(binaryStream);
 		}
+	}
+
+	private InputStream getStreamFromDir(SnFile snFile) throws Exception {
+		String fullPathName = ExtUploaderService.getStorePath() + File.separatorChar +
+			snFile.getFilePath();
+		
+		fullPathName += File.separatorChar + snFile.getFileName() + "." + snFile.getFileExt();
+
+		Path path = Paths.get(fullPathName);
+		InputStream inputStream = new FileInputStream(path.toString());
+		return inputStream;
 	}
 
 

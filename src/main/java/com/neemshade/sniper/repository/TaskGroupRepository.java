@@ -19,4 +19,5 @@ public interface TaskGroupRepository extends JpaRepository<TaskGroup, Long> {
 
 	Page<TaskGroup> findAllByCreatedTimeBetweenOrderByCreatedTimeDesc(Instant fromDate, Instant toDate, Pageable pageable);
 
+	TaskGroup findFirstByTasksId(Long taskId);
 }

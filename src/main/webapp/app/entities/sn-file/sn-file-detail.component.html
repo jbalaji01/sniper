@@ -16,6 +16,10 @@
         <dd>
             <span>{{snFile.fileExt}}</span>
         </dd>
+        <dt><span>File Size</span></dt>
+        <dd>
+            <span>{{snFile.fileSize}}</span>
+        </dd>
         <dt><span>Origin</span></dt>
         <dd>
             <span>{{snFile.origin}}</span>
@@ -75,12 +79,6 @@
         <dt><span>Peck Order</span></dt>
         <dd>
             <span>{{snFile.peckOrder}}</span>
-        </dd>
-        <dt><span>Sn File Blob</span></dt>
-        <dd>
-            <div *ngIf="snFile.snFileBlob">
-                <a [routerLink]="['/sn-file-blob', snFile.snFileBlob?.id]">{{snFile.snFileBlob?.id}}</a>
-            </div>
         </dd>
         <dt><span>Patient</span></dt>
         <dd>

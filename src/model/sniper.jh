@@ -66,6 +66,7 @@ entity SnFile {
 	filePath String,
 	fileName String,
     fileExt String,
+    fileSize Long,
     origin String,
     isInput Boolean,
     isAudio Boolean,
@@ -96,17 +97,13 @@ enum ChosenFactor {
     WOS_LINE_COUNT
 }
 
-entity SnFileBlob {
-    fileContent Blob
-}
+
 
 relationship ManyToMany {
 	SnFile{task} to Task{snFile(fileName)}
 }
 
-relationship OneToOne {
-	SnFile{snFileBlob} to SnFileBlob{snFile(fileName)}
-}
+
 
 entity TaskGroup {
 	groupName String,

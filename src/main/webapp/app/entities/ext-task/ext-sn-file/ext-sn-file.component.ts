@@ -123,7 +123,7 @@ export class ExtSnFileComponent implements OnInit, OnDestroy {
     //   finalCountMap.set(ChosenFactor.WS_LINE_COUNT, snFile.wsFinalLineCount);
     //   finalCountMap.set(ChosenFactor.WOS_LINE_COUNT, snFile.wosFinalLineCount);
     // }
-
+/*
     if (this.extTaskService.varToEnumStringVal(ChosenFactor.TIME_FRAME, ChosenFactor) ===
         this.extTaskService.varToEnumStringVal(snFile.chosenFactor, ChosenFactor)) {
           snFile['finalCount'] = snFile.finalTimeFrame;
@@ -136,6 +136,22 @@ export class ExtSnFileComponent implements OnInit, OnDestroy {
 
     if (this.extTaskService.varToEnumStringVal(ChosenFactor.WOS_LINE_COUNT, ChosenFactor) ===
         this.extTaskService.varToEnumStringVal(snFile.chosenFactor, ChosenFactor)) {
+          snFile['finalCount'] = snFile.wosFinalLineCount;
+    }
+*/
+
+    if (this.extTaskService.varToEnumStringValCF(ChosenFactor.TIME_FRAME) ===
+        this.extTaskService.varToEnumStringValCF(snFile.chosenFactor)) {
+          snFile['finalCount'] = snFile.finalTimeFrame;
+    }
+
+    if (this.extTaskService.varToEnumStringValCF(ChosenFactor.WS_LINE_COUNT) ===
+        this.extTaskService.varToEnumStringValCF(snFile.chosenFactor)) {
+          snFile['finalCount'] = snFile.wsFinalLineCount;
+    }
+
+    if (this.extTaskService.varToEnumStringValCF(ChosenFactor.WOS_LINE_COUNT) ===
+        this.extTaskService.varToEnumStringValCF(snFile.chosenFactor)) {
           snFile['finalCount'] = snFile.wosFinalLineCount;
     }
 
@@ -171,7 +187,8 @@ export class ExtSnFileComponent implements OnInit, OnDestroy {
   updateChosenFactor(snFile: SnFile, chosenFactorStr: string) {
     // console.log(chosenFactor);
     snFile['isSelected'] = true;
-    snFile.chosenFactor = ChosenFactor[this.extTaskService.varToEnumStringVal(chosenFactorStr, ChosenFactor)];
+    const cfstr: string = this.extTaskService.varToEnumStringValCF(chosenFactorStr);
+    snFile.chosenFactor = ChosenFactor[cfstr];
     this.decideFinalCountOfSnFile(snFile);
     console.log('test223 ' + snFile['finalCount']);
   }
@@ -182,6 +199,9 @@ export class ExtSnFileComponent implements OnInit, OnDestroy {
   }
 
   byteSize(field) {
+    if(field == null) {
+      return "";
+    }
     return this.dataUtils.byteSize(field);
   }
 

@@ -9,7 +9,6 @@ import { SniperTestModule } from '../../../test.module';
 import { SnFileDialogComponent } from '../../../../../../main/webapp/app/entities/sn-file/sn-file-dialog.component';
 import { SnFileService } from '../../../../../../main/webapp/app/entities/sn-file/sn-file.service';
 import { SnFile } from '../../../../../../main/webapp/app/entities/sn-file/sn-file.model';
-import { SnFileBlobService } from '../../../../../../main/webapp/app/entities/sn-file-blob';
 import { PatientService } from '../../../../../../main/webapp/app/entities/patient';
 import { TaskService } from '../../../../../../main/webapp/app/entities/task';
 import { UserInfoService } from '../../../../../../main/webapp/app/entities/user-info';
@@ -28,7 +27,6 @@ describe('Component Tests', () => {
                 imports: [SniperTestModule],
                 declarations: [SnFileDialogComponent],
                 providers: [
-                    SnFileBlobService,
                     PatientService,
                     TaskService,
                     UserInfoService,
