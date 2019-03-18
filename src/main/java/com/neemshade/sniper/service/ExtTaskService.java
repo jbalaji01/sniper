@@ -1,6 +1,6 @@
 package com.neemshade.sniper.service;
 
-import java.sql.Blob;
+import java.io.FileInputStream;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -321,8 +321,12 @@ public class ExtTaskService {
 		List<SnFile> destSnFiles = new ArrayList<SnFile>();
 
 		for (SnFile sourceSnFile : sourceSnFiles) {
-            Blob blob = sourceSnFile.getSnFileBlob().getFileContent();
-            SnFile destSnFile = extUploaderService.createSnFile(blob.getBinaryStream(), blob.length(), sourceSnFile.isIsInput());
+            // Blob blob = sourceSnFile.getSnFileBlob().getFileContent();
+			// SnFile destSnFile = extUploaderService.createSnFile(blob.getBinaryStream(), blob.length(), sourceSnFile.isIsInput());
+			// String fullPath = extUploaderService.getFullPath(sourceSnFile);
+			// FileInputStream content = new FileInputStream(fullPath);
+			// SnFile destSnFile = extUploaderService.createSnFile(content, content.getChannel().size(), sourceSnFile.isIsInput());
+			SnFile destSnFile = extUploaderService.createSnFile(destTask, null, sourceSnFile.isIsInput());
 			extUploaderService.initializeFromSnFile(sourceSnFile, destSnFile);
 
 			destSnFiles.add(destSnFile);
@@ -346,11 +350,12 @@ public class ExtTaskService {
 	 * @return
 	 * @throws Exception
 	 */
-	public Task createTask(TaskGroup taskGroup, Integer peckOrder, SnFile snFile) throws Exception {
+	public Task createTask(TaskGroup taskGroup, Integer peckOrder, String taskTitle) throws Exception {
 		Task task = new Task();
 
 		task.setTaskGroup(taskGroup);
-		task.setTaskTitle(snFile == null ? "" : snFile.getFileName() + "." + snFile.getFileExt());
+		task.setTaskTitle(taskTitle);
+//		task.setTaskTitle(snFile == null ? "" : snFile.getFileName() + "." + snFile.getFileExt());
 		task.setTaskStatus(TaskStatus.CREATED);
 		task.setCreatedTime(Instant.now());
 		task.setManager(fetchLoggedInUserInfo());

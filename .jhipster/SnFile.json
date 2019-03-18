@@ -2,14 +2,6 @@
     "fluentMethods": true,
     "relationships": [
         {
-            "relationshipType": "one-to-one",
-            "relationshipName": "snFileBlob",
-            "otherEntityName": "snFileBlob",
-            "otherEntityField": "id",
-            "ownerSide": true,
-            "otherEntityRelationshipName": "snFile(fileName)"
-        },
-        {
             "relationshipType": "many-to-many",
             "otherEntityRelationshipName": "snFile",
             "relationshipName": "patient",
@@ -44,6 +36,10 @@
         {
             "fieldName": "fileExt",
             "fieldType": "String"
+        },
+        {
+            "fieldName": "fileSize",
+            "fieldType": "Long"
         },
         {
             "fieldName": "origin",

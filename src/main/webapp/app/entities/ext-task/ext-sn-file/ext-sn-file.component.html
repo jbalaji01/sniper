@@ -74,8 +74,8 @@
                     </td>
                 <!-- <td>{{snFile.filePath}}</td> -->
                 <td>
-                        <a *ngIf="snFile.snFileBlob.fileContent" (click)="openFile(snFile.snFileBlob.fileContentContentType, snFile.snFileBlob.fileContent)">open</a>
-                        <span *ngIf="snFile.snFileBlob.fileContent">{{snFile.snFileBlob.fileContentContentType}}, {{byteSize(snFile.snFileBlob.fileContent)}}</span>
+                        <!-- <a *ngIf="snFile.snFileBlob.fileContent" (click)="openFile(snFile.snFileBlob.fileContentContentType, snFile.snFileBlob.fileContent)">open</a> -->
+                        <span>{{snFile.fileExt}}, {{byteSize(snFile.fileSize)}}</span>
                     </td>
                 <td>{{snFile.fileName}}</td>
                 <td>{{snFile.fileExt}}</td>

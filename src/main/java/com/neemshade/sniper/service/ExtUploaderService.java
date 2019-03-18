@@ -2,7 +2,11 @@ package com.neemshade.sniper.service;
 
 import java.io.File;
 import java.io.InputStream;
-import java.sql.Blob;
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
@@ -31,13 +35,11 @@ import org.springframework.util.FileSystemUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.neemshade.sniper.domain.SnFile;
-import com.neemshade.sniper.domain.SnFileBlob;
 import com.neemshade.sniper.domain.Task;
 import com.neemshade.sniper.domain.TaskGroup;
 import com.neemshade.sniper.domain.UserInfo;
 import com.neemshade.sniper.domain.enumeration.ChosenFactor;
 import com.neemshade.sniper.domain.enumeration.TaskStatus;
-import com.neemshade.sniper.repository.SnFileBlobRepository;
 import com.neemshade.sniper.repository.SnFileRepository;
 import com.neemshade.sniper.repository.TaskRepository;
 import com.neemshade.sniper.repository.UserInfoRepository;
@@ -63,9 +65,6 @@ public class ExtUploaderService {
 	private SnFileRepository snFileRepository;
 
 	@Autowired
-	private SnFileBlobRepository snFileBlobRepository;
-
-	@Autowired
 	private TaskRepository taskRepository;
 
 	@Autowired
@@ -85,8 +84,7 @@ public class ExtUploaderService {
 
 	public ExtUploaderService()
 	{
-//		ROOT_TEMP_DIR = System.getProperty("java.io.tmpdir") + File.separator +
-//				"sniper" + File.separator;
+
 	}
 
 	/**
@@ -106,24 +104,37 @@ public class ExtUploaderService {
 		if(source.equalsIgnoreCase("taskGroup"))
 		{
 			uploadFilesOfTaskGroup(id, mpFileList);
+			cleanup();
 			return;
 		}
 
 		if(source.equalsIgnoreCase("task") && id != null && id > 0)
 		{
 			uploadFilesOfTask(id, mpFileList);
+			cleanup();
 			return;
 		}
 
 		throw new Exception("Invalid data " + source + " " + id);
 	}
 
+	public void cleanup() {
+		// create root dir, if not exists
+				// delete files in root dir
+				File directory = new File(ROOT_TEMP_DIR);
+				FileSystemUtils.deleteRecursively(directory);
+
+				if (!directory.exists()) {
+					directory.mkdirs();
+				}
+	}
+	
 	// upload files of task.
 	@Transactional
     void uploadFilesOfTask(Long taskId, List<MultipartFile> mpFileList) throws Exception {
 		Boolean isInput = false;  // note that any file from Task will be output only
 
-		List<SnFile> snFileList = convertToSnFiles(mpFileList, isInput);
+		
 
 		Task task = fetchTask(taskId);
 
@@ -132,7 +143,19 @@ public class ExtUploaderService {
 			throw new Exception("Invalid task null for " + taskId);
 		}
 
+		TaskGroup taskGroup = fetchTaskGroupOfTask(taskId);
+
+		if(taskGroup == null)
+		{
+			throw new Exception("Invalid taskGroup null for taskId " + taskId);
+		}
+
+		task.setTaskGroup(taskGroup);
+
+		List<SnFile> snFileList = convertToSnFiles(task, mpFileList, isInput);
+
 		storeSnFiles(task, snFileList);
+//		taskService.save(task);
 	}
 
 	/**
@@ -145,7 +168,10 @@ public class ExtUploaderService {
 		return task;
 	}
 
-
+	private TaskGroup fetchTaskGroupOfTask(Long taskId) {
+		TaskGroup taskGroup = taskGroupService.findFirstByTasksId(taskId);
+		return taskGroup;
+	}
 
 
 
@@ -161,13 +187,20 @@ public class ExtUploaderService {
 
 		for(SnFile snFile: snFileList)
 		{
-			snFile.getTasks().add(task);
+			 snFile.getTasks().add(task);
 			snFile.setPeckOrder(lastPeckOrder);
 			extTaskService.adjustLineCount(task, snFile);
 			updateChosenType(task, snFile);
 
 			lastPeckOrder += 10;
-			snFileService.save(snFile);
+			SnFile newSnFile = snFileService.save(snFile);
+			
+//			if(task != null) {
+//				task.getSnFiles().add(snFile);
+//			}
+//			else {
+//				SnFile newSnFile = snFileService.save(snFile);
+//			}
 
 			extTaskService.createTaskHistory(task, TaskStatus.UPLOADED, "uploaded " + snFile.getFileName() + "." + snFile.getFileExt());
 		}
@@ -204,23 +237,23 @@ public class ExtUploaderService {
 
 		Boolean isInput = true;  // note that any file from TaskGroup will be input only
 
-		List<SnFile> snFileList = convertToSnFiles(mpFileList, isInput);
-
-		Collections.sort(snFileList, new Comparator<SnFile>() {
-
-			@Override
-			public int compare(SnFile f1, SnFile f2) {
-				return f1.isIsAudio() == f2.isIsAudio() ? 0 :
-					f1.isIsAudio() ? -1 : 1;
-			}
-
-		});
-
 		TaskGroup taskGroup = fetchTaskGroup(taskGroupId);
+		
+		LinkedHashMap<Task, List<MultipartFile>> taskMap = clubFilesIntoTasks(taskGroup, mpFileList);
+		
 
-		LinkedHashMap<Task, List<SnFile>> taskMap = clubFilesIntoTasks(taskGroup, snFileList);
+		for(Entry<Task, List<MultipartFile>> entry: taskMap.entrySet()){
+	        Task task = entry.getKey();
+	        List<MultipartFile> subMpFileList = entry.getValue();
 
-		storeSnFiles(taskMap);
+	        if(task == null || subMpFileList == null) continue;
+
+	        List<SnFile> snFileList = convertToSnFiles(task, subMpFileList, isInput);
+	        storeSnFiles(task, snFileList);
+		}
+
+		
+
 	}
 
 
@@ -267,28 +300,36 @@ public class ExtUploaderService {
 	 * @return
 	 * @throws Exception
 	 */
-	private LinkedHashMap<Task, List<SnFile>> clubFilesIntoTasks(TaskGroup taskGroup, List<SnFile> snFileList) throws Exception
+	private LinkedHashMap<Task, List<MultipartFile>> clubFilesIntoTasks(TaskGroup taskGroup, List<MultipartFile> mpFileList) throws Exception
 	{
-		LinkedHashMap<Task, List<SnFile>> taskMap = new LinkedHashMap<Task, List<SnFile>>();
+		LinkedHashMap<Task, List<MultipartFile>> taskMap = new LinkedHashMap<Task, List<MultipartFile>>();
 		Map<String, Task> fileNameMap = new HashMap<String, Task>();
 
 		Integer lastPeckOrder = findMaxTaskPeckOrder(taskGroup) + 10;
 
-		for(SnFile snFile: snFileList)
+		for(MultipartFile mpFile: mpFileList)
 		{
-			Task matchingTask = fetchMatchingTask(fileNameMap, snFile);
+			if(mpFile == null) continue;
+			
+			String fullFilename = mpFile.getOriginalFilename();
+			int pos = fullFilename.indexOf(".");
+//			String extension = pos < 0 ? "" : fullFilename.substring(pos + 1);
+			String filename = pos < 0 ? fullFilename : fullFilename.substring(0,  pos);
+
+			
+			Task matchingTask = fetchMatchingTask(fileNameMap, filename);
 
 			// if no match, then create task and set the maps
 			if(matchingTask == null)
 			{
-				Task task = extTaskService.createTask(taskGroup, lastPeckOrder, snFile);
+				Task task = extTaskService.createTask(taskGroup, lastPeckOrder, fullFilename);
 				lastPeckOrder += 10;
-				taskMap.put(task, new ArrayList<SnFile>());
-				fileNameMap.put(snFile.getFileName(), task);
+				taskMap.put(task, new ArrayList<MultipartFile>());
+				fileNameMap.put(filename, task);
 				matchingTask = task;
 			}
 
-			taskMap.get(matchingTask).add(snFile);
+			taskMap.get(matchingTask).add(mpFile);
 		}
 
 		return taskMap;
@@ -328,27 +369,46 @@ public class ExtUploaderService {
 	 * @return a task that is matching above criteria
 	 */
 	private Task fetchMatchingTask(Map<String, Task> fileNameMap, SnFile snFile) {
-		if(snFile == null || snFile.getFileName() == null)
-			return null;
-		if(snFile.getFileName().matches("(?i:.*_vr$)"))
-		{
-			int pos = snFile.getFileName().lastIndexOf("_");
-			String searchFileName = snFile.getFileName().substring(0, pos);
-			return fileNameMap.get(searchFileName);
-		}
+		// if(snFile == null || snFile.getFileName() == null)
+		// 	return null;
+		// if(snFile.getFileName().matches("(?i:.*_vr$)"))
+		// {
+		// 	int pos = snFile.getFileName().lastIndexOf("_");
+		// 	String searchFileName = snFile.getFileName().substring(0, pos);
+		// 	return fileNameMap.get(searchFileName);
+		// }
 
+		// return null;
+
+		if(snFile != null) 
+			return fetchMatchingTask(fileNameMap, snFile.getFileName());
 		return null;
 	}
 
 	/**
-	 * multipart files are placed in db and corresponding snFiles are created
+	 * look for the file name is already placed in map
+	 * @param fileNameMap
+	 * @param snFile
+	 * @return a task that is matching above criteria
+	 */
+	private Task fetchMatchingTask(Map<String, Task> fileNameMap, String fileName) {
+		if(fileName == null)
+			return null;
+		
+		return fileNameMap.get(fileName);
+		
+	}
+
+
+	/**
+	 * multipart files are placed in storage and corresponding snFiles are created
 	 * taskGroup uploaded files have isInput=true, task uploaded files have isInput=false
 	 * @param mpFileList - mpfiles from the client module
 	 * @param isInput - input audio, vr files or doc output files
 	 * @return
 	 * @throws Exception
 	 */
-	private List<SnFile> convertToSnFiles(List<MultipartFile> mpFileList, java.lang.Boolean isInput) throws Exception {
+	private List<SnFile> convertToSnFiles(Task task, List<MultipartFile> mpFileList, java.lang.Boolean isInput) throws Exception {
 
 		List<SnFile> snFileList = new ArrayList<SnFile>();
 
@@ -357,20 +417,20 @@ public class ExtUploaderService {
 
 		for(MultipartFile mpFile : mpFileList)
 		{
-			SnFile snFile = convertToSnFile(mpFile, isInput);
+			SnFile snFile = convertToSnFile(task, mpFile, isInput);
 			snFile.setUploader(userInfo);
 
 			snFileList.add(snFile);
 		}
 
-		// create root dir, if not exists
-		// delete files in root dir
-		File directory = new File(ROOT_TEMP_DIR);
-		FileSystemUtils.deleteRecursively(directory);
-
-		if (!directory.exists()) {
-			directory.mkdirs();
-		}
+//		// create root dir, if not exists
+//		// delete files in root dir
+//		File directory = new File(ROOT_TEMP_DIR);
+//		FileSystemUtils.deleteRecursively(directory);
+//
+//		if (!directory.exists()) {
+//			directory.mkdirs();
+//		}
 
 		return snFileList;
 	}
@@ -378,20 +438,21 @@ public class ExtUploaderService {
 
 	/**
 	 * convert single multipart file into SnFile
-	 * has a side effect of storing snFileBlob in db
+	 * has a side effect of storing content in dir
 	 * @param mpFile
 	 * @param isInput
 	 * @return
 	 * @throws Exception
 	 */
-	private SnFile convertToSnFile(MultipartFile mpFile, java.lang.Boolean isInput) throws Exception {
+	private SnFile convertToSnFile(Task task, MultipartFile mpFile, java.lang.Boolean isInput) throws Exception {
 
 //		log.debug("ofn=" + mpFile.getOriginalFilename());
 //		log.debug("tmpdir = " + System.getProperty("java.io.tmpdir"));
 
-		SnFile snFile = createSnFile(mpFile.getInputStream(), mpFile.getSize(), isInput);
+		SnFile snFile = createSnFile(task, mpFile, isInput);
 		initializeSnFile(snFile, mpFile);
-
+		
+		
 		return snFile;
 	}
 
@@ -402,26 +463,21 @@ public class ExtUploaderService {
      * @param isInput
      * @return
 	 */
-	public SnFile createSnFile(InputStream content, long contentSize, Boolean isInput) {
-		SnFileBlob snFileBlob = new SnFileBlob();
-
-        Blob blob = ((Session) em.getDelegate()).getLobHelper().createBlob(content, contentSize);
-        snFileBlob.setFileContent(blob);
-		SnFileBlob newSnFileBlob = snFileBlobRepository.save(snFileBlob);
-
+	public SnFile createSnFile(Task task, MultipartFile mpFile, Boolean isInput) throws Exception{
+				
 		SnFile snFile = new SnFile();
-		snFile.setSnFileBlob(newSnFileBlob);
+		if(task != null)
+			snFile.getTasks().add(task);
+		
+		snFile.setFileSize(mpFile == null ? 0 : mpFile.getSize());
 		snFile.setIsInput(isInput);
-		return snFile;
-	}
 
-	/**
-	 * set all initial param
-	 * @param snFile
-	 * @param mpFile
-	 * @throws Exception
-	 */
-	private void initializeSnFile(SnFile snFile, MultipartFile mpFile) throws Exception {
+	
+		if(mpFile == null) return snFile;
+		
+		InputStream content = mpFile.getInputStream();
+		
+		// if there is juice, do these additional actions
 		String fullFilename = mpFile.getOriginalFilename();
 		if(fullFilename == null)
 		{
@@ -434,13 +490,119 @@ public class ExtUploaderService {
 
 		snFile.setFileName(filename);
 		snFile.setFileExt(extension);
+		
+		snFile.setFilePath(composeFilePath(task, snFile));
+		File file = writeToFileSystem(snFile, content);
+
+		fillMetrics(snFile, file);
+		
+
+		return snFile;
+	}
+
+	public static String composeFilePath(Task task, SnFile snFile) {
+		String relativePath = "sniperStore";
+//		Task task = (Task) snFile.getTasks().toArray()[0];
+
+		if(task == null) return null;
+		TaskGroup taskGroup = task.getTaskGroup();
+		if(taskGroup == null) return null;
+
+		relativePath = relativePath + File.separatorChar + "tg_" + taskGroup.getId() +
+			File.separatorChar + "t_"  + task.getId();
+
+		return relativePath;
+	}
+
+	/**
+	 * write the file into dir
+	 */
+	private File writeToFileSystem(SnFile snFile, InputStream content) throws Exception {
+		String fullPathName = getFullPath(snFile);
+
+		// if(file == null) return null;
+		// Path path = Paths.get(UPLOAD_FOLDER + file.getOriginalFilename());
+		// Files.write(path, bytes);
+		
+//		synchronized (fullPathName) {
+			Path path = Paths.get(fullPathName);
+			// Files.write(path, content.);
+			Files.copy(content, path);
+//		}
+		
+		File file = new File(fullPathName);
+		return file;
+	}
+
+	/**
+	 * full path of the snFile
+	 */
+	public static String getFullPath(SnFile snFile) throws UnsupportedEncodingException {
+		String fullPathName = getStorePath() + File.separatorChar + snFile.getFilePath();
+		File directory = new File(fullPathName);
+		directory.mkdirs();
+
+		fullPathName += File.separatorChar + snFile.getFileName() + "." + snFile.getFileExt();
+		return fullPathName;
+	}
+
+	/**
+	 * path of the storage in the server
+	 */
+	public static String getStorePath() throws UnsupportedEncodingException {
+
+		String path = ExtUploaderService.class.getClassLoader().getResource("").getPath();
+		
+		String fullPath = URLDecoder.decode(path, "UTF-8");
+		
+		String pathArr[] = fullPath.split("/WEB-INF/classes/");
+		
+		System.out.println(fullPath);
+		
+		System.out.println(pathArr[0]);
+		
+		fullPath = pathArr[0];
+		
+		String reponsePath = "";
+		
+		// to read a file from webcontent
+		
+		reponsePath = new File(fullPath).getPath();
+		
+		return reponsePath;
+		
+		}
+
+
+	/**
+	 * set all initial param
+	 * @param snFile
+	 * @param mpFile
+	 * @throws Exception
+	 */
+	private void initializeSnFile(SnFile snFile, MultipartFile mpFile) throws Exception {
+//		String fullFilename = mpFile.getOriginalFilename();
+//		if(fullFilename == null)
+//		{
+//			throw new Exception("empty filename");
+//		}
+//
+//		int pos = fullFilename.indexOf(".");
+//		String extension = pos < 0 ? "" : fullFilename.substring(pos + 1);
+//		String filename = pos < 0 ? fullFilename : fullFilename.substring(0,  pos);
+//
+//		snFile.setFileName(filename);
+//		snFile.setFileExt(extension);
 		snFile.setUploadedTime(Instant.now());
 		snFile.setChosenFactor(ChosenFactor.NONE);
 
-		fillMetrics(snFile, mpFile);
+		//fillMetrics(snFile, mpFile);
 	}
 
-	private void fillMetrics(SnFile snFile, MultipartFile mpFile) throws Exception {
+	private void fillMetrics(SnFile snFile, File file) throws Exception {
+		
+		if(file == null) return;
+		
 		FileMetrics fileMetrics = new FileMetrics();
 
 		if(!fileMetrics.isSupported(snFile.getFileExt()))
@@ -448,8 +610,8 @@ public class ExtUploaderService {
 			throw new Exception("Invalid format " + snFile.getFileName() + "." + snFile.getFileExt());
 		}
 
-		File file = new File(ROOT_TEMP_DIR + mpFile.getOriginalFilename());
-		mpFile.transferTo(file);
+		// File file = new File(ROOT_TEMP_DIR + mpFile.getOriginalFilename());
+		// mpFile.transferTo(file);
 
 		FileMetricsResult fmr = fileMetrics.calculateMetrics(file, snFile.getFileExt());
 //		file.delete();
@@ -479,6 +641,8 @@ public class ExtUploaderService {
 	public void initializeFromSnFile(SnFile sourceSnFile, SnFile destSnFile) {
 		destSnFile.setFileName(sourceSnFile.getFileName());
 		destSnFile.setFileExt(sourceSnFile.getFileExt());
+		destSnFile.setFilePath(sourceSnFile.getFilePath());
+		destSnFile.setFileSize(sourceSnFile.getFileSize());
 		destSnFile.setUploadedTime(Instant.now());
 		destSnFile.setChosenFactor(sourceSnFile.getChosenFactor());
 
