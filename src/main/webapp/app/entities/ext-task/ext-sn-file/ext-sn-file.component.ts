@@ -199,8 +199,8 @@ export class ExtSnFileComponent implements OnInit, OnDestroy {
   }
 
   byteSize(field) {
-    if(field == null) {
-      return "";
+    if (field == null) {
+      return '';
     }
     return this.dataUtils.byteSize(field);
   }
