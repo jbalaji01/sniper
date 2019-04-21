@@ -1,19 +1,22 @@
 package com.neemshade.sniper.service;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.time.format.FormatStyle;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -25,7 +28,7 @@ import java.util.Optional;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 
-import org.hibernate.Session;
+import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -517,19 +520,52 @@ public class ExtUploaderService {
 	/**
 	 * write the file into dir
 	 */
-	private File writeToFileSystem(SnFile snFile, InputStream content) throws Exception {
+	private File writeToFileSystem(SnFile snFile, InputStream is) throws Exception {
 		String fullPathName = getFullPath(snFile);
+//		String fullPathName = "F:\\file.docx";
 
 		// if(file == null) return null;
 		// Path path = Paths.get(UPLOAD_FOLDER + file.getOriginalFilename());
 		// Files.write(path, bytes);
 		
+		System.out.println("trial 111");
+		
 //		synchronized (fullPathName) {
 			Path path = Paths.get(fullPathName);
+//			 try {
+//		            
+//		            
+//		            OutputStream os = new FileOutputStream(fullPathName);
+//		            
+//		            byte[] buffer = new byte[1024];
+//		            int bytesRead;
+//		            //read from is to buffer
+//		            while((bytesRead = is.read(buffer)) !=-1){
+//		                os.write(buffer, 0, bytesRead);
+//		            }
+//		            is.close();
+//		            //flush OutputStream to write any buffered data to file
+//		            os.flush();
+//		            os.close();
+//		        } catch (IOException e) {
+//		            e.printStackTrace();
+//		        }
+
+//			}
+			
 			// Files.write(path, content.);
-			Files.copy(content, path);
-//		}
-		
+//			Files.copy(content, path,StandardCopyOption.REPLACE_EXISTING);
+			
+			System.out.println("trial 112");
+			OutputStream os = new FileOutputStream(fullPathName);
+			System.out.println("trial 113");
+			IOUtils.copy(is, os);
+			System.out.println("trial 114");
+			is.close();
+//            //flush OutputStream to write any buffered data to file
+            os.flush();
+            os.close();
+			
 		File file = new File(fullPathName);
 		return file;
 	}
@@ -539,8 +575,10 @@ public class ExtUploaderService {
 	 */
 	public static String getFullPath(SnFile snFile) throws UnsupportedEncodingException {
 		String fullPathName = getStorePath() + File.separatorChar + snFile.getFilePath();
+		System.out.println("test 123 " + fullPathName);
 		File directory = new File(fullPathName);
-		directory.mkdirs();
+		if(!directory.exists())
+			directory.mkdirs();
 
 		fullPathName += File.separatorChar + snFile.getFileName() + "." + snFile.getFileExt();
 		return fullPathName;
@@ -549,6 +587,12 @@ public class ExtUploaderService {
 	/**
 	 * path of the storage in the server
 	 */
+	public static String getStorePath() {
+		File file = new File("c:\\temp");
+		return file.exists() ? "c:\\temp" : "/home/jbalaji";
+	 }
+	
+	/*
 	public static String getStorePath() throws UnsupportedEncodingException {
 
 		String path = ExtUploaderService.class.getClassLoader().getResource("").getPath();
@@ -572,7 +616,7 @@ public class ExtUploaderService {
 		return reponsePath;
 		
 		}
-
+	*/
 
 	/**
 	 * set all initial param
