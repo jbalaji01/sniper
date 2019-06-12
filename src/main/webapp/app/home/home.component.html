@@ -3,14 +3,21 @@
         <span class="hipster img-fluid rounded"></span>
     </div>
     <div class="col-md-9">
-        <h1 class="display-4">Welcome, {{account.login}}!</h1>
-        <p class="lead">Our company aims at providing medical presciptions got from over the world.We have our branches all over.</p>
+        <h1 class="display-4">Welcome</h1>
+
+        <div [ngSwitch]="isAuthenticated()">
+            <div class="alert alert-success" *ngSwitchCase="true">
+                <h1 class="display-4" *ngIf="account">Welcome "{{account.login}}" !</h1>
+            </div>
+        </div>
+        <p class="lead">Our company aims at providing medical presciptions got from over the world.We have our branches
+            all over.</p>
         <br>
 
         <div [ngSwitch]="isAuthenticated()">
             <div class="alert alert-success" *ngSwitchCase="true">
                 <span *ngIf="account"
-                   > You are logged in as user "{{account.login}}". </span>
+                > You are logged in as user "{{account.login}}". </span>
             </div>
 
             <div class="alert alert-warning" *ngSwitchCase="false">
@@ -21,7 +28,7 @@
                 <br>
                 <a class="alert-link" routerLink="register">Register now.</a>
             </div>
-            
+
         </div>
     </div>
 </div>
