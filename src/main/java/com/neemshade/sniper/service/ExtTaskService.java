@@ -142,14 +142,17 @@ public class ExtTaskService {
     public UserInfo fetchLoggedInUserInfo() throws Exception {
     	try {
     		Optional<String> userLogin = SecurityUtils.getCurrentUserLogin();
-//    		log.info("ets login=" + userLogin.get());
+   			log.info("ets login=" + userLogin.get());
     		Optional<User> user = userRepository.findOneByLogin(userLogin.get());
+			log.info("ets id=" + user.get().getId());
     		Optional<UserInfo> userInfo = userInfoRepository.findOneByUserId(user.get().getId());
+			log.info("ets userInfo=" + userInfo.get());
 
     		return userInfo.get();
     	}
     	catch(Exception ex)
     	{
+			ex.printStackTrace();
     		throw new Exception("Unable to find logged in user " + ex.getMessage());
     	}
 	}

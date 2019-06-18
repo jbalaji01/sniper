@@ -202,8 +202,30 @@ export class ExtSnFileComponent implements OnInit, OnDestroy {
     if (field == null) {
       return '';
     }
-    return this.dataUtils.byteSize(field);
+
+    // console.log('123 file size = ' + field + ' du = ' + this.dataUtils.byteSize(field.toString()));
+    // return this.dataUtils.byteSize(field.toString());
+
+    return this.abbreviateNumber(field);
   }
+
+  abbreviateNumber(value) {
+    let newValue = value;
+    if (value >= 1000) {
+        const suffixes = ['', 'k', 'm', 'b', 't'];
+        const suffixNum = Math.floor( ('' + value).length / 3 );
+        let shortValue = 0;
+        for (let precision = 2; precision >= 1; precision--) {
+            shortValue = parseFloat( (suffixNum !== 0 ? (value / Math.pow(1000, suffixNum) ) : value).toPrecision(precision));
+            const dotLessShortValue = (shortValue + '').replace(/[^a-zA-Z 0-9]+/g, '');
+            if (dotLessShortValue.length <= 2) { break; }
+        }
+        let shortNum = '' + shortValue;
+        if (shortValue % 1 !== 0)  { shortNum = shortValue.toFixed(1); }
+        newValue = shortNum + suffixes[suffixNum];
+    }
+    return newValue;
+}
 
   openFile(contentType, field) {
     return this.dataUtils.openFile(contentType, field);
