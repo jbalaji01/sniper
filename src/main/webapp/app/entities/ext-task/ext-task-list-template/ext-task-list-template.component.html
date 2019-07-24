@@ -32,7 +32,7 @@
 <select>
     <optgroup label="Control">
         <option></option>
-    <option value="Refresh" (click)="refresh()">Refresh</option>
+   <!-- <option value="Refresh" (click)="refresh()">Refresh</option> -->
     <option value="Clone" (click)="clone()" >Clone</option>
     <option value="Merge" (click)="merge()" >Merge</option>
     <option value="Done" (click)="uponDoneMenuClick()">Done</option>
@@ -112,10 +112,7 @@
                 </th>
                 <th><span>Done</span>
                 </th>
-                <th jhiSortBy="id">
-                    <span>ID</span>
-                    <span class="fa fa-sort"></span>
-                </th>
+                
                 
                 <!-- <th jhiSortBy="Source">
                     Source
@@ -191,10 +188,17 @@
                     <span>History</span>
                 </th>
 
+                <th jhiSortBy="id">
+                    <span>ID</span>
+                    <span class="fa fa-sort"></span>
+                </th>
+
+                <!--
                 <th jhiSortBy="peckOrder">
                     <span>Peck Order</span>
                     <span class="fa fa-sort"></span>
                 </th>
+                -->
 
                 <th *jhiHasAnyAuthority="'ROLE_MANAGER'"></th>
             </tr>
@@ -206,9 +210,7 @@
                 <td><button type="button" name="Done" value="Done"
                           [disabled]="task['isDoneDisabled']"
                           (click)="uponDoneButtonClick(task)">Done</button></td>
-                <td>
-                    {{task.id}}
-                </td>
+                
 
                 <td  *jhiHasAnyAuthority="'ROLE_DIRECTOR'">
                     <div *ngIf="task.company">
@@ -289,7 +291,11 @@
                     </button></div>
                 </td>
 
-                <td>{{task.peckOrder}}</td>
+                <td>
+                    {{task.id}}
+                </td>
+
+                <!-- <td>{{task.peckOrder}}</td> -->
                 
 
                 <!--<td>
