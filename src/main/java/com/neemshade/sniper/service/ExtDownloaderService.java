@@ -151,8 +151,9 @@ public class ExtDownloaderService {
 		if (task == null)
 			return;
 
-		String path = "task_" + task.getId() + "/";
-		zos.putNextEntry(new ZipEntry(path));
+		String path = "";
+		// String path = "task_" + task.getId() + "/";
+		// zos.putNextEntry(new ZipEntry(path));
 
 		// fetch all the files of this task and write them into zos
 		Set<SnFile> snFiles = task.getSnFiles();
